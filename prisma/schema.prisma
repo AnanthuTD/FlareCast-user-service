@@ -1,0 +1,84 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Resolution {
+  RES_240 // 240p: Low resolution, often used for mobile data saving
+  RES_360 // 360p: Standard resolution for small screens
+  RES_480 // 480p: Standard definition
+  RES_720 // 720p: HD Ready
+  RES_1080 // 1080p: Full HD
+  RES_1440 // 1440p: Quad HD
+  RES_2160 // 2160p: 4K Ultra HD
+}
+
+model User {
+  id              String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email           String         @unique
+  firstName       String?
+  lastName        String?
+  createdAt       DateTime       @default(now())
+  image           String?
+  trial           Boolean        @default(false)
+  hashedPassword  String?
+  role            Role           @default(USER)
+  watchLater      String[]
+  trail           Boolean        @default(false)
+  extraVideoCount Int            @default(0)
+  referralId      String?
+  WatchLater      WatchLater[]
+  sendedInvites   Invite[]       @relation("Sender")
+  receivedInvites Invite[]       @relation("Receiver")
+  Invite          Invite[]
+  WatchHistory    WatchHistory[]
+}
+
+model WatchLater {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  videoId   String
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@index([userId, videoId])
+}
+
+model Invite {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  senderId   String   @db.Uuid
+  receiverId String   @db.Uuid
+  sender     User     @relation("Sender", fields: [senderId], references: [id])
+  receiver   User     @relation("Receiver", fields: [receiverId], references: [id])
+  createdAt  DateTime @default(now())
+  User       User?    @relation(fields: [userId], references: [id])
+  userId     String?  @db.Uuid
+
+  @@index([senderId, receiverId])
+}
+
+model WatchHistory {
+  id            String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId        String     @db.Uuid
+  user          User       @relation(fields: [userId], references: [id])
+  videoId       String
+  isCompleted   Boolean
+  lastWatchedAt DateTime
+  watchDuration Int
+  resolution    Resolution
+}
