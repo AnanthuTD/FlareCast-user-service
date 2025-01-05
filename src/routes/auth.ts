@@ -11,6 +11,7 @@ import env from "../env";
 import { User } from "@prisma/client";
 import passport from "passport";
 import axios from "axios";
+import { authResponseUserObject } from "../dto/user.dto";
 
 const router = express.Router();
 
@@ -45,7 +46,7 @@ router.post(
 		);
 
 		res.cookie("refreshToken", refreshToken);
-		res.json({ accessToken, user });
+		res.json({ accessToken, user, refreshToken });
 	}
 );
 
@@ -82,7 +83,7 @@ router.post("/sign-up", async (req, res) => {
 
 	res.cookie("refreshToken", refreshToken);
 
-	return res.json({ message: "User created", accessToken });
+	return res.json({ message: "User created", accessToken , refreshToken});
 });
 
 router.post("/google-sign-in", async (req, res) => {
@@ -154,6 +155,7 @@ router.post("/google-sign-in", async (req, res) => {
 				accessToken,
 				image: user.image,
 			},
+			refreshToken
 		});
 	} catch (error) {
 		console.error(
@@ -216,6 +218,60 @@ router.get("/refresh-token", async (req, res) => {
 
 		res.cookie("refreshToken", newRefreshToken);
 		return res.json({ accessToken });
+	} catch (error) {
+		console.error("Error during token refresh:", error);
+		return res.status(401).json({ message: "Unauthorized" });
+	} finally {
+		console.log(
+			"=================================End of Refreshing token================================="
+		);
+	}
+});
+
+router.post("/post-login", async (req, res) => {
+	console.log(
+		"=================================Refreshing token by electron================================="
+	);
+	const refreshToken = req.body.refreshToken;
+	if (!refreshToken) {
+		console.log("No refresh token");
+		return res.status(401).json({ message: "Unauthorized" });
+	}
+
+	// console.log("refreshToken: " + refreshToken);
+
+	try {
+		const payload = TokenService.verifyToken(
+			refreshToken,
+			env.REFRESH_TOKEN_SECRET as string
+		);
+		if (!payload.valid || !payload.id) {
+			console.log("Invalid refresh token", payload);
+			return res.status(401).json({ message: payload.message });
+		}
+
+		const user = await getUserById(payload.id);
+		if (!user) {
+			console.log("User not found");
+			return res
+				.status(401)
+				.json({ message: payload.message || "Unauthorized" });
+		}
+
+		// TODO: Only storing the user id in the token for now
+		const accessToken = TokenService.generateToken(
+			{ id: user.id },
+			env.ACCESS_TOKEN_SECRET as string
+		);
+		const newRefreshToken = TokenService.generateToken(
+			{ id: user.id },
+			env.REFRESH_TOKEN_SECRET as string
+		);
+
+		
+
+		res.cookie("refreshToken", newRefreshToken);
+		return res.json({ user: {accessToken, ...authResponseUserObject(user)} });
 	} catch (error) {
 		console.error("Error during token refresh:", error);
 		return res.status(401).json({ message: "Unauthorized" });
