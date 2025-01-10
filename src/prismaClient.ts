@@ -9,7 +9,7 @@ const prisma = new PrismaClient().$extends({
 				const result = await query(args);
 
 				// Call the fun function with the newly created user
-				notifyCollaborationService(result.id!);
+				notifyCollaborationService(result.id!, result.firstName!);
 
 				// Return the result
 				return result;

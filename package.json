@@ -27,12 +27,12 @@
     "ts-node-dev": "^2.0.0",
     "tslib": "^2.8.1",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "@types/bcryptjs": "^2.4.6"
   },
   "dependencies": {
     "@dotenvx/dotenvx": "^1.32.0",
     "@prisma/client": "^6.1.0",
-    "@types/bcryptjs": "^2.4.6",
     "axios": "^1.7.9",
     "bcryptjs": "^2.4.3",
     "compression": "^1.7.5",
