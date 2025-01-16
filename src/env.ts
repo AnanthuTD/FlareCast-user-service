@@ -10,6 +10,7 @@ const env = cleanEnv(process.env, {
   REFRESH_TOKEN_SECRET: str(),
   GOOGLE_CLIENT_SECRET: str(),
   GOOGLE_CLIENT_ID: str(),
+  KAFKA_BROKER: str()
 });
 
 export default env;

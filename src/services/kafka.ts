@@ -1,8 +1,10 @@
 import { Kafka } from "kafkajs";
+import env from "../env";
 
 const kafka = new Kafka({
 	clientId: "user-service",
-	brokers: ["localhost:9092"], // Add your broker addresses here
+	brokers: [env.KAFKA_BROKER], // Add your broker addresses here
+	
 });
 
 const producer = kafka.producer();
