@@ -8,9 +8,11 @@ const env = cleanEnv(process.env, {
   DATABASE_URL: url(),
   ACCESS_TOKEN_SECRET: str(),
   REFRESH_TOKEN_SECRET: str(),
-  GOOGLE_CLIENT_SECRET: str(),
+  // GOOGLE_CLIENT_SECRET: str(),
   GOOGLE_CLIENT_ID: str(),
-  KAFKA_BROKER: str()
+  KAFKA_BROKER: str(),
+  KAFKA_USERNAME: str(),
+  KAFKA_PASSWORD: str(),
 });
 
 export default env;
