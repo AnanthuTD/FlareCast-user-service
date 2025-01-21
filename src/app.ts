@@ -8,7 +8,8 @@ import cookieParser from 'cookie-parser';
 import './authentication/LocalStrategy';
 import './authentication/JwtStrategy';
 import env from './env';
-import router from './routes';
+import routes from './routes';
+import dependencies from './config/dependencies';
 
 const app = express();
 
@@ -49,7 +50,7 @@ app.use('/static', express.static(path.join(__dirname, 'public')));
 app.use(passport.initialize());
 
 // API endpoint
-app.use('/api', router);
+app.use('/api', routes(dependencies));
 
 // Catch-all route for handling unknown endpoints
 app.use((req, res) => {

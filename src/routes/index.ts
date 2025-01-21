@@ -1,14 +1,21 @@
 import express from "express";
 import authRouter from "./auth";
 import { notifyCollaborationService } from "../services/kafka";
+import { DependenciesInterface } from "../entities/interfaces";
 
-const router = express.Router();
+const routes = (dependencies: DependenciesInterface)=>{
+	const router = express.Router();
 
-router.use("/auth", authRouter);
-router.get("/kafka/new-user/:id", (req, res) => {
-	const { id } = req.params;
-	notifyCollaborationService(id);
-  res.send('success')
-});
+	router.use("/auth", authRouter(dependencies));
+	
+	// TODO: remove on production
+	router.get("/kafka/new-user/:id", (req, res) => {
+		const { id } = req.params;
+    notifyCollaborationService(id, "First-Name");
+  res.sendStatus(200);
+	})
 
-export default router;
+	return router;
+}
+
+export default routes;

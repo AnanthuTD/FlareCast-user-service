@@ -14,9 +14,6 @@ importers:
       '@prisma/client':
         specifier: ^6.1.0
         version: 6.1.0(prisma@6.1.0)
-      '@types/bcryptjs':
-        specifier: ^2.4.6
-        version: 2.4.6
       axios:
         specifier: ^1.7.9
         version: 1.7.9
@@ -66,6 +63,9 @@ importers:
         specifier: ^3.24.1
         version: 3.24.1
     devDependencies:
+      '@types/bcryptjs':
+        specifier: ^2.4.6
+        version: 2.4.6
       '@types/compression':
         specifier: ^1.7.5
         version: 1.7.5
