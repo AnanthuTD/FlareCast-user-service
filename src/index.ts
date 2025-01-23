@@ -1,13 +1,14 @@
 import app from "./app";
 import env from "./env";
+import { logger } from "./logger/logger";
 
 const start = async () => {
 	try {
 		app.listen(env.PORT, () => {
-			console.info(`Server running at http://localhost:${env.PORT}`);
+			logger.info(`Server running at http://localhost:${env.PORT}`);
 		});
 	} catch (err) {
-		console.error(`Error starting the server: ${(err as Error).message}`);
+		logger.error(`Error starting the server: ${(err as Error).message}`);
 	}
 };
 

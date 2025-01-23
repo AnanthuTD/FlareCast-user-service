@@ -2,6 +2,7 @@ import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import bcrypt from "bcryptjs";
 import { getUserByEmail } from "../repositories/userRepository";
+import { logger } from "../logger/logger";
 
 passport.use(
 	new LocalStrategy(
@@ -11,7 +12,7 @@ passport.use(
 		},
 		async (email, password, done) => {
 			try {
-				console.log(email, password)
+				logger.info(email, password)
 				const user = await getUserByEmail(email);
 
 				if (!user) {
@@ -37,7 +38,7 @@ passport.use(
 
 				return done(null, returnedUser);
 			} catch (err) {
-				console.error("Error in LocalStrategy:", err);
+				logger.error("Error in LocalStrategy:", err);
 				return done(err);
 			}
 		}

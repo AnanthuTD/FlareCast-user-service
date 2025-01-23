@@ -16,7 +16,8 @@ services:
       db:
         condition: service_healthy
     env_file:
-      - .env
+      - path: ./.env.docker
+        required: true
     environment:
       - DATABASE_URL=${DATABASE_URL}
     develop:
@@ -40,12 +41,12 @@ services:
     restart: always
     shm_size: 128mb
     volumes:
-      - user-db-data:/var/lib/postgresql/data 
+      - user-db-data:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
-      PGUSER: postgres
+      PGUSER: ${DB_USER}
     ports:
       - ${DB_PORT}:5432
     healthcheck:
@@ -59,7 +60,7 @@ services:
     restart: always
     ports:
       - ${DOCKER_ADMINER_PORT}:8080
-    environment: 
+    environment:
       ADMINER_DEFAULT_SERVER: ${POSTGRES_HOST_NAME}
       ADMINER_DESIGN: galkaev
     networks:

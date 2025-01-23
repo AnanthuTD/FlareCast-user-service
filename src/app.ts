@@ -10,6 +10,7 @@ import './authentication/JwtStrategy';
 import env from './env';
 import routes from './routes';
 import dependencies from './config/dependencies';
+import { logger } from './logger/logger';
 
 const app = express();
 
@@ -59,7 +60,7 @@ app.use((req, res) => {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
-  console.error(err.stack);
+  logger.error(err.stack);
   res.status(500).send('Something went wrong!');
 });
 

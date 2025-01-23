@@ -3,6 +3,7 @@ import { DependenciesInterface } from "../../entities/interfaces";
 import TokenService from "../../helpers/TokenService";
 import env from "../../env";
 import { authResponseUserObject } from "../../dto/user.dto";
+import { logger } from "../../logger/logger";
 
 export = (dependencies: DependenciesInterface) => {
 	const {
@@ -10,12 +11,12 @@ export = (dependencies: DependenciesInterface) => {
 	} = dependencies.repository;
 
 	const postLogin = <RequestHandler>(async (req, res, next) => {
-		/* console.log(
+		/* logger.info(
 			"=================================Refreshing token by electron================================="
 		); */
 		const refreshToken = req.body.refreshToken;
 		if (!refreshToken) {
-			console.log("No refresh token");
+			logger.info("No refresh token");
 			return res.status(401).json({ message: "Unauthorized" });
 		}
 
@@ -25,13 +26,13 @@ export = (dependencies: DependenciesInterface) => {
 				env.REFRESH_TOKEN_SECRET as string
 			);
 			if (!payload.valid || !payload.id) {
-				console.log("Invalid refresh token", payload);
+				logger.info("Invalid refresh token", payload);
 				return res.status(401).json({ message: payload.message });
 			}
 
 			const user = await getUserById(payload.id);
 			if (!user) {
-				console.log("User not found");
+				logger.info("User not found");
 				return res
 					.status(401)
 					.json({ message: payload.message || "Unauthorized" });
@@ -52,11 +53,11 @@ export = (dependencies: DependenciesInterface) => {
 				user: { accessToken, ...authResponseUserObject(user) },
 			});
 		} catch (error) {
-			console.error("Error during token refresh:", error);
+			logger.error("Error during token refresh:", error);
 			res.status(401).json({ message: "Unauthorized" });
 			next(error);
 		} finally {
-		/* 	console.log(
+		/* 	logger.info(
 				"=================================End of Refreshing token================================="
 			); */
 		}

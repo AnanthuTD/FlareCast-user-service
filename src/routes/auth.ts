@@ -12,6 +12,7 @@ export = (dependencies: DependenciesInterface) => {
 		userLogoutController,
 		userSignupController,
 		electronPostLoginController,
+		checkIsAuthenticatedController,
 	} = userControllers(dependencies);
 
 	const router = express.Router();
@@ -26,7 +27,13 @@ export = (dependencies: DependenciesInterface) => {
 	router.post("/google-sign-in", googleSignInController);
 	router.get("/refresh-token", refreshTokenController);
 	router.post("/logout", userLogoutController);
-	router.post("/post-login", electronPostLoginController);
+	router.post("/post-login", electronPostLoginController); 
+
+	router.get(
+		"/check-authentication",
+		passport.authenticate("jwt", { session: false }),
+		checkIsAuthenticatedController
+	);
 
 	return router;
 };

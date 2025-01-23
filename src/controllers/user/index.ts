@@ -1,4 +1,5 @@
 import { DependenciesInterface } from "../../entities/interfaces";
+import checkIsAuthenticatedController from "./checkIsAuthenticated.controller";
 import electronPostLoginController from "./electronPostLogin.controller";
 import googleSignInController from "./googleSignIn.controller";
 import refreshTokenController from "./refreshToken.controller";
@@ -16,5 +17,6 @@ export = (dependencies: DependenciesInterface) => {
 		userLogoutController: userLogoutController(dependencies),
 		refreshTokenController: refreshTokenController(dependencies),
 		electronPostLoginController: electronPostLoginController(dependencies),
+		checkIsAuthenticatedController: checkIsAuthenticatedController(dependencies)
 	};
 };

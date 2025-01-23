@@ -1,12 +1,13 @@
 import { User } from "@prisma/client";
 import prisma from "../prismaClient";
+import { logger } from "../logger/logger";
 
 export async function userExists(email: string) {
 	const user = await prisma.user.findFirst({
 		where: { email },
 		select: { id: true, hashedPassword: true },
 	});
-	console.log(user);
+	logger.info(user);
 	if (user?.hashedPassword) {
 		return { method: "credential" };
 	} else if (user) {

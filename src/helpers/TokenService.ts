@@ -21,7 +21,7 @@ export class TokenService {
 				message: "Token is valid",
 			};
 		} catch (error) {
-			// console.error(error);
+			// logger.error(error);
 
 			if (error instanceof jwt.TokenExpiredError) {
 				return {
