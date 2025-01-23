@@ -1,5 +1,5 @@
-volumes:
-  user-db-data:
+# volumes:
+#   user-db-data:
 
 networks:
   user-network:
@@ -12,14 +12,14 @@ services:
     build: .
     image: ananthutd2003/flarecast-user-service
     container_name: user-app
-    depends_on:
-      db:
-        condition: service_healthy
+    # depends_on:
+    #   db:
+    #     condition: service_healthy
     env_file:
       - path: ./.env.docker
         required: true
-    environment:
-      - DATABASE_URL=${DATABASE_URL}
+    # environment:
+    #   - DATABASE_URL=${DATABASE_URL}
     develop:
       watch:
         - path: .
@@ -30,41 +30,42 @@ services:
     networks:
       - kafka_kafka-network
       - user-network
-    command: ["sh", "-c", "pnpm prisma:migrate && pnpm docker-dev"]
+    command: ["sh", "-c", "pnpm docker-dev"]
+    # command: ["sh", "-c", "pnpm prisma:migrate && pnpm docker-dev"]
 
-  db:
-    container_name: ${POSTGRES_CONTAINER_NAME}
-    hostname: ${POSTGRES_HOST_NAME}
-    networks:
-      - user-network
-    image: postgres
-    restart: always
-    shm_size: 128mb
-    volumes:
-      - user-db-data:/var/lib/postgresql/data
-    environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
-      PGUSER: ${DB_USER}
-    ports:
-      - ${DB_PORT}:5432
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready", "-U", "${DB_USER}", "-d", "${DB_NAME}"]
-      interval: 5s
-      timeout: 5s
-      retries: 3
+  # db:
+  #   container_name: ${POSTGRES_CONTAINER_NAME}
+  #   hostname: ${POSTGRES_HOST_NAME}
+  #   networks:
+  #     - user-network
+  #   image: postgres
+  #   restart: always
+  #   shm_size: 128mb
+  #   volumes:
+  #     - user-db-data:/var/lib/postgresql/data
+  #   environment:
+  #     POSTGRES_USER: ${DB_USER}
+  #     POSTGRES_PASSWORD: ${DB_PASSWORD}
+  #     POSTGRES_DB: ${DB_NAME}
+  #     PGUSER: ${DB_USER}
+  #   ports:
+  #     - ${DB_PORT}:5432
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready", "-U", "${DB_USER}", "-d", "${DB_NAME}"]
+  #     interval: 5s
+  #     timeout: 5s
+  #     retries: 3
 
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - ${DOCKER_ADMINER_PORT}:8080
-    environment:
-      ADMINER_DEFAULT_SERVER: ${POSTGRES_HOST_NAME}
-      ADMINER_DESIGN: galkaev
-    networks:
-      - user-network
+  # adminer:
+  #   image: adminer
+  #   restart: always
+  #   ports:
+  #     - ${DOCKER_ADMINER_PORT}:8080
+  #   environment:
+  #     ADMINER_DEFAULT_SERVER: ${POSTGRES_HOST_NAME}
+  #     ADMINER_DESIGN: galkaev
+  #   networks:
+  #     - user-network
 
   # kafka:
   #   image: 'bitnami/kafka:latest'

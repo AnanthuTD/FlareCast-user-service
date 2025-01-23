@@ -9,7 +9,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
@@ -29,7 +29,7 @@ enum Resolution {
 }
 
 model User {
-  id              String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id              String         @id @default(auto()) @db.ObjectId @map("_id")
   email           String         @unique
   firstName       String?
   lastName        String?
@@ -50,9 +50,9 @@ model User {
 }
 
 model WatchLater {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id        String   @id @default(auto()) @db.ObjectId @map("_id")
   videoId   String
-  userId    String   @db.Uuid
+  userId    String   @db.ObjectId
   user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
 
@@ -60,21 +60,21 @@ model WatchLater {
 }
 
 model Invite {
-  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  senderId   String   @db.Uuid
-  receiverId String   @db.Uuid
+  id         String   @id @default(auto()) @db.ObjectId @map("_id")
+  senderId   String   @db.ObjectId
+  receiverId String   @db.ObjectId
   sender     User     @relation("Sender", fields: [senderId], references: [id])
   receiver   User     @relation("Receiver", fields: [receiverId], references: [id])
   createdAt  DateTime @default(now())
   User       User?    @relation(fields: [userId], references: [id])
-  userId     String?  @db.Uuid
+  userId     String?  @db.ObjectId
 
   @@index([senderId, receiverId])
 }
 
 model WatchHistory {
-  id            String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId        String     @db.Uuid
+  id            String     @id @default(auto()) @db.ObjectId @map("_id")
+  userId        String     @db.ObjectId
   user          User       @relation(fields: [userId], references: [id])
   videoId       String
   isCompleted   Boolean
