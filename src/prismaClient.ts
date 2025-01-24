@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { notifyCollaborationService } from "./services/kafka";
+import { sendUserVerifiedEvent } from "./kafka/kafka";
 
 const prisma = new PrismaClient().$extends({
 	query: {
@@ -9,7 +9,7 @@ const prisma = new PrismaClient().$extends({
 				const result = await query(args);
 
 				// Call the fun function with the newly created user
-				notifyCollaborationService(result.id!, result.firstName!);
+				// sendUserVerifiedEvent(result.id!, result.firstName!);
 
 				// Return the result
 				return result;

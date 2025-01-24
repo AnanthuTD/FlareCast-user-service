@@ -29,9 +29,9 @@ enum Resolution {
 }
 
 model User {
-  id              String         @id @default(auto()) @db.ObjectId @map("_id")
+  id              String         @id @default(auto()) @map("_id") @db.ObjectId
   email           String         @unique
-  firstName       String?
+  firstName       String
   lastName        String?
   createdAt       DateTime       @default(now())
   image           String?
@@ -47,10 +47,11 @@ model User {
   receivedInvites Invite[]       @relation("Receiver")
   Invite          Invite[]
   WatchHistory    WatchHistory[]
+  isVerified      Boolean        @default(false)
 }
 
 model WatchLater {
-  id        String   @id @default(auto()) @db.ObjectId @map("_id")
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   videoId   String
   userId    String   @db.ObjectId
   user      User     @relation(fields: [userId], references: [id])
@@ -60,7 +61,7 @@ model WatchLater {
 }
 
 model Invite {
-  id         String   @id @default(auto()) @db.ObjectId @map("_id")
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
   senderId   String   @db.ObjectId
   receiverId String   @db.ObjectId
   sender     User     @relation("Sender", fields: [senderId], references: [id])
@@ -73,7 +74,7 @@ model Invite {
 }
 
 model WatchHistory {
-  id            String     @id @default(auto()) @db.ObjectId @map("_id")
+  id            String     @id @default(auto()) @map("_id") @db.ObjectId
   userId        String     @db.ObjectId
   user          User       @relation(fields: [userId], references: [id])
   videoId       String

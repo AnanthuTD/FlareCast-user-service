@@ -1,6 +1,6 @@
 import express from "express";
 import authRouter from "./auth";
-import { notifyCollaborationService } from "../services/kafka";
+import { sendUserVerifiedEvent } from "../kafka/kafka";
 import { DependenciesInterface } from "../entities/interfaces";
 
 const routes = (dependencies: DependenciesInterface)=>{
@@ -11,7 +11,7 @@ const routes = (dependencies: DependenciesInterface)=>{
 	// TODO: remove on production
 	router.get("/kafka/new-user/:id", (req, res) => {
 		const { id } = req.params;
-    notifyCollaborationService(id, "First-Name");
+    sendUserVerifiedEvent(id, "First-Name");
   res.sendStatus(200);
 	})
 

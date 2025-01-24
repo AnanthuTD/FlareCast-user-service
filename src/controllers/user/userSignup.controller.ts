@@ -3,6 +3,7 @@ import { DependenciesInterface } from "../../entities/interfaces";
 import { hashPassword } from "../../helpers/hashPassword";
 import TokenService from "../../helpers/TokenService";
 import env from "../../env";
+import { sendUserCreationEvent } from "../../kafka/producer";
 
 export = (dependencies: DependenciesInterface) => {
 	const {
@@ -36,19 +37,24 @@ export = (dependencies: DependenciesInterface) => {
 				image,
 			});
 
-			const accessToken = TokenService.generateToken(
+			sendUserCreationEvent(user.id, user.email);
+
+			/* const accessToken = TokenService.generateToken(
 				{ id: user.id },
 				env.ACCESS_TOKEN_SECRET
 			);
 			const refreshToken = TokenService.generateToken(
 				{ id: user.id },
 				env.REFRESH_TOKEN_SECRET
-			);
+			); */
 
-			res.cookie("refreshToken", refreshToken, { httpOnly: true });
-			return res
+			/* res.cookie("refreshToken", refreshToken, { httpOnly: true });
+			res
 				.status(201)
-				.json({ message: "User created", accessToken, refreshToken });
+				.json({ message: "User created", accessToken, refreshToken }); */
+
+				res.status(201).json({ message: "Verify the email to continue!"});
+
 		} catch (error) {
 			next(error);
 		}

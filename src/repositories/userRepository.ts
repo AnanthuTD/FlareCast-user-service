@@ -60,10 +60,25 @@ export async function getUserByEmail(email: string) {
 }
 
 export async function getUserById(id: string) {
-  const user = await prisma.user.findFirst({
-    where: {
-      id,
-    },
-  });
-  return user;
+	const user = await prisma.user.findFirst({
+		where: {
+			id,
+		},
+	});
+	return user;
+}
+
+export async function markAsVerified(
+	userId: string,
+	email: string
+) {
+	try {
+		return prisma.user.update({
+			where: { id: userId, email, isVerified: false },
+			data: { isVerified: true },
+		});
+	} catch (error) {
+		logger.error("Error marking user as verified", error);
+		return null;
+	}
 }

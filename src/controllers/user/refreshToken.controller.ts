@@ -12,6 +12,12 @@ export = (dependencies: DependenciesInterface) => {
 
 	const refreshTokenController = <RequestHandler>(async (req, res, next) => {
 		try {
+		/* 	const accessToken = req.headers.authorization?.split(" ").pop();
+
+			if(accessToken){
+				
+			} */
+
 			const { refreshToken } = req.cookies;
 			if (!refreshToken) {
 				return res.status(401).json({ message: "Unauthorized" });

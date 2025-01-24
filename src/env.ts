@@ -16,6 +16,7 @@ const env = cleanEnv(process.env, {
 	GRAFANA_HOST: str(),
 	LOKI_API_KEY: str(),
 	LOKI_USER_ID: str(),
+	EMAIL_SERVICE_URL: url(),
 });
 
 export default env;

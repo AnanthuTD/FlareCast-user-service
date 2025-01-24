@@ -4,6 +4,7 @@ import axios from "axios";
 import TokenService from "../../helpers/TokenService";
 import env from "../../env";
 import { authResponseUserObject } from "../../dto/user.dto";
+import { sendUserVerifiedEvent } from "../../kafka/producer";
 
 export = (dependencies: DependenciesInterface) => {
 	const {
@@ -48,8 +49,11 @@ export = (dependencies: DependenciesInterface) => {
 					firstName: payload.given_name,
 					lastName: payload.family_name,
 					image: payload.picture,
+					isVerified: true,
 				});
+				sendUserVerifiedEvent(user.id, user.firstName)
 			}
+
 
 			const accessToken = TokenService.generateToken(
 				{ id: user.id },

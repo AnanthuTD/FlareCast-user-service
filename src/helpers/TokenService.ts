@@ -43,6 +43,16 @@ export class TokenService {
 			};
 		}
 	};
+
+	/* public static isExpiredAccessToken(token): boolean {
+		const decoded = jwt.decode(token, { complete: true });
+    if (decoded && decoded.exp) {
+      const expirationDate = new Date(0);
+      expirationDate.setUTCSeconds(decoded.exp);
+      return new Date() > expirationDate;
+    }
+    return false;
+	} */
 }
 
 export default TokenService;

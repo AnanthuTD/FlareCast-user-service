@@ -3,6 +3,7 @@ import { Strategy as LocalStrategy } from "passport-local";
 import bcrypt from "bcryptjs";
 import { getUserByEmail } from "../repositories/userRepository";
 import { logger } from "../logger/logger";
+import { authResponseUserObject } from "../dto/user.dto";
 
 passport.use(
 	new LocalStrategy(
@@ -27,14 +28,7 @@ passport.use(
 					return done(null, false, { message: "Incorrect credential" });
 				}
 
-				const returnedUser = {
-					id: user.id,
-					email: user.email,
-					method: "credential",
-					firstName: user.firstName,
-					lastName: user.lastName,
-					image: user.image,
-				};
+				const returnedUser = authResponseUserObject(user)
 
 				return done(null, returnedUser);
 			} catch (err) {
