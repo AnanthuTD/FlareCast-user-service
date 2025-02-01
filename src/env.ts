@@ -8,14 +8,13 @@ const env = cleanEnv(process.env, {
 	DATABASE_URL: url(),
 	ACCESS_TOKEN_SECRET: str(),
 	REFRESH_TOKEN_SECRET: str(),
-	// GOOGLE_CLIENT_SECRET: str(),
 	GOOGLE_CLIENT_ID: str(),
 	KAFKA_BROKER: str(),
-	KAFKA_USERNAME: str(),
-	KAFKA_PASSWORD: str(),
+
 	GRAFANA_HOST: str(),
 	LOKI_API_KEY: str(),
 	LOKI_USER_ID: str(),
+
 	EMAIL_SERVICE_URL: url(),
 });
 

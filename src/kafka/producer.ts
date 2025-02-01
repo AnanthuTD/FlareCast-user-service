@@ -19,22 +19,34 @@ export async function sendMessage(topic: string, message: string) {
 	}
 }
 
-export const sendUserVerifiedEvent = async (
-	userId: string,
-	firstName: string
-) => {
-	await sendMessage(TOPICS.USER_VERIFIED_EVENT, JSON.stringify({ userId, firstName }));
+export const sendUserVerifiedEvent = async ({
+	userId,
+	firstName,
+	lastName,
+	email,
+	image,
+}: {
+	userId: string;
+	firstName: string;
+	lastName: string;
+	email: string;
+	image: string;
+}) => {
+	await sendMessage(
+		TOPICS.USER_VERIFIED_EVENT,
+		JSON.stringify({ userId, firstName })
+	);
 	logger.debug(
 		"✔️ user-event sended to kafka: " +
-			JSON.stringify({ userId, firstName }, null, 2)
+			JSON.stringify({ userId, firstName, lastName, email, image }, null, 2)
 	);
 };
 
-export const sendUserCreationEvent = async (
-	userId: string,
-	email: string
-) => {
-	await sendMessage(TOPICS.USER_CREATED_EVENT, JSON.stringify({ userId, email }));
+export const sendUserCreationEvent = async (userId: string, email: string) => {
+	await sendMessage(
+		TOPICS.USER_CREATED_EVENT,
+		JSON.stringify({ userId, email })
+	);
 	logger.debug(
 		`✔️ ${TOPICS.USER_CREATED_EVENT} sended to kafka: ` +
 			JSON.stringify({ userId, email }, null, 2)

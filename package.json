@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "dotenvx run -- ts-node-dev --rs --transpile-only src/index.ts",
-    "docker-dev": "ts-node-dev --rs --transpile-only src/index.ts",
+    "docker:dev": "ts-node-dev --rs --transpile-only src/index.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "tsc": "npx tsc -p .",
