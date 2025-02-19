@@ -34,7 +34,7 @@ export const sendUserVerifiedEvent = async ({
 }) => {
 	await sendMessage(
 		TOPICS.USER_VERIFIED_EVENT,
-		JSON.stringify({ userId, firstName })
+		JSON.stringify({ userId, firstName, lastName, email, image })
 	);
 	logger.debug(
 		"✔️ user-event sended to kafka: " +
@@ -51,4 +51,5 @@ export const sendUserCreationEvent = async (userId: string, email: string) => {
 		`✔️ ${TOPICS.USER_CREATED_EVENT} sended to kafka: ` +
 			JSON.stringify({ userId, email }, null, 2)
 	);
+	
 };

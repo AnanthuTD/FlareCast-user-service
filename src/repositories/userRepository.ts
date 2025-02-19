@@ -1,4 +1,3 @@
-import { User } from "@prisma/client";
 import prisma from "../prismaClient";
 import { logger } from "../logger/logger";
 
@@ -68,10 +67,7 @@ export async function getUserById(id: string) {
 	return user;
 }
 
-export async function markAsVerified(
-	userId: string,
-	email: string
-) {
+export async function markAsVerified(userId: string, email: string) {
 	try {
 		return prisma.user.update({
 			where: { id: userId, email, isVerified: false },

@@ -15,7 +15,7 @@ export = (dependencies: DependenciesInterface) => {
 		userExistController: userExistController(dependencies),
 		userSignupController: userSignupController(dependencies),
 		userLogoutController: userLogoutController(dependencies),
-		refreshTokenController: refreshTokenController(dependencies),
+		// refreshTokenController: refreshTokenController(dependencies),
 		electronPostLoginController: electronPostLoginController(dependencies),
 		checkIsAuthenticatedController: checkIsAuthenticatedController(dependencies)
 	};

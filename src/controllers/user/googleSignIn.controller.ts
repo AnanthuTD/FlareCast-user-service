@@ -51,9 +51,14 @@ export = (dependencies: DependenciesInterface) => {
 					image: payload.picture,
 					isVerified: true,
 				});
-				sendUserVerifiedEvent(user.id, user.firstName)
+				sendUserVerifiedEvent({
+					userId: user.id,
+					firstName: user.firstName,
+					lastName: user.lastName ?? "",
+					email: user.email,
+					image: user.image ?? "",
+				});
 			}
-
 
 			const accessToken = TokenService.generateToken(
 				{ id: user.id },
@@ -69,6 +74,7 @@ export = (dependencies: DependenciesInterface) => {
 				message: "Successfully authenticated.",
 				user: authResponseUserObject(user),
 				accessToken,
+				refreshToken
 			});
 		} catch (error) {
 			next(error);

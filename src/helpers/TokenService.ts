@@ -11,7 +11,7 @@ export class TokenService {
 	public static verifyToken =  (
 		token: string,
 		secret: string
-	): { valid: boolean; id?: string; message: string } => {
+	): { valid: boolean; id?: string; message: string ; decoded?: jwt.JwtPayload} => {
 		try {
 			const decoded = jwt.verify(token, secret) as jwt.JwtPayload;
 
@@ -19,6 +19,7 @@ export class TokenService {
 				valid: true,
 				id: decoded.id,
 				message: "Token is valid",
+				decoded
 			};
 		} catch (error) {
 			// logger.error(error);

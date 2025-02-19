@@ -2,18 +2,22 @@ import express from "express";
 import passport from "passport";
 import { DependenciesInterface } from "../entities/interfaces";
 import { userControllers } from "../controllers";
+import Container from "typedi";
+import { RefreshTokenController } from "../controllers/user/refreshToken.controller";
 
 export = (dependencies: DependenciesInterface) => {
 	const {
 		userLoginController,
 		userExistController,
 		googleSignInController,
-		refreshTokenController,
+		// refreshTokenController,
 		userLogoutController,
 		userSignupController,
 		electronPostLoginController,
 		checkIsAuthenticatedController,
 	} = userControllers(dependencies);
+
+	const refreshTokenController = Container.get(RefreshTokenController);
 
 	const router = express.Router();
 
@@ -25,9 +29,9 @@ export = (dependencies: DependenciesInterface) => {
 		userLoginController
 	);
 	router.post("/google-sign-in", googleSignInController);
-	router.get("/refresh-token", refreshTokenController);
+	router.get("/refresh-token", refreshTokenController.handler);
 	router.post("/logout", userLogoutController);
-	router.post("/post-login", electronPostLoginController); 
+	router.post("/post-login", electronPostLoginController);
 
 	router.get(
 		"/check-authentication",

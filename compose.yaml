@@ -30,8 +30,8 @@ services:
     networks:
       - kafka_kafka-network
       - user-network
-    command: ["sh", "-c", "pnpm docker-dev"]
-    # command: ["sh", "-c", "pnpm prisma:migrate && pnpm docker-dev"]
+    command: ["sh", "-c", "pnpm docker:dev"]
+    # command: ["sh", "-c", "pnpm prisma:migrate && pnpm docker:dev"]
 
   # db:
   #   container_name: ${POSTGRES_CONTAINER_NAME}

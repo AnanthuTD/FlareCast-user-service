@@ -1,26 +1,38 @@
-import z from "zod";
 import { logger } from "../logger/logger";
 import kafka from "./kafka";
 import { TOPICS } from "../config/topics";
-import { markAsVerified } from "../repositories/userRepository";
-import { sendUserVerifiedEvent } from "./producer";
+import { KafkaMessage } from "kafkajs";
 
 const consumer = kafka.consumer({
 	groupId: "user-service",
+	allowAutoTopicCreation: true,
 });
 
-interface UserCreateMessage {
-	userId: string;
-	email: string;
-}
+type TopicHandler = (
+	value: any,
+	topic: string,
+	partition: number,
+	message: KafkaMessage
+) => void;
 
-export async function consumeMessages(topics: TOPICS[]) {
+// Define the type for the topicHandlers object
+type TopicHandlers = {
+	[key in TOPICS]?: TopicHandler;
+};
+
+export async function consumeMessages(topicHandlers: TopicHandlers) {
+	const topics = Object.keys(topicHandlers) as TOPICS[];
+
 	logger.info("⌛ Consuming messages from topic(s):", topics);
 
 	try {
+		// Connect to the Kafka broker
 		await consumer.connect();
+
+		// Subscribe to the specified topics
 		await consumer.subscribe({ topics });
 
+		// Start consuming messages
 		await consumer.run({
 			eachMessage: async ({ topic, partition, message }) => {
 				logger.info({
@@ -29,38 +41,24 @@ export async function consumeMessages(topics: TOPICS[]) {
 					message: message.value?.toString(),
 				});
 
-				logger.debug(JSON.stringify(message, null, 2));
-
 				let { value } = message;
 
-				value = JSON.parse(value.toString());
-
-				// send verification email
 				if (value) {
-					if (topic === TOPICS.USER_VERIFIED_EVENT) {
-						logger.info("User verified: ", value);
-						handleVerifiedUserEvent(value);
+					const parsedValue = JSON.parse(value.toString()) as object;
+
+					// Get the handler for the current topic
+					const handler = topicHandlers[topic as TOPICS];
+
+					if (handler) {
+						// Call the handler for the topic
+						handler(parsedValue, topic, partition, message);
+					} else {
+						logger.warn(`No handler defined for topic: ${topic}`);
 					}
 				}
 			},
 		});
 	} catch (error) {
-		logger.error("🔴 Error consuming Kafka message", {
-			message: error.message,
-			stack: error.stack,
-			name: error.name,
-			code: error.code || "UNKNOWN_ERROR",
-		});
-	}
-}
-
-async function handleVerifiedUserEvent({ userId, email }: UserCreateMessage) {
-	try {
-		const user = await markAsVerified(userId, email);
-		if (user && user.isVerified) {
-			sendUserVerifiedEvent(userId, user.firstName);
-		}
-	} catch (error) {
-		logger.error("Failed to send message!", error);
+		logger.error("🔴 Error consuming messages:", error);
 	}
 }

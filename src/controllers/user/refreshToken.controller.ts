@@ -1,23 +1,25 @@
 import { RequestHandler } from "express";
+import { Inject, Service, Container } from "typedi";
 import { DependenciesInterface } from "../../entities/interfaces";
 import TokenService from "../../helpers/TokenService";
 import env from "../../env";
+import { BlacklistRefreshTokenUseCase } from "../../usecases/user/blacklistRefreshToken.usecase";
+import { ValidateRefreshTokenUseCase } from "../../usecases/user/validateRefreshToken.usecase";
+import { getUserById } from "../../repositories/userRepository";
+import { logger } from "../../logger/logger";
 
-export = (dependencies: DependenciesInterface) => {
-	const {
-		userRepository: {
-      getUserById
-    },
-	} = dependencies.repository;
+@Service()
+export class RefreshTokenController {
+	constructor(
+		@Inject(() => BlacklistRefreshTokenUseCase)
+		private blacklistRefreshTokenUseCase: BlacklistRefreshTokenUseCase, 
 
-	const refreshTokenController = <RequestHandler>(async (req, res, next) => {
+		@Inject(() => ValidateRefreshTokenUseCase)
+		private validateRefreshTokenUseCase: ValidateRefreshTokenUseCase
+	) {}
+
+	handler: RequestHandler = async (req, res, next) => {
 		try {
-		/* 	const accessToken = req.headers.authorization?.split(" ").pop();
-
-			if(accessToken){
-				
-			} */
-
 			const { refreshToken } = req.cookies;
 			if (!refreshToken) {
 				return res.status(401).json({ message: "Unauthorized" });
@@ -30,6 +32,27 @@ export = (dependencies: DependenciesInterface) => {
 			if (!payload.valid || !payload.id) {
 				return res.status(401).json({ message: "Invalid refresh token" });
 			}
+
+			const isRefreshTokenBlacklisted =
+				await this.validateRefreshTokenUseCase.execute(
+					refreshToken as string
+				);
+
+			if (isRefreshTokenBlacklisted) {
+				logger.debug(`Refresh token ${refreshToken} blacklisted`)
+				return res
+					.status(401)
+					.json({ message: "Refresh token has been blacklisted" });
+			}
+
+			logger.debug(`Refresh token expiration ${payload.decoded?.exp}`)
+
+			await this.blacklistRefreshTokenUseCase.execute(
+				refreshToken as string,
+				payload.decoded?.exp as number
+			);
+
+			logger.debug(`Old refresh token ${refreshToken}`)
 
 			const user = await getUserById(payload.id);
 			if (!user) {
@@ -45,12 +68,14 @@ export = (dependencies: DependenciesInterface) => {
 				env.REFRESH_TOKEN_SECRET
 			);
 
+			logger.debug(`New refresh token ${newRefreshToken}`)
+
 			res.cookie("refreshToken", newRefreshToken, { httpOnly: true });
 			return res.json({ accessToken });
 		} catch (error) {
 			next(error);
 		}
-	});
+	};
+}
 
-	return refreshTokenController;
-};
+export default Container.get(RefreshTokenController).handler;

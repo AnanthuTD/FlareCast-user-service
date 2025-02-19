@@ -11,8 +11,9 @@ import env from "./env";
 import routes from "./routes";
 import dependencies from "./config/dependencies";
 import { logger } from "./logger/logger";
+import './config/redis'
 
-const app = express();
+const app = express(); 
 
 app.use(cookieParser());
 app.use(compression());

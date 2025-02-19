@@ -2,10 +2,10 @@ import { RequestHandler } from "express";
 import { DependenciesInterface } from "../../entities/interfaces";
 import TokenService from "../../helpers/TokenService";
 import env from "../../env";
-import { sendUserVerifiedEvent } from "../../kafka/producer";
 import axios from "axios";
 import { User } from "@prisma/client";
 import { logger } from "../../logger/logger";
+import { handleVerifiedUserEvent } from "../../kafka/handlers/verifiedUserEvent.handler";
 
 export = (dependencies: DependenciesInterface) => {
 	const userLogin = <RequestHandler>(async (req, res) => {
@@ -38,11 +38,13 @@ export = (dependencies: DependenciesInterface) => {
 };
 
 const checkIfVerified = async (user: User) => {
+	console.debug("Checking if user is: ", user)
+
 	try {
 		const { data } = await axios.get(env.EMAIL_SERVICE_URL + "/api/isVerified/" + user.id);
 		if (!data.verified) return false;
 
-		sendUserVerifiedEvent(user?.id, user?.firstName);
+		handleVerifiedUserEvent({userId: user.id, email: user.email})
 		return true;
 	} catch (error) {
 		logger.debug(error.message, "Failed to check user verified!");

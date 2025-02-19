@@ -1,4 +1,4 @@
-import { cleanEnv, str, port, url } from "envalid";
+import { cleanEnv, str, port, url, host } from "envalid";
 
 const env = cleanEnv(process.env, {
 	NODE_ENV: str({
@@ -16,6 +16,12 @@ const env = cleanEnv(process.env, {
 	LOKI_USER_ID: str(),
 
 	EMAIL_SERVICE_URL: url(),
+
+	// redis
+	REDIS_HOST: host(),
+	REDIS_PORT: port(),
+	REDIS_USERNAME: str(),
+	REDIS_PASSWORD: str(),
 });
 
 export default env;
