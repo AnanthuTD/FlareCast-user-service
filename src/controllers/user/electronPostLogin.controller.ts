@@ -49,6 +49,8 @@ export = (dependencies: DependenciesInterface) => {
 			);
 
 			res.cookie("refreshToken", newRefreshToken);
+			res.cookie("accessToken", accessToken);
+			
 			return res.json({
 				user: { accessToken, ...authResponseUserObject(user) },
 			});

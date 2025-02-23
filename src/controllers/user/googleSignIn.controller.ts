@@ -70,6 +70,8 @@ export = (dependencies: DependenciesInterface) => {
 			);
 
 			res.cookie("refreshToken", refreshToken, { httpOnly: true });
+			res.cookie("accessToken", accessToken);
+
 			return res.status(200).json({
 				message: "Successfully authenticated.",
 				user: authResponseUserObject(user),

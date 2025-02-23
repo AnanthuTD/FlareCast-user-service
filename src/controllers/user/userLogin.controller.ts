@@ -31,6 +31,8 @@ export = (dependencies: DependenciesInterface) => {
 		);
 
 		res.cookie("refreshToken", refreshToken);
+		res.cookie("accessToken", accessToken);
+
 		res.json({ accessToken, user, refreshToken });
 	});
 

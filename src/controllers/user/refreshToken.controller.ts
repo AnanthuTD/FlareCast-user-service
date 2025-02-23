@@ -71,6 +71,8 @@ export class RefreshTokenController {
 			logger.debug(`New refresh token ${newRefreshToken}`)
 
 			res.cookie("refreshToken", newRefreshToken, { httpOnly: true });
+			res.cookie("accessToken", accessToken);
+
 			return res.json({ accessToken });
 		} catch (error) {
 			next(error);

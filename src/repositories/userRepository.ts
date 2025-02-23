@@ -22,12 +22,14 @@ export async function createUser({
 	firstName,
 	lastName,
 	image,
+	isVerified = false,
 }: {
 	email: string;
 	hashedPassword?: string;
 	firstName: string;
 	lastName: string;
 	image?: string;
+	isVerified: boolean;
 }) {
 	const user = await prisma.user.create({
 		data: {
@@ -36,6 +38,7 @@ export async function createUser({
 			firstName,
 			lastName,
 			image,
+			isVerified
 		},
 		select: {
 			id: true,
