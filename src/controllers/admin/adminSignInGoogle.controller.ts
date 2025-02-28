@@ -137,7 +137,7 @@ export class GoogleSignInController<T> {
 				httpOnly: true,
 				secure: env.NODE_ENV === "production",
 				sameSite: "strict",
-				maxAge: 15 * 60 * 1000,
+				// maxAge: 15 * 60 * 1000,
 			});
 
 			const responseData = {
@@ -148,7 +148,10 @@ export class GoogleSignInController<T> {
 
 			return res.status(200).json(responseData);
 		} catch (error) {
-			next(error);
+			console.error(error);
+			return res
+				.status(500)
+				.json({ error: "Failed to authenticate with Google." });
 		}
 	};
 }

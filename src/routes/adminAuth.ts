@@ -2,7 +2,7 @@ import express from "express";
 import adminSignInController from "../controllers/admin/adminSignIn.controller";
 import { AdminRefreshTokenController } from "../controllers/admin/adminRefreshToken.controller";
 import Container from "typedi";
-import { createAdminGoogleSignInHandler } from "../controllers/admin/AdminSignInGoogle.controller";
+import { createAdminGoogleSignInHandler } from "../controllers/admin/adminSignInGoogle.controller";
 import AdminLogoutController from "../controllers/admin/adminLogout.controller";
 
 const adminAuthRouter = express.Router();
