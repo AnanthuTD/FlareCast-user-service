@@ -15,6 +15,10 @@ export = (dependencies: DependenciesInterface) => {
 			return res.status(400).json({ message: "Invalid credentials" });
 		}
 
+		if ((user as User).isBanned) {
+			return res.status(403).json({ message: "User is banned" });
+		}
+
 		if (!(user as User).isVerified) {
 			if (!(await checkIfVerified(user as User))) {
 				return res.status(401).json({ message: "User not verified" });
@@ -40,13 +44,15 @@ export = (dependencies: DependenciesInterface) => {
 };
 
 const checkIfVerified = async (user: User) => {
-	console.debug("Checking if user is: ", user)
+	console.debug("Checking if user is: ", user);
 
 	try {
-		const { data } = await axios.get(env.EMAIL_SERVICE_URL + "/api/isVerified/" + user.id);
+		const { data } = await axios.get(
+			env.EMAIL_SERVICE_URL + "/api/isVerified/" + user.id
+		);
 		if (!data.verified) return false;
 
-		handleVerifiedUserEvent({userId: user.id, email: user.email})
+		handleVerifiedUserEvent({ userId: user.id, email: user.email });
 		return true;
 	} catch (error) {
 		logger.debug(error.message, "Failed to check user verified!");

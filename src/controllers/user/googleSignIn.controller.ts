@@ -60,6 +60,10 @@ export = (dependencies: DependenciesInterface) => {
 				});
 			}
 
+			if ((user).isBanned) {
+				return res.status(403).json({ message: "User is banned" });
+			}
+
 			const accessToken = TokenService.generateToken(
 				{ id: user.id },
 				env.ACCESS_TOKEN_SECRET
@@ -76,7 +80,7 @@ export = (dependencies: DependenciesInterface) => {
 				message: "Successfully authenticated.",
 				user: authResponseUserObject(user),
 				accessToken,
-				refreshToken
+				refreshToken,
 			});
 		} catch (error) {
 			next(error);
