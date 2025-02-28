@@ -24,7 +24,7 @@ enum Resolution {
   RES_480 // 480p: Standard definition
   RES_720 // 720p: HD Ready
   RES_1080 // 1080p: Full HD
-  RES_1440 // 1440p: Quad HD
+  RES_1440 // 1440p: Quad HD 
   RES_2160 // 2160p: 4K Ultra HD   
 }
 
@@ -106,4 +106,29 @@ model AdminAction {
   action    String
   details   String?
   createdAt DateTime @default(now())
+}
+
+model SubscriptionPlan {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  planId        String   @unique // Razorpay plan ID
+  name          String
+  price         Float 
+  interval      Int
+  period        Period
+  description   String?
+  videoPerMonth Int
+  duration      Int
+  workspace     Int
+  aiFeature     Boolean  @default(false)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+enum Period {
+  daily
+  weekly
+  monthly
+  quarterly
+  yearly
 }

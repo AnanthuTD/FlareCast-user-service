@@ -22,6 +22,10 @@ const env = cleanEnv(process.env, {
 	REDIS_PORT: port(),
 	REDIS_USERNAME: str(),
 	REDIS_PASSWORD: str(),
+
+	// razorpay
+	RAZORPAY_SECRET: str(),
+	RAZORPAY_KEY_ID: str(),
 });
 
 export default env;
