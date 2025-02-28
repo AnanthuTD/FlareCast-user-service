@@ -1,5 +1,7 @@
 import prisma from "../prismaClient";
 import { logger } from "../logger/logger";
+import { Service } from "typedi";
+import { User } from "@prisma/client";
 
 export async function userExists(email: string) {
 	const user = await prisma.user.findFirst({
@@ -38,7 +40,7 @@ export async function createUser({
 			firstName,
 			lastName,
 			image,
-			isVerified
+			isVerified,
 		},
 		select: {
 			id: true,
@@ -80,4 +82,95 @@ export async function markAsVerified(userId: string, email: string) {
 		logger.error("Error marking user as verified", error);
 		return null;
 	}
+}
+
+@Service()
+export class UserRepository {
+	async findPaginatedUsers({
+		page = 1,
+		limit = 10,
+		searchQuery = "",
+		includeBanned = false,
+	}: {
+		page?: number;
+		limit?: number;
+		searchQuery?: string;
+		includeBanned?: boolean;
+	}) {
+		const skip = (page - 1) * limit;
+
+		const pipeline: any[] = [];
+
+		// Normal search with $regex if searchQuery is provided
+		if (searchQuery) {
+			pipeline.push({
+				$match: {
+					$or: [
+						{ email: { $regex: searchQuery, $options: "i" } },
+						{ firstName: { $regex: searchQuery, $options: "i" } },
+						{ lastName: { $regex: searchQuery, $options: "i" } },
+					],
+				},
+			});
+		}
+
+		// Filter out banned users unless includeBanned is true
+		if (includeBanned) {
+			pipeline.push({
+				$match: {
+					$or: [
+						{ isBanned: true },
+					],
+				},
+			});
+		}
+
+		// Add sorting and pagination
+		pipeline.push(
+			{ $sort: { createdAt: -1 } },
+			{ $skip: skip },
+			{ $limit: limit },
+			{$project: {
+				id: {$toString: '$_id'},
+				email: 1,
+        firstName: 1,
+        lastName: 1,
+        image: 1,
+        isBanned: 1,
+				
+			}}
+		);
+
+		// Execute pipeline for users
+		const usersResult = await prisma.$runCommandRaw({
+			aggregate: "User",
+			pipeline,
+			cursor: {},
+		});
+
+		// Calculate total count (remove skip and limit, add count)
+		const totalPipeline = [...pipeline.slice(0, -2), { $count: "total" }];
+		const totalResult = await prisma.$runCommandRaw({
+			aggregate: "User",
+			pipeline: totalPipeline,
+			cursor: {},
+		});
+
+		const users = usersResult.cursor.firstBatch;
+		const total = totalResult.cursor.firstBatch[0]?.total || 0;
+
+		return {
+			users,
+			total,
+			totalPages: Math.ceil(total / limit),
+			currentPage: page,
+		};
+	}
+
+	async updateUserBanStatus(id: string, isBanned: boolean): Promise<User> {
+    return await prisma.user.update({
+      where: { id },
+      data: { isBanned },
+    });
+  }
 }

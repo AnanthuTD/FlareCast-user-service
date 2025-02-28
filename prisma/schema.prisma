@@ -25,7 +25,7 @@ enum Resolution {
   RES_720 // 720p: HD Ready
   RES_1080 // 1080p: Full HD
   RES_1440 // 1440p: Quad HD
-  RES_2160 // 2160p: 4K Ultra HD
+  RES_2160 // 2160p: 4K Ultra HD   
 }
 
 model User {
@@ -48,6 +48,7 @@ model User {
   Invite          Invite[]
   WatchHistory    WatchHistory[]
   isVerified      Boolean        @default(false)
+  isBanned        Boolean        @default(false)
 }
 
 model WatchLater {
