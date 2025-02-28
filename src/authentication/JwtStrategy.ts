@@ -21,7 +21,7 @@ passport.use(
 			logger.info("=====================================");
 
 			const user = await getUserById(jwt_payload.id);
-			if (user) {
+			if (user && !user.isBanned) {
 				return done(null, user);
 			} else {
 				return done(null, false);
