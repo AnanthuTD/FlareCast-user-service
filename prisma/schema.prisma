@@ -83,3 +83,26 @@ model WatchHistory {
   watchDuration Int
   resolution    Resolution
 }
+
+model Admin {
+  id             String        @id @default(auto()) @map("_id") @db.ObjectId
+  email          String        @unique
+  firstName      String
+  lastName       String?
+  hashedPassword String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  lastLogin      DateTime?
+  isActive       Boolean       @default(true)
+  actions        AdminAction[]
+  image          String?
+}
+
+model AdminAction {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  adminId   String   @db.ObjectId
+  admin     Admin    @relation(fields: [adminId], references: [id])
+  action    String
+  details   String?
+  createdAt DateTime @default(now())
+}

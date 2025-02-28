@@ -1,14 +1,14 @@
 import { RequestHandler } from "express";
-import { Inject, Service, Container } from "typedi";
+import { Inject, Service } from "typedi";
 import TokenService from "../../helpers/TokenService";
 import env from "../../env";
 import { BlacklistRefreshTokenUseCase } from "../../usecases/user/blacklistRefreshToken.usecase";
 import { ValidateRefreshTokenUseCase } from "../../usecases/user/validateRefreshToken.usecase";
-import { getUserById } from "../../repositories/userRepository";
 import { logger } from "../../logger/logger";
+import prisma from "../../prismaClient";
 
 @Service()
-export class RefreshTokenController {
+export class AdminRefreshTokenController {
 	constructor(
 		@Inject(() => BlacklistRefreshTokenUseCase)
 		private blacklistRefreshTokenUseCase: BlacklistRefreshTokenUseCase,
@@ -25,8 +25,8 @@ export class RefreshTokenController {
 			// Check if accessToken exists
 			if (!accessToken) {
 				logger.debug("No access token found in cookies");
-				// res.status(401).json({ message: "Access token not found" });
-				// return;
+				res.status(401).json({ message: "Access token not found" });
+				return;
 			}
 
 			// Check if refreshToken exists
@@ -90,7 +90,9 @@ export class RefreshTokenController {
 			logger.debug(`Old refresh token ${refreshToken}`);
 
 			// Get user by ID
-			const user = await getUserById(refreshTokenPayload.id);
+			const user = await prisma.admin.findUnique({
+				where: { id: refreshToken.id },
+			});
 			if (!user) {
 				logger.debug(`User with ID ${refreshTokenPayload.id} not found`);
 				return res.status(401).json({ message: "User not found" });
@@ -130,5 +132,3 @@ export class RefreshTokenController {
 		}
 	};
 }
-
-export default Container.get(RefreshTokenController).handler;

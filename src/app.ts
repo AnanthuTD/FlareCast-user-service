@@ -12,10 +12,12 @@ import routes from "./routes";
 import dependencies from "./config/dependencies";
 import { logger } from "./logger/logger";
 import './config/redis'
+import { tokenExtractorMiddleware } from "./middlewares/tokenExtractor.middleware";
 
 const app = express(); 
 
 app.use(cookieParser());
+app.use(tokenExtractorMiddleware);
 app.use(compression());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
