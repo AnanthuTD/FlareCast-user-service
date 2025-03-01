@@ -118,9 +118,7 @@ export class UserRepository {
 		if (includeBanned) {
 			pipeline.push({
 				$match: {
-					$or: [
-						{ isBanned: true },
-					],
+					$or: [{ isBanned: true }],
 				},
 			});
 		}
@@ -130,15 +128,16 @@ export class UserRepository {
 			{ $sort: { createdAt: -1 } },
 			{ $skip: skip },
 			{ $limit: limit },
-			{$project: {
-				id: {$toString: '$_id'},
-				email: 1,
-        firstName: 1,
-        lastName: 1,
-        image: 1,
-        isBanned: 1,
-				
-			}}
+			{
+				$project: {
+					id: { $toString: "$_id" },
+					email: 1,
+					firstName: 1,
+					lastName: 1,
+					image: 1,
+					isBanned: 1,
+				},
+			}
 		);
 
 		// Execute pipeline for users
@@ -168,9 +167,122 @@ export class UserRepository {
 	}
 
 	async updateUserBanStatus(id: string, isBanned: boolean): Promise<User> {
-    return await prisma.user.update({
-      where: { id },
-      data: { isBanned },
-    });
-  }
+		return await prisma.user.update({
+			where: { id },
+			data: { isBanned },
+		});
+	}
+
+	async canSubscribe(id: string): Promise<{
+		canSubscribe: boolean;
+		message?: string;
+		code?: string;
+	}> {
+		const user = await this.getUserById(id);
+		if (!user) {
+			return {
+				canSubscribe: false,
+				message: "User not found!",
+				code: "USER_NOT_FOUND",
+			};
+		}
+		if (!user?.isVerified) {
+			return {
+				canSubscribe: false,
+				message: "User is not verified!",
+				code: "USER_NOT_VERIFIED",
+			};
+		}
+
+		if (user.isBanned) {
+			return {
+				canSubscribe: false,
+				message: "User is banned!",
+				code: "USER_BANNED",
+			};
+		}
+
+		return { canSubscribe: true, message: "User can subscribe" };
+	}
+
+	async userExists(email: string) {
+		const user = await prisma.user.findFirst({
+			where: { email },
+			select: { id: true, hashedPassword: true },
+		});
+		logger.info(user);
+		if (user?.hashedPassword) {
+			return { method: "credential" };
+		} else if (user) {
+			return { method: "google" };
+		}
+
+		return null;
+	}
+
+	async createUser({
+		email,
+		hashedPassword,
+		firstName,
+		lastName,
+		image,
+		isVerified = false,
+	}: {
+		email: string;
+		hashedPassword?: string;
+		firstName: string;
+		lastName: string;
+		image?: string;
+		isVerified: boolean;
+	}) {
+		const user = await prisma.user.create({
+			data: {
+				email,
+				hashedPassword,
+				firstName,
+				lastName,
+				image,
+				isVerified,
+			},
+			select: {
+				id: true,
+				email: true,
+				firstName: true,
+				lastName: true,
+				image: true,
+			},
+		});
+
+		return user;
+	}
+
+	async getUserByEmail(email: string) {
+		const user = await prisma.user.findFirst({
+			where: {
+				email,
+			},
+		});
+		return user;
+	}
+
+	async getUserById(id: string) {
+		const user = await prisma.user.findFirst({
+			where: {
+				id,
+			},
+		});
+		return user;
+	}
+
+	async markAsVerified(userId: string, email: string) {
+		try {
+			return prisma.user.update({
+				where: { id: userId, email, isVerified: false },
+				data: { isVerified: true },
+			});
+		} catch (error) {
+			logger.error("Error marking user as verified", error);
+			return null;
+		}
+	}
 }
