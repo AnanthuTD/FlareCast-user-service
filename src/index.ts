@@ -2,10 +2,14 @@ import "reflect-metadata";
 import app from "./app";
 import env from "./env";
 import { logger } from "./logger/logger";
+import { createServer } from "node:http";
+import { initializeSocket } from "./config/socket";
 
 const start = async () => {
 	try {
-		app.listen(env.PORT, () => {
+		const server = createServer(app);
+		const io = initializeSocket(server);
+		server.listen(env.PORT, () => {
 			logger.info(`Server running at http://localhost:${env.PORT}`);
 		});
 	} catch (err) {

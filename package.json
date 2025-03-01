@@ -54,6 +54,7 @@
     "razorpay": "^2.9.6",
     "redis": "^4.7.0",
     "reflect-metadata": "^0.2.2",
+    "socket.io": "^4.8.1",
     "typedi": "^0.10.0",
     "winston": "^3.17.0",
     "winston-loki": "^6.1.3",
