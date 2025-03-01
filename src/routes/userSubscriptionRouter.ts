@@ -1,5 +1,6 @@
 import express from "express";
 import {
+	cancelSubscriptionController,
 	canSubscribeController,
 	getPlansController,
 	getSubscriptionsController,
@@ -16,6 +17,6 @@ userSubscriptionRouter.get("/", getSubscriptionsController);
 
 userSubscriptionRouter.get("/plans", getPlansController);
 
-userSubscriptionRouter.post("/cancel", canSubscribeController);
+userSubscriptionRouter.post("/cancel", cancelSubscriptionController);
 
 export default userSubscriptionRouter;

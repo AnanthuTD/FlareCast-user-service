@@ -44,14 +44,14 @@ export class UserSubscriptionRepository {
 		} = razorpayResponse;
 
 		// Map Mongoose status to Prisma enum
-		const mappedStatus = this.mapRazorpayStatusToPrisma(status);
+		// const mappedStatus = this.mapRazorpayStatusToPrisma(status);
 
 		const newSubscription = await prisma.userSubscription.create({
 			data: {
 				userId,
 				planId: subscriptionPlan.id, // Use Prisma plan ID, not Razorpay planId
 				razorpaySubscriptionId,
-				status: mappedStatus,
+				status,
 				startDate: new Date(startDate * 1000),
 				endDate: endDate ? new Date(endDate * 1000) : null,
 				remainingCount: parseInt(remaining_count),
@@ -69,7 +69,7 @@ export class UserSubscriptionRepository {
 		console.log("New subscription:", newSubscription);
 
 		// Call addActiveSubscriptionId if status is ACTIVE
-		if (newSubscription.status === SubscriptionStatus.ACTIVE) {
+		if (newSubscription.status === SubscriptionStatus.active) {
 			await this.addActiveSubscriptionId(newSubscription);
 		}
 
@@ -90,7 +90,7 @@ export class UserSubscriptionRepository {
 	// Update subscription status to ACTIVE
 	updateSubscriptionStatusToActive = async (userId: string) => {
 		const subscription = await prisma.userSubscription.findFirst({
-			where: { userId, status: { not: SubscriptionStatus.ACTIVE } },
+			where: { userId, status: { not: SubscriptionStatus.active } },
 		});
 
 		if (!subscription) {
@@ -99,35 +99,35 @@ export class UserSubscriptionRepository {
 
 		return await prisma.userSubscription.update({
 			where: { id: subscription.id },
-			data: { status: SubscriptionStatus.ACTIVE },
+			data: { status: SubscriptionStatus.active },
 		});
 	};
 
 	// Subscription status transition rules (same structure as Mongoose)
 	SubscriptionStatusOrder = {
-		[SubscriptionStatus.CREATED]: [
-			SubscriptionStatus.AUTHENTICATED,
-			SubscriptionStatus.PENDING,
+		[SubscriptionStatus.created]: [
+			SubscriptionStatus.authenticated,
+			SubscriptionStatus.pending,
 		],
-		[SubscriptionStatus.AUTHENTICATED]: [SubscriptionStatus.ACTIVE],
-		[SubscriptionStatus.ACTIVE]: [
-			SubscriptionStatus.HALTED,
-			SubscriptionStatus.CANCELLED,
-			SubscriptionStatus.PAUSED,
+		[SubscriptionStatus.authenticated]: [SubscriptionStatus.active],
+		[SubscriptionStatus.active]: [
+			SubscriptionStatus.halted,
+			SubscriptionStatus.cancelled,
+			SubscriptionStatus.paused,
 		],
-		[SubscriptionStatus.PAUSED]: [SubscriptionStatus.RESUMED],
-		[SubscriptionStatus.RESUMED]: [SubscriptionStatus.ACTIVE],
-		[SubscriptionStatus.HALTED]: [SubscriptionStatus.CANCELLED],
-		[SubscriptionStatus.CANCELLED]: [SubscriptionStatus.COMPLETED],
-		[SubscriptionStatus.COMPLETED]: [],
-		[SubscriptionStatus.EXPIRED]: [],
-		[SubscriptionStatus.CHARGED]: [SubscriptionStatus.ACTIVE],
+		[SubscriptionStatus.paused]: [SubscriptionStatus.resumed],
+		[SubscriptionStatus.resumed]: [SubscriptionStatus.active],
+		[SubscriptionStatus.halted]: [SubscriptionStatus.cancelled],
+		[SubscriptionStatus.cancelled]: [SubscriptionStatus.completed],
+		[SubscriptionStatus.completed]: [],
+		[SubscriptionStatus.expired]: [],
+		[SubscriptionStatus.charged]: [SubscriptionStatus.active],
 	};
 
 	// Update user subscription
 	updateUserSubscription = async (
 		subscriptionId: string,
-		updatedFields: { status: SubscriptionStatus }
+		updatedFields: UserSubscription
 	) => {
 		try {
 			const currentSubscription = await prisma.userSubscription.findFirst({
@@ -153,7 +153,7 @@ export class UserSubscriptionRepository {
 				return currentSubscription;
 			}
 
-			if (currentStatus === SubscriptionStatus.ACTIVE) {
+			if (currentStatus === SubscriptionStatus.active) {
 				const allowedNextStatuses = this.SubscriptionStatusOrder[currentStatus];
 				if (!allowedNextStatuses.includes(newStatus)) {
 					console.log(
@@ -175,7 +175,7 @@ export class UserSubscriptionRepository {
 				`Subscription ${subscriptionId} status updated to ${newStatus}`
 			);
 
-			if (updatedSubscription.status === SubscriptionStatus.ACTIVE) {
+			if (updatedSubscription.status === SubscriptionStatus.active) {
 				await this.addActiveSubscriptionId(updatedSubscription);
 			}
 
@@ -192,7 +192,7 @@ export class UserSubscriptionRepository {
 
 	// Add active subscription ID logic (updated for Prisma and User model)
 	addActiveSubscriptionId = async (subscription: UserSubscription) => {
-		if (subscription.status === SubscriptionStatus.ACTIVE) {
+		if (subscription.status === SubscriptionStatus.active) {
 			const planData = await prisma.subscriptionPlan.findUnique({
 				where: { id: subscription.planId },
 			});
@@ -233,7 +233,7 @@ export class UserSubscriptionRepository {
 				where: {
 					userId,
 					status: {
-						in: [SubscriptionStatus.AUTHENTICATED, SubscriptionStatus.ACTIVE],
+						in: [SubscriptionStatus.authenticated, SubscriptionStatus.active],
 					},
 				},
 			});
@@ -252,8 +252,8 @@ export class UserSubscriptionRepository {
 			}
 
 			if (
-				subscription.status !== SubscriptionStatus.ACTIVE &&
-				subscription.status !== SubscriptionStatus.AUTHENTICATED
+				subscription.status !== SubscriptionStatus.active &&
+				subscription.status !== SubscriptionStatus.authenticated
 			) {
 				return {
 					message: `Cannot cancel subscription. Current status is '${subscription.status}'. Subscription can only be cancelled if it's in 'active' or 'authenticated' state.`,
@@ -293,7 +293,7 @@ export class UserSubscriptionRepository {
 	};
 
 	// Helper to map Razorpay status to Prisma enum
-	private mapRazorpayStatusToPrisma(
+	/* private mapRazorpayStatusToPrisma(
 		razorpayStatus: string
 	): SubscriptionStatus {
 		const statusMap: Record<string, SubscriptionStatus> = {
@@ -312,5 +312,12 @@ export class UserSubscriptionRepository {
 		return (
 			statusMap[razorpayStatus.toLowerCase()] || SubscriptionStatus.CREATED
 		);
-	}
+	} */
+
+	async getUserSubscriptionByRazorpayId(razorpaySubscriptionId: string) {
+    return await prisma.userSubscription.findFirst({
+      where: { razorpaySubscriptionId },
+      select: { status: true, updatedAt: true, userId: true },
+    });
+  }
 }

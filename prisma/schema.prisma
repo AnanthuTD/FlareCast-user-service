@@ -138,42 +138,42 @@ enum Period {
 }
 
 model UserSubscription {
-  id                     String           @id @default(auto()) @map("_id") @db.ObjectId
-  userId                 String           @db.ObjectId
-  planId                 String           @db.ObjectId
-  razorpaySubscriptionId String           @unique // Razorpay subscription ID
-  status                 String           @default("CREATED")
-  remainingCount         Int              @default(0) // Remaining cycles or uses
-  paidCount              Int              @default(0) // Number of payments made
-  totalCount             Int              @default(0) // Total cycles or uses allowed
+  id                     String             @id @default(auto()) @map("_id") @db.ObjectId
+  userId                 String             @db.ObjectId
+  planId                 String             @db.ObjectId 
+  razorpaySubscriptionId String             @unique // Razorpay subscription ID
+  status                 SubscriptionStatus @default(created)
+  remainingCount         Int                @default(0) // Remaining cycles or uses
+  paidCount              Int                @default(0) // Number of payments made
+  totalCount             Int                @default(0) // Total cycles or uses allowed
   amount                 Float // Subscription amount in INR
   shortUrl               String? // Short URL for Razorpay subscription
   notes                  Json? // Map<String, String> as JSON for flexibility
-  startDate              DateTime         @default(now()) // Subscription start date
+  startDate              DateTime           @default(now()) // Subscription start date
   endDate                DateTime? // Subscription end date (null if ongoing)
   endedAt                DateTime? // Date subscription ended (if cancelled/expired)
   currentStart           DateTime? // Current billing cycle start date
   currentEnd             DateTime? // Current billing cycle end date
   chargeAt               DateTime? // Next charge date
   cancelledAt            DateTime? // Date subscription was cancelled
-  createdAt              DateTime         @default(now())
-  updatedAt              DateTime         @updatedAt
-  user                   User             @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  plan                   SubscriptionPlan @relation(fields: [planId], references: [id])
-  usersWithActivePlan    User[]           @relation(name: "activeSubscription")
-}
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+  user                   User               @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  plan                   SubscriptionPlan   @relation(fields: [planId], references: [id])
+  usersWithActivePlan    User[]             @relation(name: "activeSubscription")
+}   
 
 // Define subscription status as an enum for type safety
 enum SubscriptionStatus {
-  CREATED
-  AUTHENTICATED
-  ACTIVE
-  PENDING
-  HALTED
-  CANCELLED
-  COMPLETED
-  EXPIRED
-  PAUSED
-  RESUMED
-  CHARGED
+  created
+  authenticated
+  active
+  pending
+  halted
+  cancelled
+  completed
+  expired
+  paused
+  resumed
+  charged
 }

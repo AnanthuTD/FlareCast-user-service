@@ -8,7 +8,7 @@ import { initializeSocket } from "./config/socket";
 const start = async () => {
 	try {
 		const server = createServer(app);
-		const io = initializeSocket(server);
+		initializeSocket(server)
 		server.listen(env.PORT, () => {
 			logger.info(`Server running at http://localhost:${env.PORT}`);
 		});

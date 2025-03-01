@@ -26,6 +26,7 @@ const env = cleanEnv(process.env, {
 	// razorpay
 	RAZORPAY_SECRET: str(),
 	RAZORPAY_KEY_ID: str(),
+	RAZORPAY_WEBHOOK_SECRET: str()
 });
 
 export default env;

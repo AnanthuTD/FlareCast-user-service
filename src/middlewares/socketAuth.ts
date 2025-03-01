@@ -11,13 +11,14 @@ export function socketAuthMiddleware(
 	next: (err?: ExtendedError) => void
 ) {
 	try {
+		console.log(socket)
 		// Parse cookies from handshake headers
 		const cookieHeader = socket.handshake.headers.cookie;
 		if (!cookieHeader) {
 			return next(new Error("No cookies provided"));
 		}
 
-    console.log(cookieHeader, cookieHeader['accessToken'])
+    console.log("cookies: ", cookieHeader, cookieHeader['accessToken'])
 
 		// const cookies = Cookies.parse(cookieHeader);
 		const authToken = cookieHeader["accessToken"]; // Assuming 'authToken' is your cookie name

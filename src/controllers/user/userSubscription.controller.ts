@@ -3,7 +3,7 @@ import Container, { Service, Inject } from "typedi";
 import { RazorpayRepository } from "../../repositories/razorpay.repository";
 import { UserRepository } from "../../repositories/userRepository";
 import prisma from "../../prismaClient";
-import { User } from "@prisma/client";
+import { User, SubscriptionStatus } from "@prisma/client";
 import { UserSubscriptionRepository } from "../../repositories/userSubscription.repository";
 import env from "../../env";
 
@@ -59,7 +59,7 @@ export class SubscriptionController {
 
 			// Check for an existing active subscription
 			const existingSubscription = await prisma.userSubscription.findFirst({
-				where: { userId: userId, status: "ACTIVE" },
+				where: { userId: userId, status: SubscriptionStatus.active },
 			});
 
 			if (existingSubscription) {
@@ -151,13 +151,13 @@ export class SubscriptionController {
 
 			if (userId) {
 				const activeSubscription = await prisma.userSubscription.findFirst({
-					where: { userId, status: "ACTIVE" },
+					where: { userId, status: SubscriptionStatus.active },
 				});
 
 				const plansWithActiveStatus = subscriptionPlans.map((plan) => ({
 					...plan,
 					active:
-						activeSubscription && activeSubscription.planId === plan.planId,
+						activeSubscription && activeSubscription.planId === plan.id,
 				}));
 
 				return res.json({ plans: plansWithActiveStatus, activeSubscription });
@@ -181,7 +181,7 @@ export class SubscriptionController {
 			const user = await this.userRepository.getUserById(userId);
 
 			if (!user) {
-				return res.status(404).json({ message: "Vendor not found" });
+				return res.status(404).json({ message: "User not found" });
 			}
 
 			const result =

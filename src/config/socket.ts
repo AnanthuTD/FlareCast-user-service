@@ -1,9 +1,6 @@
 import { Server } from "socket.io";
 import { Server as HttpServer } from "http";
-import { socketAuthMiddleware } from "../middlewares/socketAuth";
-import {
-	setupSubscriptionNamespace,
-} from "../namespaces/subscription.namespace";
+import { setupSubscriptionNamespace } from "../namespaces/subscription.namespace";
 
 export function initializeSocket(server: HttpServer) {
 	const io = new Server(server, {
@@ -14,8 +11,17 @@ export function initializeSocket(server: HttpServer) {
 		},
 	});
 
+	io.on('connection', () => {
+		console.log("Client connected");
+
+    // Handle disconnections
+    io.on('disconnect', () => {
+      console.log("Client disconnected");
+    });
+	})
+
 	// Apply authentication middleware to all connections
-	io.use(socketAuthMiddleware);
+	// io.use(socketAuthMiddleware);
 
 	// Define namespaces
 	const subscriptionNamespace = io.of("/subscriptions");
