@@ -26,7 +26,13 @@ const env = cleanEnv(process.env, {
 	// razorpay
 	RAZORPAY_SECRET: str(),
 	RAZORPAY_KEY_ID: str(),
-	RAZORPAY_WEBHOOK_SECRET: str()
+	RAZORPAY_WEBHOOK_SECRET: str(),
+
+	AWS_CLOUDFRONT_URL: str(),  
+	AWS_REGION: str(),
+	AWS_ACCESS_KEY_ID: str(),
+	AWS_SECRET_ACCESS_KEY: str(),
+	AWS_S3_BUCKET_NAME: str(),
 });
 
 export default env;
