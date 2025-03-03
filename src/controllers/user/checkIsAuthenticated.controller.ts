@@ -1,13 +1,31 @@
 import { NextFunction, Request, Response } from "express";
 import { DependenciesInterface } from "../../entities/interfaces";
+import prisma from "../../prismaClient";
 
 export = (dependencies: DependenciesInterface) => {
-	const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
+	const isAuthenticated = async (
+		req: Request,
+		res: Response,
+		next: NextFunction
+	) => {
 		const { user } = req;
 		if (!user) {
 			res.status(401).json({ message: "Unauthorized" });
-		} else res.json({ user });
+		} else {
+			const userData = await prisma.user.findUnique({
+				where: { id: user.id },
+				select: {
+					activeSubscription: {
+						select: {
+							plan: true,
+						},
+					},
+				},
+			});
+
+			res.json({ user: { ...user, plan: userData?.activeSubscription?.plan } });
+		}
 	};
 
-	return isAuthenticated;  
+	return isAuthenticated;
 };
