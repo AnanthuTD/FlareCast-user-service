@@ -127,6 +127,7 @@ model SubscriptionPlan {
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
   UserSubscription UserSubscription[]
+  trim             Boolean            @default(false)
 }
 
 enum Period {
@@ -140,7 +141,7 @@ enum Period {
 model UserSubscription {
   id                     String             @id @default(auto()) @map("_id") @db.ObjectId
   userId                 String             @db.ObjectId
-  planId                 String             @db.ObjectId 
+  planId                 String             @db.ObjectId
   razorpaySubscriptionId String             @unique // Razorpay subscription ID
   status                 SubscriptionStatus @default(created)
   remainingCount         Int                @default(0) // Remaining cycles or uses
@@ -161,7 +162,7 @@ model UserSubscription {
   user                   User               @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   plan                   SubscriptionPlan   @relation(fields: [planId], references: [id])
   usersWithActivePlan    User[]             @relation(name: "activeSubscription")
-}   
+}
 
 // Define subscription status as an enum for type safety
 enum SubscriptionStatus {
