@@ -285,4 +285,12 @@ export class UserRepository {
 			return null;
 		}
 	}
+
+	async currentVideoCount(userId: string) {
+		const user = await prisma.user.findUnique({
+			where: { id: userId },
+			select: { totalVideoCount: true },
+		});
+		return user?.totalVideoCount || 0;
+	}
 }

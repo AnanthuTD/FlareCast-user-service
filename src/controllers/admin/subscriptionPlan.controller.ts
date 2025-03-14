@@ -41,23 +41,22 @@ export class SubscriptionPlansController {
 			name,
 			price,
 			interval,
-			videoPerMonth,
 			period,
-			description,
-			duration,
-			workspace,
-			aiFeature,
+			maxRecordingDuration,
+			hasAiFeatures,
+			allowsCustomBranding,
+			hasAdvancedEditing,
+			maxMembers,
+			monthlyVideoQuota,
+			maxWorkspaces,
+			isActive,
 		} = req.body;
 
-		console.log(req.body);
-
 		// Validate period
-		const validPeriods = Object.values(Period);
+		const validPeriods = Object.values(Period)
 		if (!validPeriods.includes(period)) {
 			return res.status(400).json({ error: "Invalid period" });
 		}
-
-		console.log(period);
 
 		try {
 			// Create plan with Razorpay (convert price to paise)
@@ -66,7 +65,7 @@ export class SubscriptionPlansController {
 				interval,
 				item: {
 					name,
-					amount: price * 100, // Convert INR to paise
+					amount: Math.round(price * 100), // Convert INR to paise, ensure integer
 					currency: "INR",
 				},
 			});
@@ -76,15 +75,21 @@ export class SubscriptionPlansController {
 				data: {
 					planId: razorpayPlan.id,
 					name,
-					price,
+					price: parseFloat(price), // Ensure price is stored as a float
 					interval,
 					period,
-					description,
-					duration,
-					workspace,
-					aiFeature: Boolean(aiFeature),
-					isActive: true,
-					videoPerMonth: videoPerMonth ?? 0,
+					maxRecordingDuration: maxRecordingDuration
+						? parseInt(maxRecordingDuration)
+						: undefined,
+					hasAiFeatures: Boolean(hasAiFeatures),
+					allowsCustomBranding: Boolean(allowsCustomBranding),
+					hasAdvancedEditing: Boolean(hasAdvancedEditing),
+					maxMembers: maxMembers ? parseInt(maxMembers) : undefined,
+					monthlyVideoQuota: monthlyVideoQuota
+						? parseInt(monthlyVideoQuota)
+						: undefined,
+					maxWorkspaces: maxWorkspaces ? parseInt(maxWorkspaces) : undefined,
+					isActive: isActive !== undefined ? Boolean(isActive) : true, // Default to true if not provided
 				},
 			});
 
@@ -95,11 +100,43 @@ export class SubscriptionPlansController {
 		}
 	};
 
+	// Delete a subscription plan
+	deletePlan: RequestHandler = async (
+		req: Request,
+		res: Response,
+		next: NextFunction
+	) => {
+		const { planId } = req.params;
+
+		try {
+			const plan = await prisma.subscriptionPlan.findUnique({
+				where: { planId },
+			});
+			if (!plan) {
+				return res.status(404).json({ error: "Subscription plan not found" });
+			}
+
+			// Note: Razorpay doesn't provide a direct API to delete plans, so we just mark it inactive
+			// If you need to actually delete it from Razorpay, you might need to handle it manually
+			await prisma.subscriptionPlan.delete({
+				where: { planId },
+			});
+
+			res
+				.status(200)
+				.json({ message: "Subscription plan deleted successfully" });
+		} catch (error) {
+			console.error("Failed to delete subscription plan:", error);
+			res.status(500).json({ error: "Failed to delete subscription plan" });
+		}
+	};
+
+	// Toggle plan active status
 	togglePlanActive: RequestHandler = async (
 		req: Request,
 		res: Response,
 		next: NextFunction
-	) => { 
+	) => {
 		const { id } = req.params;
 		const { isActive } = req.body;
 
@@ -111,7 +148,9 @@ export class SubscriptionPlansController {
 
 			const updatedPlan = await prisma.subscriptionPlan.update({
 				where: { id },
-				data: { isActive: isActive === undefined ? !plan.isActive : isActive },
+				data: {
+					isActive: isActive === undefined ? !plan.isActive : Boolean(isActive),
+				},
 			});
 
 			res.status(200).json(updatedPlan);
@@ -125,5 +164,7 @@ export class SubscriptionPlansController {
 export const getPlansController = new SubscriptionPlansController().getPlans;
 export const createPlanController = new SubscriptionPlansController()
 	.createPlan;
+export const deletePlanController = new SubscriptionPlansController()
+	.deletePlan;
 export const togglePlanController = new SubscriptionPlansController()
 	.togglePlanActive;

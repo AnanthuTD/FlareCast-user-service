@@ -52,6 +52,7 @@ model User {
   UserSubscription     UserSubscription[]
   activeSubscriptionId String?            @db.ObjectId
   activeSubscription   UserSubscription?  @relation(name: "activeSubscription", fields: [activeSubscriptionId], references: [id])
+  totalVideoCount      Int                @default(0)
 }
 
 model WatchLater {
@@ -112,22 +113,37 @@ model AdminAction {
 }
 
 model SubscriptionPlan {
-  id               String             @id @default(auto()) @map("_id") @db.ObjectId
-  planId           String             @unique // Razorpay plan ID
-  name             String
-  price            Float
-  interval         Int
-  period           Period
-  description      String?
-  videoPerMonth    Int
-  duration         Int
-  workspace        Int
-  aiFeature        Boolean            @default(false)
-  isActive         Boolean            @default(true)
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
+  id   String   @id @default(auto()) @map("_id") @db.ObjectId
+  type PlanType @default(paid)
+
+  planId   String @unique // Razorpay plan ID
+  name     String
+  price    Float
+  interval Int
+  period   Period
+
+  // Features
+  maxRecordingDuration Int @default(1)
+  hasAiFeatures        Boolean @default(false)
+  allowsCustomBranding Boolean @default(false)
+  hasAdvancedEditing   Boolean @default(false)
+
+  maxMembers    Int?
+  maxVideoCount Int? @default(1)
+  maxWorkspaces Int?
+
+  // Status
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
   UserSubscription UserSubscription[]
-  trim             Boolean            @default(false)
+}
+
+enum PlanType {
+  free
+  paid
 }
 
 enum Period {

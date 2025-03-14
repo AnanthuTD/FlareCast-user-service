@@ -87,6 +87,20 @@ export class UserSubscriptionRepository {
 		});
 	};
 
+	getActiveSubscription = async (userId: string) => {
+		const activePlan = await prisma.userSubscription.findFirst({
+			where: { userId, status: SubscriptionStatus.active },
+			orderBy: { createdAt: "desc" },
+			select: { plan: true },
+		});
+		if (!activePlan) {
+			return await prisma.subscriptionPlan.findFirst({
+				where: { type: "free", isActive: true },
+			});
+		}
+		return activePlan.plan;
+	};
+
 	// Update subscription status to ACTIVE
 	updateSubscriptionStatusToActive = async (userId: string) => {
 		const subscription = await prisma.userSubscription.findFirst({
@@ -196,7 +210,6 @@ export class UserSubscriptionRepository {
 			const planData = await prisma.subscriptionPlan.findUnique({
 				where: { id: subscription.planId },
 			});
-			const videoPerMonth = planData?.videoPerMonth || 0;
 
 			console.log(
 				"userId: ",
@@ -315,9 +328,9 @@ export class UserSubscriptionRepository {
 	} */
 
 	async getUserSubscriptionByRazorpayId(razorpaySubscriptionId: string) {
-    return await prisma.userSubscription.findFirst({
-      where: { razorpaySubscriptionId },
-      select: { status: true, updatedAt: true, userId: true },
-    });
-  }
+		return await prisma.userSubscription.findFirst({
+			where: { razorpaySubscriptionId },
+			select: { status: true, updatedAt: true, userId: true },
+		});
+	}
 }
