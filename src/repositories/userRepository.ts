@@ -293,4 +293,20 @@ export class UserRepository {
 		});
 		return user?.totalVideoCount || 0;
 	}
+
+	async incrementVideoCount(userId: string) {
+		const user = await prisma.user.update({
+			where: { id: userId },
+			data: { totalVideoCount: { increment: 1 } },
+		});
+		return user?.totalVideoCount || 0;
+	}
+
+	async decrementVideoCount(userId: string) {
+		const user = await prisma.user.update({
+			where: { id: userId },
+			data: { totalVideoCount: { decrement: 1 } },
+		});
+		return user?.totalVideoCount || 0;
+	}
 }

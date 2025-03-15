@@ -29,7 +29,7 @@ export class LimitsController {
 				userId
 			);
 
-			if (activePlan.maxVideoCount < 0) {
+			if (activePlan.maxVideoCount === null || activePlan.maxVideoCount < 0) {
 				return res.status(200).json({
 					message: "User has unlimited video count",
 					permission: "granted",
@@ -80,7 +80,7 @@ export class LimitsController {
 				userId
 			);
 
-			if (activePlan.maxVideoCount < 0) {
+			if (activePlan.maxVideoCount === null || activePlan.maxVideoCount < 0) {
 				return res.status(200).json({
 					message: "User has unlimited video count",
 					permission: "granted",
@@ -106,6 +106,46 @@ export class LimitsController {
 			});
 		} catch (error) {
 			console.error("Error checking upload permission:", error);
+			return res.status(500).json({ message: "Internal server error" });
+		}
+	};
+
+	getWorkspaceLimit: RequestHandler = async (req, res) => {
+		const userId = req.params.userId;
+		try {
+			const activePlan =
+				await this.userSubscriptionRepository.getActiveSubscription(userId);
+			if (!activePlan) {
+				return res.status(403).json({
+					message: `User ${userId} don't have an active subscription plan!`,
+				});
+			}
+			return res.status(200).json({
+				message: "Workspace limit",
+				limit: activePlan.maxWorkspaces,
+			});
+		} catch (err) {
+			console.error("Error getting workspace limit:", err);
+			return res.status(500).json({ message: "Internal server error" });
+		}
+	};
+
+	getMemberLimit: RequestHandler = async (req, res) => {
+		const userId = req.params.userId;
+		try {
+			const activePlan =
+				await this.userSubscriptionRepository.getActiveSubscription(userId);
+			if (!activePlan) {
+				return res.status(403).json({
+					message: `User ${userId} don't have an active subscription plan!`,
+				});
+			}
+			return res.status(200).json({
+				message: "Member limit",
+				limit: activePlan.maxMembers,
+			});
+		} catch (err) {
+			console.error("Error getting member limit:", err);
 			return res.status(500).json({ message: "Internal server error" });
 		}
 	};

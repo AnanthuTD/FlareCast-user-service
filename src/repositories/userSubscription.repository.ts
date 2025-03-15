@@ -6,6 +6,7 @@ import { EventEmitter } from "events"; // For event emission (if still needed)
 import { RazorpayRepository } from "./razorpay.repository";
 import prisma from "../prismaClient";
 import { Subscriptions } from "razorpay/dist/types/subscriptions";
+import { logger } from "../logger/logger";
 
 @Service()
 export class UserSubscriptionRepository {
@@ -181,7 +182,7 @@ export class UserSubscriptionRepository {
 				where: { razorpaySubscriptionId: subscriptionId },
 				data: {
 					...updatedFields,
-					updatedAt: new Date(), // Prisma handles this automatically with @updatedAt
+					updatedAt: new Date(),
 				},
 			});
 
@@ -191,6 +192,8 @@ export class UserSubscriptionRepository {
 
 			if (updatedSubscription.status === SubscriptionStatus.active) {
 				await this.addActiveSubscriptionId(updatedSubscription);
+			} else if (updatedSubscription.status === SubscriptionStatus.expired) {
+				await this.switchToDefaultPlan({ userId: updatedSubscription.userId });
 			}
 
 			// Emit event (if eventEmitter is needed, implement or remove based on usage)
@@ -202,6 +205,22 @@ export class UserSubscriptionRepository {
 			console.error("Error updating user subscription:", error);
 			throw error;
 		}
+	};
+
+	switchToDefaultPlan = async ({ userId }) => {
+		const defaultPlan = await prisma.subscriptionPlan.findFirst({
+			where: { type: "free", isActive: true },
+		});
+		if (!defaultPlan) {
+			throw new Error("Default subscription plan not found.");
+		}
+		await prisma.user.update({
+			where: { id: userId },
+			data: {
+				activeSubscriptionId: defaultPlan.id,
+			},
+		});
+		logger.debug(`user ${userId} switched to default plan: ${defaultPlan.id}`);
 	};
 
 	// Add active subscription ID logic (updated for Prisma and User model)
