@@ -1,36 +1,14 @@
 import { Namespace, Socket } from "socket.io";
-import Container, { Service } from "typedi";
 import eventEmitter from "../eventEmitter";
 import EventName from "../eventEmitter/eventNames";
-import passport from "passport";
-
-/**
- * Middleware for authenticating delivery partners using Passport
- */
-const authenticate = (socket: Socket, next: (err?: Error) => void) => {
-	const token = socket.handshake.auth.token;
-
-	if (!token) {
-		return next(new Error("Unauthorized: No token provided"));
-	}
-
-	socket.request.headers["authorization"] = `Bearer ${token}`;
-
-	passport.authenticate("jwt", { session: false }, (err, user) => {
-		if (err || !user) {
-			return next(new Error("Unauthorized: Invalid token"));
-		}
-		socket.user = user;
-		next();
-	})(socket.request, {}, next);
-};
+import { authenticateWebsocketUser } from "../middlewares/socketAuth.middleware";
 
 export const setupSubscriptionNamespace = (namespace: Namespace) => {
-	namespace.use(authenticate);
+	namespace.use(authenticateWebsocketUser);
 
 	namespace.on("connection", (socket: Socket) => {
 		console.log(
-			`User ${socket.id} connected to /user/subscriptions userId: ${socket.user.id}`
+			`User ${socket.id} connected to /subscriptions userId: ${socket.user.id}`
 		);
 
 		const user = (socket as any).user;
@@ -45,12 +23,12 @@ export const setupSubscriptionNamespace = (namespace: Namespace) => {
 
 		// Handle disconnection
 		socket.on("disconnect", () => {
-			console.log(`User ${socket.id} disconnected from /vendor/subscriptions`);
+			console.log(`User ${socket.id} disconnected from /subscriptions`);
 		});
 	});
 
 	eventEmitter.on(EventName.SUBSCRIPTION_STATUS_UPDATE, (userId: string) => {
-		console.log("emitting subscription status update to vendor: ", userId);
+		console.log("emitting subscription status update to user: ", userId);
 		namespace.to(`user:${userId}`).emit(EventName.SUBSCRIPTION_STATUS_UPDATE);
 	});
 };
