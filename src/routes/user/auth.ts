@@ -1,9 +1,9 @@
 import express from "express";
 import passport from "passport";
-import { DependenciesInterface } from "../entities/interfaces";
-import { userControllers } from "../controllers";
+import { DependenciesInterface } from "../../entities/interfaces";
+import { userControllers } from "../../controllers";
 import Container from "typedi";
-import { RefreshTokenController } from "../controllers/user/refreshToken.controller";
+import { RefreshTokenController } from "../../controllers/user/refreshToken.controller";
 
 export = (dependencies: DependenciesInterface) => {
 	const {

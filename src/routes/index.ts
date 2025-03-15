@@ -1,23 +1,21 @@
 import express from "express";
-import authRouter from "./auth";
 import adminRouter from "./admin";
 import { DependenciesInterface } from "../entities/interfaces";
-import protectedUserRoutes from "./protectedUserRoutes";
-import { getPlansController } from "../controllers/user/userSubscription.controller";
-import webhookRouter from "./webhook.router";
+
 import interServiceRoutes from "./inter-service";
+import userRoutes from "./user";
 
 const routes = (dependencies: DependenciesInterface) => {
 	const router = express.Router();
 
-	router.use('/services', interServiceRoutes)
+	/* interservice */
+	router.use("/services", interServiceRoutes);
 
+	/* admin */
 	router.use("/admin", adminRouter);
-	router.use("/auth", authRouter(dependencies));
-	
-	router.get("/subscription-plans", getPlansController);
-	router.use("/webhook", webhookRouter)
-	router.use("/", protectedUserRoutes);
+
+	/* user */
+	router.use("/", userRoutes(dependencies));
 
 	return router;
 };

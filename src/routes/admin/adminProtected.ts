@@ -1,8 +1,8 @@
 import express from "express";
-import adminProfileController from "../controllers/admin/adminProfile.controller";
-import authMiddleware from "../middlewares/auth.middleware";
-import getPaginatedUsers from "../controllers/admin/getUsers.controller";
-import banUserController from "../controllers/admin/banUser.controller";
+import adminProfileController from "../../controllers/admin/adminProfile.controller";
+import authMiddleware from "../../middlewares/auth.middleware";
+import getPaginatedUsers from "../../controllers/admin/getUsers.controller";
+import banUserController from "../../controllers/admin/banUser.controller";
 import subscriptionRoutes from './subscriptionRoutes'
 
 const adminProtectedRoute = express.Router();

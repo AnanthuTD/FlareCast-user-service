@@ -2,7 +2,7 @@ import express from "express";
 import {
 	updateProfileController,
 	uploadMiddleware,
-} from "../controllers/user/userProfile.controller";
+} from "../../controllers/user/userProfile.controller";
 
 const router = express.Router();
 

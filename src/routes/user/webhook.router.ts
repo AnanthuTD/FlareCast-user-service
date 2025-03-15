@@ -1,5 +1,5 @@
 import express from "express";
-import { webhookController } from "../controllers/razorpay/webhook.controller";
+import { webhookController } from "../../controllers/razorpay/webhook.controller";
 
 const webhookRouter = express.Router();
 

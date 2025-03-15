@@ -5,7 +5,7 @@ import {
 	getPlansController,
 	getSubscriptionsController,
 	subscribeController,
-} from "../controllers/user/userSubscription.controller";
+} from "../../controllers/user/userSubscription.controller";
 
 const userSubscriptionRouter = express.Router();
 

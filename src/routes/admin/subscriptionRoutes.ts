@@ -3,7 +3,7 @@ import {
 	getPlansController,
 	createPlanController,
   togglePlanController,
-} from "../controllers/admin/subscriptionPlan.controller"; 
+} from "../../controllers/admin/subscriptionPlan.controller"; 
 
 const router = express.Router();
 
