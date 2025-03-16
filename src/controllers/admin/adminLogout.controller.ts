@@ -64,7 +64,6 @@ export class AdminLogoutController {
 
 			// Clear cookies
 			res.clearCookie("accessToken", {
-				httpOnly: true,
 				secure: env.NODE_ENV === "production",
 				sameSite: "strict",
 			});
@@ -88,7 +87,6 @@ export class AdminLogoutController {
 			if (error instanceof jwt.TokenExpiredError) {
 				// Token expired, still clear cookies
 				res.clearCookie("accessToken", {
-					httpOnly: true,
 					secure: env.NODE_ENV === "production",
 					sameSite: "strict",
 				});

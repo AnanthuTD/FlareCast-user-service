@@ -1,9 +1,9 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, RequestHandler, Response } from "express";
 import { DependenciesInterface } from "../../entities/interfaces";
 import prisma from "../../prismaClient";
 
 export = (dependencies: DependenciesInterface) => {
-	const isAuthenticated = async (
+	const isAuthenticated: RequestHandler = async (
 		req: Request,
 		res: Response,
 		next: NextFunction

@@ -34,10 +34,11 @@ export const authenticateWebsocketAdmin = (socket: Socket, next: (err?: Error) =
 
   socket.request.headers["authorization"] = `Bearer ${token}`;
 
-  passport.authenticate("jwt", { session: false }, (err, admin) => {
+  passport.authenticate("admin-jwt", { session: false }, (err, admin) => {
     if (err || !admin) {
       return next(new Error("Unauthorized: Invalid token"));
     }
+    console.log(admin)
     socket.admin = admin;
     next();
   })(socket.request, {}, next);

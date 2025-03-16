@@ -13,13 +13,8 @@ import dependencies from "./config/dependencies";
 import { logger } from "./logger/logger";
 import "./config/redis";
 import { tokenExtractorMiddleware } from "./middlewares/tokenExtractor.middleware";
-import { createServer } from "http";
-import { initializeSocket } from "./config/socket";
 
 const app = express();
-
-// const server = createServer(app);
-// const io = initializeSocket(server); 
 
 app.use(cookieParser());
 app.use(tokenExtractorMiddleware);
