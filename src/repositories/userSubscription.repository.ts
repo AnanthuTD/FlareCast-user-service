@@ -352,4 +352,29 @@ export class UserSubscriptionRepository {
 			select: { status: true, updatedAt: true, userId: true },
 		});
 	}
+
+	async getLatestSubscriptions() {
+		const usersSignedUp = await prisma.userSubscription.findMany({
+			where: {
+				status: "active",
+			},
+			take: 5,
+			select: {
+				amount: true,
+				plan: {
+					select: {
+						name: true,
+					},
+				},
+				createdAt: true,
+				status: true,
+			},
+			orderBy: { createdAt: "desc" },
+		});
+		return usersSignedUp;
+	}
+
+	async activeSubscriptionsCount() {
+		return await prisma.userSubscription.count({ where: { status: "active" } });
+	}
 }

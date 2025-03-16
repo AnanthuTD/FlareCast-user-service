@@ -309,4 +309,21 @@ export class UserRepository {
 		});
 		return user?.totalVideoCount || 0;
 	}
+
+	async getTotalUsersCount() {
+		const totalUsers = await prisma.user.count();
+		return totalUsers;
+	}
+
+	async getBannedUsersCount() {
+		const bannedUsers = await prisma.user.count({ where: { isBanned: true } });
+		return bannedUsers;
+	}
+
+	async getUsersSignedUpBetween(startDate: Date, endDate: Date) {
+		const usersSignedUp = await prisma.user.count({
+			where: { createdAt: { gte: startDate, lte: endDate } },
+		});
+		return usersSignedUp;
+	}
 }
