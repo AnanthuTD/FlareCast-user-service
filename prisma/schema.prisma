@@ -123,7 +123,7 @@ model SubscriptionPlan {
   period   Period
 
   // Features
-  maxRecordingDuration Int @default(1)
+  maxRecordingDuration Int     @default(1)
   hasAiFeatures        Boolean @default(false)
   allowsCustomBranding Boolean @default(false)
   hasAdvancedEditing   Boolean @default(false)
@@ -193,4 +193,24 @@ enum SubscriptionStatus {
   paused
   resumed
   charged
+}
+
+model PromotionalVideo {
+  id          String                   @id @default(auto()) @map("_id") @db.ObjectId
+  category    PromotionalVideoCategory
+  hidden      Boolean                  @default(true)
+  videoId     String                   @db.ObjectId @unique
+  priority    Int                      @default(0)
+  startDate   DateTime?
+  endDate     DateTime?
+  title       String?                  
+  description String?                  
+  createdBy   String                   @db.ObjectId
+  createdAt   DateTime                 @default(now())
+  updatedAt   DateTime                 @updatedAt
+}
+
+enum PromotionalVideoCategory {
+  PROMOTIONAL
+  NEW_FEATURE
 }
