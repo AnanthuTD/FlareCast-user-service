@@ -116,16 +116,16 @@ model SubscriptionPlan {
   id   String   @id @default(auto()) @map("_id") @db.ObjectId
   type PlanType @default(paid)
 
-  planId   String @unique // Razorpay plan ID
+  planId   String? @unique // Razorpay plan ID
   name     String
   price    Float
-  interval Int
-  period   Period
+  interval Int?
+  period   Period?
 
   // Features
   maxRecordingDuration Int     @default(1)
   hasAiFeatures        Boolean @default(false)
-  allowsCustomBranding Boolean @default(false)
+  // allowsCustomBranding Boolean @default(false)
   hasAdvancedEditing   Boolean @default(false)
 
   maxMembers    Int?
@@ -199,12 +199,12 @@ model PromotionalVideo {
   id          String                   @id @default(auto()) @map("_id") @db.ObjectId
   category    PromotionalVideoCategory
   hidden      Boolean                  @default(true)
-  videoId     String                   @db.ObjectId @unique
+  videoId     String                   @unique @db.ObjectId
   priority    Int                      @default(0)
   startDate   DateTime?
   endDate     DateTime?
-  title       String?                  
-  description String?                  
+  title       String?
+  description String?
   createdBy   String                   @db.ObjectId
   createdAt   DateTime                 @default(now())
   updatedAt   DateTime                 @updatedAt
