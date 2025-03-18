@@ -2,6 +2,7 @@ import prisma from "../prismaClient";
 import { logger } from "../logger/logger";
 import { Service } from "typedi";
 import { User } from "@prisma/client";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 export async function userExists(email: string) {
 	const user = await prisma.user.findFirst({
@@ -294,20 +295,68 @@ export class UserRepository {
 		return user?.totalVideoCount || 0;
 	}
 
-	async incrementVideoCount(userId: string) {
-		const user = await prisma.user.update({
-			where: { id: userId },
-			data: { totalVideoCount: { increment: 1 } },
-		});
-		return user?.totalVideoCount || 0;
+	async incrementVideoCount(userId: string): Promise<number> {
+		try {
+			const user = await prisma.user.findUnique({
+				where: { id: userId },
+				select: { totalVideoCount: true },
+			});
+
+			const updatedUser = await prisma.user.update({
+				where: { id: userId },
+				data: { totalVideoCount: (user?.totalVideoCount || 0) + 1 },
+				select: { totalVideoCount: true },
+			});
+			return updatedUser.totalVideoCount ?? 0;
+		} catch (error) {
+			// Handle case where user doesn't exist
+			if (
+				error instanceof PrismaClientKnownRequestError &&
+				error.code === "P2025"
+			) {
+				console.warn(`User ${userId} not found for incrementVideoCount`);
+				return 0; // Or throw new Error("User not found") if you prefer
+			}
+			throw error; // Re-throw other errors (e.g., database connection issues)
+		}
 	}
 
-	async decrementVideoCount(userId: string) {
-		const user = await prisma.user.update({
-			where: { id: userId },
-			data: { totalVideoCount: { decrement: 1 } },
-		});
-		return user?.totalVideoCount || 0;
+	// Decrement video count, ensuring it doesn't go below 0
+	async decrementVideoCount(userId: string): Promise<number> {
+		try {
+			// First fetch the current count to check if it's > 0
+			const user = await prisma.user.findUnique({
+				where: { id: userId },
+				select: { totalVideoCount: true },
+			});
+
+			if (!user) {
+				console.warn(`User ${userId} not found for decrementVideoCount`);
+				return 0; // User doesn’t exist
+			}
+
+			const currentCount = user.totalVideoCount ?? 0; // Treat null as 0
+			if (currentCount <= 0) {
+				return 0; // Already 0 or negative, no decrement needed
+			}
+
+			// Perform the decrement
+			const updatedUser = await prisma.user.update({
+				where: { id: userId },
+				data: { totalVideoCount: { decrement: 1 } },
+				select: { totalVideoCount: true },
+			});
+			return updatedUser.totalVideoCount ?? 0;
+		} catch (error) {
+			if (
+				error instanceof PrismaClientKnownRequestError &&
+				error.code === "P2025"
+			) {
+				console.warn(`User ${userId} not found for decrementVideoCount`);
+				return 0;
+			}
+			throw error;
+		}
 	}
 
 	async getTotalUsersCount() {

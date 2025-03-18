@@ -112,7 +112,7 @@ export class SubscriptionController {
 		}
 	};
 
-	// Fetch vendor subscriptions
+	// Fetch user subscriptions
 	getSubscriptions: RequestHandler = async (
 		req: Request,
 		res: Response,
@@ -151,9 +151,7 @@ export class SubscriptionController {
 			}
 
 			if (userId) {
-				const activeSubscription = await prisma.userSubscription.findFirst({
-					where: { userId, status: SubscriptionStatus.active },
-				});
+				const activeSubscription = await this.userSubscriptionRepository.getActiveSubscription(userId);
 
 				const plansWithActiveStatus = subscriptionPlans.map((plan) => ({
 					...plan,

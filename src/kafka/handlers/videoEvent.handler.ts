@@ -4,6 +4,7 @@ export function handleVideoUploadEvent(data: {
 	userId: string;
 	videoId: string;
 }) {
+	console.log("video upload event")
 	const userRepo = new UserRepository();
 	userRepo.incrementVideoCount(data.userId);
 }

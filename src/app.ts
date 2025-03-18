@@ -14,6 +14,7 @@ import { logger } from "./logger/logger";
 import "./config/redis";
 import { tokenExtractorMiddleware } from "./middlewares/tokenExtractor.middleware";
 import HttpStatusCodes from "./common/HttpStatusCodes";
+import './kafka'
 
 const app = express();
 

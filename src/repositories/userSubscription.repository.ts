@@ -97,9 +97,9 @@ export class UserSubscriptionRepository {
 		if (!activePlan) {
 			return await prisma.subscriptionPlan.findFirst({
 				where: { type: "free", isActive: true },
-			});
+			}); 
 		}
-		return activePlan.plan;
+		return activePlan?.plan;
 	};
 
 	// Update subscription status to ACTIVE
