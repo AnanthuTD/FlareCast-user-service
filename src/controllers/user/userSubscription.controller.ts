@@ -74,7 +74,9 @@ export class SubscriptionController {
 			});
 
 			if (!subscriptionPlan) {
-				return res.status(HttpStatusCodes.NOT_FOUND).json({ message: "Subscription plan not found" });
+				return res
+					.status(HttpStatusCodes.NOT_FOUND)
+					.json({ message: "Subscription plan not found" });
 			}
 
 			// TODO: What to do if user already has more videos that the limit
@@ -131,7 +133,9 @@ export class SubscriptionController {
 			return res.json(subscriptionsWithKey);
 		} catch (error) {
 			console.error("Error fetching subscriptions:", error);
-			return res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({ message: "Internal server error" });
+			return res
+				.status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+				.json({ message: "Internal server error" });
 		}
 	};
 
@@ -144,19 +148,23 @@ export class SubscriptionController {
 		try {
 			const userId = req.user?.id as string;
 
-			const subscriptionPlans = await prisma.subscriptionPlan.findMany();
+			const subscriptionPlans = await prisma.subscriptionPlan.findMany({
+				where: { isActive: true },
+			});
 
 			if (!subscriptionPlans || subscriptionPlans.length === 0) {
-				return res.status(HttpStatusCodes.NOT_FOUND).json({ message: "No subscription plans found" });
+				return res
+					.status(HttpStatusCodes.NOT_FOUND)
+					.json({ message: "No subscription plans found" });
 			}
 
 			if (userId) {
-				const activeSubscription = await this.userSubscriptionRepository.getActiveSubscription(userId);
+				const activeSubscription =
+					await this.userSubscriptionRepository.getActiveSubscription(userId);
 
 				const plansWithActiveStatus = subscriptionPlans.map((plan) => ({
 					...plan,
-					active:
-						activeSubscription && activeSubscription.planId === plan.id,
+					active: activeSubscription && activeSubscription.planId === plan.id,
 				}));
 
 				return res.json({ plans: plansWithActiveStatus, activeSubscription });
@@ -164,7 +172,9 @@ export class SubscriptionController {
 			return res.json({ plans: subscriptionPlans, activeSubscription: null });
 		} catch (error) {
 			console.error("Error fetching subscription plans:", error);
-			return res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({ message: "Internal server error" });
+			return res
+				.status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+				.json({ message: "Internal server error" });
 		}
 	};
 
@@ -180,7 +190,9 @@ export class SubscriptionController {
 			const user = await this.userRepository.getUserById(userId);
 
 			if (!user) {
-				return res.status(HttpStatusCodes.NOT_FOUND).json({ message: "User not found" });
+				return res
+					.status(HttpStatusCodes.NOT_FOUND)
+					.json({ message: "User not found" });
 			}
 
 			const result =

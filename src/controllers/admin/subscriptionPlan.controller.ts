@@ -25,7 +25,7 @@ export class SubscriptionPlansController {
 	) => {
 		try {
 			const plans = await prisma.subscriptionPlan.findMany({
-				where: { isActive: true }, // Optionally filter for active plans only
+				// where: { isActive: true }, // Optionally filter for active plans only
 				orderBy: { createdAt: "desc" }, // Sort by creation date
 			});
 			return res.status(HttpStatusCodes.OK).json(plans);
