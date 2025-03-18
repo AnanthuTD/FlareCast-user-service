@@ -5,6 +5,7 @@ import TokenService from "../../helpers/TokenService";
 import env from "../../env";
 import { authResponseUserObject } from "../../dto/user.dto";
 import { sendUserVerifiedEvent } from "../../kafka/producer";
+import HttpStatusCodes from "../../common/HttpStatusCodes";
 
 export = (dependencies: DependenciesInterface) => {
 	const {
@@ -20,7 +21,7 @@ export = (dependencies: DependenciesInterface) => {
 			const { code } = req.body;
 			if (!code) {
 				return res
-					.status(400)
+					.status(HttpStatusCodes.BAD_REQUEST)
 					.json({ error: "Authorization code is required." });
 			}
 
@@ -36,7 +37,7 @@ export = (dependencies: DependenciesInterface) => {
 
 			if (!data || !data.data) {
 				return res
-					.status(400)
+					.status(HttpStatusCodes.BAD_REQUEST)
 					.json({ message: "Failed to authenticate with Google." });
 			}
 
@@ -61,7 +62,7 @@ export = (dependencies: DependenciesInterface) => {
 			}
 
 			if ((user).isBanned) {
-				return res.status(403).json({ message: "User is banned" });
+				return res.status(HttpStatusCodes.FORBIDDEN).json({ message: "User is banned" });
 			}
 
 			const accessToken = TokenService.generateToken(
@@ -76,7 +77,7 @@ export = (dependencies: DependenciesInterface) => {
 			res.cookie("refreshToken", refreshToken, { httpOnly: true });
 			res.cookie("accessToken", accessToken);
 
-			return res.status(200).json({
+			return res.status(HttpStatusCodes.OK).json({
 				message: "Successfully authenticated.",
 				user: authResponseUserObject(user),
 				accessToken,

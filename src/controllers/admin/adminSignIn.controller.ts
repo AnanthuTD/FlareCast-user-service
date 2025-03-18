@@ -3,6 +3,7 @@ import TokenService from "../../helpers/TokenService";
 import env from "../../env";
 import bcrypt from "bcryptjs";
 import prisma from "../../prismaClient";
+import HttpStatusCodes from "../../common/HttpStatusCodes";
 
 interface AdminSigninRequest extends Request {
 	body: {
@@ -19,7 +20,7 @@ const adminSignin = async (req: Request, res: Response, next: NextFunction) => {
 
 		// Validate input
 		if (!email || !password) {
-			res.status(400).json({ message: "Email and password are required" });
+			res.status(HttpStatusCodes.BAD_REQUEST).json({ message: "Email and password are required" });
 			return;
 		}
 
@@ -33,7 +34,7 @@ const adminSignin = async (req: Request, res: Response, next: NextFunction) => {
 			!admin.hashedPassword ||
 			!(await bcrypt.compare(password, admin.hashedPassword))
 		) {
-			res.status(401).json({ message: "Invalid credentials" });
+			res.status(HttpStatusCodes.UNAUTHORIZED).json({ message: "Invalid credentials" });
 			return;
 		}
 
@@ -73,7 +74,7 @@ const adminSignin = async (req: Request, res: Response, next: NextFunction) => {
 		});
 	} catch (error) {
 		console.error("Admin sign-in error:", error);
-		res.status(500).json({ message: "Internal server error" });
+		res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({ message: "Internal server error" });
 		next(error); // Pass to error-handling middleware if you have one
 	}
 };

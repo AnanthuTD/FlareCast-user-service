@@ -7,6 +7,7 @@ import TokenService from "../../helpers/TokenService";
 import env from "../../env";
 import { AdminRepository } from "../../repositories/adminRepository";
 import { createUser, getUserByEmail } from "../../repositories/userRepository";
+import HttpStatusCodes from "../../common/HttpStatusCodes";
 
 // Define entity types
 type EntityType = "user" | "admin";
@@ -81,7 +82,7 @@ export class GoogleSignInController<T> {
 			const { code } = req.body;
 			if (!code || !code.access_token) {
 				return res
-					.status(400)
+					.status(HttpStatusCodes.BAD_REQUEST)
 					.json({ error: "Authorization code is required." });
 			}
 
@@ -97,7 +98,7 @@ export class GoogleSignInController<T> {
 
 			if (!data) {
 				return res
-					.status(400)
+					.status(HttpStatusCodes.BAD_REQUEST)
 					.json({ message: "Failed to authenticate with Google." });
 			}
 
@@ -144,11 +145,11 @@ export class GoogleSignInController<T> {
 				accessToken,
 			};
 
-			return res.status(200).json(responseData);
+			return res.status(HttpStatusCodes.OK).json(responseData);
 		} catch (error) {
 			console.error(error);
 			return res
-				.status(500)
+				.status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
 				.json({ error: "Failed to authenticate with Google." });
 		}
 	};

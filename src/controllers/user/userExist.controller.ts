@@ -1,5 +1,6 @@
 import { RequestHandler } from "express";
 import { DependenciesInterface } from "../../entities/interfaces";
+import HttpStatusCodes from "../../common/HttpStatusCodes";
 
 export = (dependencies: DependenciesInterface) => {
 	const {
@@ -10,7 +11,7 @@ export = (dependencies: DependenciesInterface) => {
 		try {
 			const { email } = req.query;
 			if (!email) {
-				return res.status(400).json({ message: "Email is required" });
+				return res.status(HttpStatusCodes.BAD_REQUEST).json({ message: "Email is required" });
 			}
 			const exists = await userExists(email as string);
 			return res.json(exists);

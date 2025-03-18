@@ -2,6 +2,7 @@ import { Request, Response, NextFunction, RequestHandler } from "express";
 import Container, { Service, Inject } from "typedi";
 import { Prisma } from "@prisma/client";
 import { UserRepository } from "../../repositories/userRepository";
+import HttpStatusCodes from "../../common/HttpStatusCodes";
 
 @Service()
 export class BanUserController {
@@ -17,17 +18,17 @@ export class BanUserController {
 
       // Validate input
       if (typeof isBanned !== "boolean") {
-        return res.status(400).json({ message: "isBanned must be a boolean" });
+        return res.status(HttpStatusCodes.BAD_REQUEST).json({ message: "isBanned must be a boolean" });
       }
 
       // Update user ban status
       const updatedUser = await this.userRepository.updateUserBanStatus(id, isBanned);
 
       if (!updatedUser) {
-        return res.status(404).json({ message: "User not found" });
+        return res.status(HttpStatusCodes.NOT_FOUND).json({ message: "User not found" });
       }
 
-      return res.status(200).json({
+      return res.status(HttpStatusCodes.OK).json({
         success: true,
         user: {
           id: updatedUser.id,
@@ -41,9 +42,9 @@ export class BanUserController {
     } catch (error) {
       console.error("Error banning user:", error);
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
-        return res.status(404).json({ message: "User not found" });
+        return res.status(HttpStatusCodes.NOT_FOUND).json({ message: "User not found" });
       }
-      return res.status(500).json({ message: "Internal server error" });
+      return res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({ message: "Internal server error" });
     }
   };
 }

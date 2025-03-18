@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction, RequestHandler } from "express";
 import { Service, Inject, Container } from "typedi";
 import { UserRepository } from "../../repositories/userRepository";
+import HttpStatusCodes from "../../common/HttpStatusCodes";
 
 @Service()
 export class UsersController {
@@ -21,7 +22,7 @@ export class UsersController {
       const includeBanned = req.query.includeBanned === "true"; // Query param ?includeBanned=true
 
       if (page < 1 || limit < 1) {
-        return res.status(400).json({ message: "Page and limit must be positive integers" });
+        return res.status(HttpStatusCodes.BAD_REQUEST).json({ message: "Page and limit must be positive integers" });
       }
 
       const { users, total, totalPages, currentPage } =
@@ -32,7 +33,7 @@ export class UsersController {
           includeBanned,
         });
 
-      return res.status(200).json({
+      return res.status(HttpStatusCodes.OK).json({
         success: true,
         data: {
           users,
@@ -46,7 +47,7 @@ export class UsersController {
       });
     } catch (error) {
       console.error("Error fetching paginated users:", error);
-      return res.status(500).json({ message: "Internal server error" });
+      return res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({ message: "Internal server error" });
     }
   };
 }

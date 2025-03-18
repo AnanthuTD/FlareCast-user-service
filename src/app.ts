@@ -13,6 +13,7 @@ import dependencies from "./config/dependencies";
 import { logger } from "./logger/logger";
 import "./config/redis";
 import { tokenExtractorMiddleware } from "./middlewares/tokenExtractor.middleware";
+import HttpStatusCodes from "./common/HttpStatusCodes";
 
 const app = express();
 
@@ -59,13 +60,13 @@ app.use("/", (req, res) => {
 
 // Catch-all route for handling unknown endpoints
 app.use((req, res) => {
-	res.status(404).send({ message: "API not found" });
+	res.status(HttpStatusCodes.NOT_FOUND).send({ message: "API not found" });
 });
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
 	logger.error(err.stack);
-	res.status(500).send("Something went wrong!");
+	res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).send("Something went wrong!");
 });
 
 export default app;

@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction, RequestHandler } from "express";
 import jwt from "jsonwebtoken";
 import env from "../env";
+import HttpStatusCodes from "../common/HttpStatusCodes";
 
 export const authMiddleware: RequestHandler = async (
 	req: Request,
@@ -11,7 +12,7 @@ export const authMiddleware: RequestHandler = async (
 		// Extract accessToken from cookies
 		const token = req.cookies?.accessToken;
 		if (!token) {
-			res.status(401).json({ message: "No token provided" });
+			res.status(HttpStatusCodes.UNAUTHORIZED).json({ message: "No token provided" });
 			return;
 		}
 
@@ -25,7 +26,7 @@ export const authMiddleware: RequestHandler = async (
 
 		// Check if token is valid (jwt.verify throws on expiration or invalidity)
 		if (!decoded.id || !decoded.type) {
-			res.status(401).json({ message: "Invalid token payload" });
+			res.status(HttpStatusCodes.UNAUTHORIZED).json({ message: "Invalid token payload" });
 			return;
 		}
 
@@ -37,15 +38,15 @@ export const authMiddleware: RequestHandler = async (
 		next();
 	} catch (error) {
 		if (error instanceof jwt.TokenExpiredError) {
-			res.status(401).json({ message: "Token has expired" });
+			res.status(HttpStatusCodes.UNAUTHORIZED).json({ message: "Token has expired" });
 			return;
 		}
 		if (error instanceof jwt.JsonWebTokenError) {
-			res.status(401).json({ message: "Invalid token" });
+			res.status(HttpStatusCodes.UNAUTHORIZED).json({ message: "Invalid token" });
 			return;
 		}
 		console.error("Auth middleware error:", error);
-		res.status(500).json({ message: "Internal server error" });
+		res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({ message: "Internal server error" });
 		return;
 	}
 };

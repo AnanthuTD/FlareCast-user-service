@@ -2,6 +2,7 @@ import { RequestHandler } from "express";
 import Container, { Inject, Service } from "typedi";
 import { UserRepository } from "../../repositories/userRepository";
 import { UserSubscriptionRepository } from "../../repositories/userSubscription.repository";
+import HttpStatusCodes from "../../common/HttpStatusCodes";
 
 @Service()
 export class LimitsController {
@@ -21,7 +22,7 @@ export class LimitsController {
 
 			if (!activePlan) {
 				return res
-					.status(403)
+					.status(HttpStatusCodes.FORBIDDEN)
 					.json({ message: "You don't have an active subscription plan!" });
 			}
 
@@ -30,7 +31,7 @@ export class LimitsController {
 			);
 
 			if (activePlan.maxVideoCount === null || activePlan.maxVideoCount < 0) {
-				return res.status(200).json({
+				return res.status(HttpStatusCodes.OK).json({
 					message: "User has unlimited video count",
 					permission: "granted",
 					maxVideoCount: null,
@@ -41,7 +42,7 @@ export class LimitsController {
 			}
 
 			if (activePlan.maxVideoCount <= currentVideoCount) {
-				return res.status(403).json({
+				return res.status(HttpStatusCodes.FORBIDDEN).json({
 					message: "You've reached your maximum video upload limit!",
 					permission: "denied",
 					maxVideoCount: activePlan.maxVideoCount,
@@ -49,7 +50,7 @@ export class LimitsController {
 				});
 			}
 
-			return res.status(200).json({
+			return res.status(HttpStatusCodes.OK).json({
 				message: "You can upload more videos!",
 				permission: "granted",
 				maxVideoCount: activePlan.maxVideoCount,
@@ -59,7 +60,7 @@ export class LimitsController {
 			});
 		} catch (error) {
 			console.error("Error checking upload permission:", error);
-			return res.status(500).json({ message: "Internal server error" });
+			return res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({ message: "Internal server error" });
 		}
 	};
 
@@ -72,7 +73,7 @@ export class LimitsController {
 
 			if (!activePlan) {
 				return res
-					.status(403)
+					.status(HttpStatusCodes.FORBIDDEN)
 					.json({ message: "You don't have an active subscription plan!" });
 			}
 
@@ -81,7 +82,7 @@ export class LimitsController {
 			);
 
 			if (activePlan.maxVideoCount === null || activePlan.maxVideoCount < 0) {
-				return res.status(200).json({
+				return res.status(HttpStatusCodes.OK).json({
 					message: "User has unlimited video count",
 					permission: "granted",
 					maxVideoCount: null,
@@ -90,7 +91,7 @@ export class LimitsController {
 			}
 
 			if (activePlan.maxVideoCount <= currentVideoCount) {
-				return res.status(403).json({
+				return res.status(HttpStatusCodes.FORBIDDEN).json({
 					message: "You've reached your maximum video upload limit!",
 					permission: "denied",
 					maxVideoCount: activePlan.maxVideoCount,
@@ -98,7 +99,7 @@ export class LimitsController {
 				});
 			}
 
-			return res.status(200).json({
+			return res.status(HttpStatusCodes.OK).json({
 				message: "You can upload more videos!",
 				permission: "granted",
 				maxVideoCount: activePlan.maxVideoCount,
@@ -106,7 +107,7 @@ export class LimitsController {
 			});
 		} catch (error) {
 			console.error("Error checking upload permission:", error);
-			return res.status(500).json({ message: "Internal server error" });
+			return res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({ message: "Internal server error" });
 		}
 	};
 
@@ -116,17 +117,17 @@ export class LimitsController {
 			const activePlan =
 				await this.userSubscriptionRepository.getActiveSubscription(userId);
 			if (!activePlan) {
-				return res.status(403).json({
+				return res.status(HttpStatusCodes.FORBIDDEN).json({
 					message: `User ${userId} don't have an active subscription plan!`,
 				});
 			}
-			return res.status(200).json({
+			return res.status(HttpStatusCodes.OK).json({
 				message: "Workspace limit",
 				limit: activePlan.maxWorkspaces,
 			});
 		} catch (err) {
 			console.error("Error getting workspace limit:", err);
-			return res.status(500).json({ message: "Internal server error" });
+			return res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({ message: "Internal server error" });
 		}
 	};
 
@@ -136,17 +137,17 @@ export class LimitsController {
 			const activePlan =
 				await this.userSubscriptionRepository.getActiveSubscription(userId);
 			if (!activePlan) {
-				return res.status(403).json({
+				return res.status(HttpStatusCodes.FORBIDDEN).json({
 					message: `User ${userId} don't have an active subscription plan!`,
 				});
 			}
-			return res.status(200).json({
+			return res.status(HttpStatusCodes.OK).json({
 				message: "Member limit",
 				limit: activePlan.maxMembers,
 			});
 		} catch (err) {
 			console.error("Error getting member limit:", err);
-			return res.status(500).json({ message: "Internal server error" });
+			return res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({ message: "Internal server error" });
 		}
 	};
 }

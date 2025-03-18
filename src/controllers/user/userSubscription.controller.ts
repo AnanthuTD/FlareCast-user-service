@@ -6,6 +6,7 @@ import prisma from "../../prismaClient";
 import { User, SubscriptionStatus } from "@prisma/client";
 import { UserSubscriptionRepository } from "../../repositories/userSubscription.repository";
 import env from "../../env";
+import HttpStatusCodes from "../../common/HttpStatusCodes";
 
 @Service()
 export class SubscriptionController {
@@ -29,15 +30,15 @@ export class SubscriptionController {
 			const result = await this.userRepository.canSubscribe(id);
 
 			if (!result.canSubscribe) {
-				res.status(400).json(result);
+				res.status(HttpStatusCodes.BAD_REQUEST).json(result);
 				return;
 			}
 
-			res.status(200).json({ message: "Vendor can subscribe" });
+			res.status(HttpStatusCodes.OK).json({ message: "Vendor can subscribe" });
 		} catch (error) {
 			console.error("Error checking subscription eligibility:", error);
 			res
-				.status(500)
+				.status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
 				.json({ error: "Internal server error", message: error.message });
 		}
 	};
@@ -54,7 +55,7 @@ export class SubscriptionController {
 
 			const canSubscribeResult = await this.userRepository.canSubscribe(userId);
 			if (!canSubscribeResult.canSubscribe) {
-				return res.status(400).json(canSubscribeResult);
+				return res.status(HttpStatusCodes.BAD_REQUEST).json(canSubscribeResult);
 			}
 
 			// Check for an existing active subscription
@@ -64,7 +65,7 @@ export class SubscriptionController {
 
 			if (existingSubscription) {
 				return res
-					.status(400)
+					.status(HttpStatusCodes.BAD_REQUEST)
 					.json({ message: "Vendor already has an active subscription." });
 			}
 
@@ -73,7 +74,7 @@ export class SubscriptionController {
 			});
 
 			if (!subscriptionPlan) {
-				return res.status(404).json({ message: "Subscription plan not found" });
+				return res.status(HttpStatusCodes.NOT_FOUND).json({ message: "Subscription plan not found" });
 			}
 
 			// TODO: What to do if user already has more videos that the limit
@@ -88,7 +89,7 @@ export class SubscriptionController {
 
 			if (!razorpayResponse || !razorpayResponse.id) {
 				return res
-					.status(500)
+					.status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
 					.json({ error: "Failed to create subscription on Razorpay" });
 			}
 
@@ -99,14 +100,14 @@ export class SubscriptionController {
 					subscriptionPlan,
 				});
 
-			return res.status(201).json({
+			return res.status(HttpStatusCodes.CREATED).json({
 				...newSubscription,
 				razorpayKeyId: env.RAZORPAY_KEY_ID,
 			});
 		} catch (error) {
 			console.error("Error creating subscription:", error);
 			return res
-				.status(500)
+				.status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
 				.json({ error: "Internal server error", message: error.message });
 		}
 	};
@@ -130,7 +131,7 @@ export class SubscriptionController {
 			return res.json(subscriptionsWithKey);
 		} catch (error) {
 			console.error("Error fetching subscriptions:", error);
-			return res.status(500).json({ message: "Internal server error" });
+			return res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({ message: "Internal server error" });
 		}
 	};
 
@@ -146,7 +147,7 @@ export class SubscriptionController {
 			const subscriptionPlans = await prisma.subscriptionPlan.findMany();
 
 			if (!subscriptionPlans || subscriptionPlans.length === 0) {
-				return res.status(404).json({ message: "No subscription plans found" });
+				return res.status(HttpStatusCodes.NOT_FOUND).json({ message: "No subscription plans found" });
 			}
 
 			if (userId) {
@@ -165,7 +166,7 @@ export class SubscriptionController {
 			return res.json({ plans: subscriptionPlans, activeSubscription: null });
 		} catch (error) {
 			console.error("Error fetching subscription plans:", error);
-			return res.status(500).json({ message: "Internal server error" });
+			return res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({ message: "Internal server error" });
 		}
 	};
 
@@ -181,20 +182,20 @@ export class SubscriptionController {
 			const user = await this.userRepository.getUserById(userId);
 
 			if (!user) {
-				return res.status(404).json({ message: "User not found" });
+				return res.status(HttpStatusCodes.NOT_FOUND).json({ message: "User not found" });
 			}
 
 			const result =
 				await this.userSubscriptionRepository.cancelUserSubscription(userId);
 
-			return res.status(200).json({
+			return res.status(HttpStatusCodes.OK).json({
 				message: result.message,
 				status: result.status,
 				razorpaySubscriptionId: result?.razorpaySubscriptionId,
 			});
 		} catch (error) {
 			console.error("Error cancelling subscription:", error);
-			return res.status(500).json({
+			return res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
 				message: "Failed to cancel subscription",
 				error: error.message,
 			});

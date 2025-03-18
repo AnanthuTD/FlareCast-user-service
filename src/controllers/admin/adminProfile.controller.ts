@@ -1,5 +1,6 @@
 import { Request, RequestHandler, Response } from "express";
 import prisma from "../../prismaClient";
+import HttpStatusCodes from "../../common/HttpStatusCodes";
 
 const adminProfileController: RequestHandler = async (
 	req: Request,
@@ -9,13 +10,13 @@ const adminProfileController: RequestHandler = async (
 
 	try {
 		if (user.type !== "admin") {
-			res.status(401).json({ message: "Admin access required" });
+			res.status(HttpStatusCodes.UNAUTHORIZED).json({ message: "Admin access required" });
 			return;
 		}
 
 		const admin = await prisma.admin.findUnique({ where: { id: user.id } });
 		if (!admin) {
-			res.status(401).json({ message: "Admin not found" });
+			res.status(HttpStatusCodes.UNAUTHORIZED).json({ message: "Admin not found" });
 			return;
 		}
 		res.json({
@@ -28,7 +29,7 @@ const adminProfileController: RequestHandler = async (
 			},
 		});
 	} catch (error) {
-		res.status(401).json({ message: "Invalid or expired token" });
+		res.status(HttpStatusCodes.UNAUTHORIZED).json({ message: "Invalid or expired token" });
 	}
 };
 

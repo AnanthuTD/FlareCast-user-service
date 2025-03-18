@@ -4,6 +4,7 @@ import { hashPassword } from "../../helpers/hashPassword";
 import TokenService from "../../helpers/TokenService";
 import env from "../../env";
 import { sendUserCreationEvent } from "../../kafka/producer";
+import HttpStatusCodes from "../../common/HttpStatusCodes";
 
 export = (dependencies: DependenciesInterface) => {
 	const {
@@ -18,14 +19,14 @@ export = (dependencies: DependenciesInterface) => {
 		try {
 			const { email, password, firstName, lastName, image } = req.body;
 			if (!email || !password || !firstName || !lastName) {
-				return res.status(400).json({
+				return res.status(HttpStatusCodes.BAD_REQUEST).json({
 					message: "Email, password, first name, and last name are required",
 				});
 			}
 
 			const exists = await userExists(email as string);
 			if (exists) {
-				return res.status(400).json({ message: "User already exists" });
+				return res.status(HttpStatusCodes.BAD_REQUEST).json({ message: "User already exists" });
 			}
 
 			const hashedPassword = await hashPassword(password);
@@ -50,10 +51,10 @@ export = (dependencies: DependenciesInterface) => {
 
 			/* res.cookie("refreshToken", refreshToken, { httpOnly: true });
 			res
-				.status(201)
+				.status(HttpStatusCodes.CREATED)
 				.json({ message: "User created", accessToken, refreshToken }); */
 
-				res.status(201).json({ message: "Verify the email to continue!"});
+				res.status(HttpStatusCodes.CREATED).json({ message: "Verify the email to continue!"});
 
 		} catch (error) {
 			next(error);

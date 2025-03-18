@@ -3,6 +3,7 @@ import prisma from "../../prismaClient";
 import axios from "axios";
 import env from "../../env";
 import { sendVideoUploadEvent } from "../../kafka/handlers/videoUploadEvent.producer";
+import HttpStatusCodes from "../../common/HttpStatusCodes";
 
 export class PromotionalVideoController {
 	// Get signed URL for direct S3 upload
@@ -15,13 +16,13 @@ export class PromotionalVideoController {
 			const { title, description, fileName } = req.body;
 
 			if (!fileName) {
-				return res.status(400).json({ error: "fileName is required" });
+				return res.status(HttpStatusCodes.BAD_REQUEST).json({ error: "fileName is required" });
 			}
 
 			const videoExtension = fileName.split(".").pop();
 			if (!["mp4", "webm"].includes(videoExtension?.toLowerCase() || "")) {
 				return res
-					.status(400)
+					.status(HttpStatusCodes.BAD_REQUEST)
 					.json({ error: "Invalid video extension. Use mp4 or webm" });
 			}
 
@@ -43,7 +44,7 @@ export class PromotionalVideoController {
 			res.json({ message: createPromotionalVideo.message, signedUrl, videoId });
 		} catch (error) {
 			console.error("Error fetching signed URL:", error);
-			res.status(500).json({ error: "Failed to fetch signed URL" });
+			res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Failed to fetch signed URL" });
 		}
 	};
 
@@ -68,15 +69,15 @@ export class PromotionalVideoController {
 			// Validation
 			if (!videoId || !s3Key) {
 				return res
-					.status(400)
+					.status(HttpStatusCodes.BAD_REQUEST)
 					.json({ error: "videoId and s3Key are required" });
 			}
 			if (!["PROMOTIONAL", "NEW_FEATURE"].includes(category?.toUpperCase())) {
-				return res.status(400).json({ error: "Invalid category" });
+				return res.status(HttpStatusCodes.BAD_REQUEST).json({ error: "Invalid category" });
 			}
 			const priorityNum = parseInt(priority, 10);
 			if (isNaN(priorityNum)) {
-				return res.status(400).json({ error: "Priority must be a number" });
+				return res.status(HttpStatusCodes.BAD_REQUEST).json({ error: "Priority must be a number" });
 			}
 
 			// Trigger processing (assumes sendVideoUploadEvent handles it)
@@ -101,13 +102,13 @@ export class PromotionalVideoController {
 				},
 			});
 
-			res.status(201).json({
+			res.status(HttpStatusCodes.CREATED).json({
 				message: "Promotional video metadata saved",
 				data: promoVideo,
 			});
 		} catch (error) {
 			console.error("Error creating promotional video:", error);
-			res.status(500).json({ error: (error as Error).message });
+			res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({ error: (error as Error).message });
 		}
 	};
 	// Read: Get all promotional videos
@@ -125,10 +126,10 @@ export class PromotionalVideoController {
 				},
 				orderBy: { priority: "asc" },
 			});
-			res.status(200).json({ data: videos });
+			res.status(HttpStatusCodes.OK).json({ data: videos });
 		} catch (error) {
 			console.error("Error fetching promotional videos:", error);
-			res.status(500).json({ error: (error as Error).message });
+			res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({ error: (error as Error).message });
 		}
 	};
 
@@ -143,12 +144,12 @@ export class PromotionalVideoController {
 				where: { id },
 			});
 			if (!video) {
-				return res.status(404).json({ error: "Promotional video not found" });
+				return res.status(HttpStatusCodes.NOT_FOUND).json({ error: "Promotional video not found" });
 			}
-			res.status(200).json({ data: video });
+			res.status(HttpStatusCodes.OK).json({ data: video });
 		} catch (error) {
 			console.error("Error fetching promotional video:", error);
-			res.status(500).json({ error: (error as Error).message });
+			res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({ error: (error as Error).message });
 		}
 	};
 
@@ -172,7 +173,7 @@ export class PromotionalVideoController {
 		try {
 			const video = await prisma.promotionalVideo.findUnique({ where: { id } });
 			if (!video) {
-				return res.status(404).json({ error: "Promotional video not found" });
+				return res.status(HttpStatusCodes.NOT_FOUND).json({ error: "Promotional video not found" });
 			}
 
 			const updatedVideo = await prisma.promotionalVideo.update({
@@ -192,13 +193,13 @@ export class PromotionalVideoController {
 				},
 			});
 
-			res.status(200).json({
+			res.status(HttpStatusCodes.OK).json({
 				message: "Promotional video updated",
 				data: updatedVideo,
 			});
 		} catch (error) {
 			console.error("Error updating promotional video:", error);
-			res.status(500).json({ error: (error as Error).message });
+			res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({ error: (error as Error).message });
 		}
 	};
 
@@ -211,14 +212,14 @@ export class PromotionalVideoController {
 		try {
 			const video = await prisma.promotionalVideo.findUnique({ where: { id } });
 			if (!video) {
-				return res.status(404).json({ error: "Promotional video not found" });
+				return res.status(HttpStatusCodes.NOT_FOUND).json({ error: "Promotional video not found" });
 			}
 
 			await prisma.promotionalVideo.delete({ where: { id } });
-			res.status(200).json({ message: "Promotional video deleted" });
+			res.status(HttpStatusCodes.OK).json({ message: "Promotional video deleted" });
 		} catch (error) {
 			console.error("Error deleting promotional video:", error);
-			res.status(500).json({ error: (error as Error).message });
+			res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({ error: (error as Error).message });
 		}
 	};
 }

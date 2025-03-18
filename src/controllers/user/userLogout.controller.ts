@@ -4,6 +4,7 @@ import env from "../../env";
 import { BlacklistRefreshTokenUseCase } from "../../usecases/user/blacklistRefreshToken.usecase";
 import Container from "typedi";
 import jwt from "jsonwebtoken";
+import HttpStatusCodes from "../../common/HttpStatusCodes";
 
 export = (dependencies: DependenciesInterface) => {
 	const logoutController = <RequestHandler>(async (req, res) => {
@@ -41,7 +42,7 @@ export = (dependencies: DependenciesInterface) => {
 			secure: env.NODE_ENV === "production",
 			sameSite: "strict",
 		});
-		res.status(401).json({ message: "Logged out" });
+		res.status(HttpStatusCodes.UNAUTHORIZED).json({ message: "Logged out" });
 	});
 
 	return logoutController;

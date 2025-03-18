@@ -6,6 +6,7 @@ import { BlacklistRefreshTokenUseCase } from "../../usecases/user/blacklistRefre
 import { ValidateRefreshTokenUseCase } from "../../usecases/user/validateRefreshToken.usecase";
 import { logger } from "../../logger/logger";
 import prisma from "../../prismaClient";
+import HttpStatusCodes from "../../common/HttpStatusCodes";
 
 @Service()
 export class AdminRefreshTokenController {
@@ -25,7 +26,7 @@ export class AdminRefreshTokenController {
 			// Check if accessToken exists
 			if (!accessToken) {
 				logger.debug("No access token found in cookies");
-				res.status(401).json({ message: "Access token not found" });
+				res.status(HttpStatusCodes.UNAUTHORIZED).json({ message: "Access token not found" });
 				return;
 			}
 
@@ -33,7 +34,7 @@ export class AdminRefreshTokenController {
 			if (!refreshToken) {
 				logger.debug("No refresh token found in cookies");
 				return res
-					.status(401)
+					.status(HttpStatusCodes.UNAUTHORIZED)
 					.json({ message: "Unauthorized - No refresh token" });
 			}
 
@@ -50,7 +51,7 @@ export class AdminRefreshTokenController {
 					if (!isAccessTokenExpired) {
 						logger.debug("Access token is still valid");
 						return res
-							.status(200)
+							.status(HttpStatusCodes.OK)
 							.json({ accessToken, message: "Access token is still valid" });
 					}
 				} else {
@@ -65,7 +66,7 @@ export class AdminRefreshTokenController {
 			);
 			if (!refreshTokenPayload.valid || !refreshTokenPayload.id) {
 				logger.debug("Invalid refresh token");
-				return res.status(401).json({ message: "Invalid refresh token" });
+				return res.status(HttpStatusCodes.UNAUTHORIZED).json({ message: "Invalid refresh token" });
 			}
 
 			// Check if refreshToken is blacklisted
@@ -74,7 +75,7 @@ export class AdminRefreshTokenController {
 			if (isRefreshTokenBlacklisted) {
 				logger.debug(`Refresh token ${refreshToken} blacklisted`);
 				return res
-					.status(401)
+					.status(HttpStatusCodes.UNAUTHORIZED)
 					.json({ message: "Refresh token has been blacklisted" });
 			}
 
@@ -95,7 +96,7 @@ export class AdminRefreshTokenController {
 			});
 			if (!user) {
 				logger.debug(`User with ID ${refreshTokenPayload.id} not found`);
-				return res.status(401).json({ message: "User not found" });
+				return res.status(HttpStatusCodes.UNAUTHORIZED).json({ message: "User not found" });
 			}
 
 			// Generate new tokens

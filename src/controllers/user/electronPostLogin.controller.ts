@@ -4,6 +4,7 @@ import TokenService from "../../helpers/TokenService";
 import env from "../../env";
 import { authResponseUserObject } from "../../dto/user.dto";
 import { logger } from "../../logger/logger";
+import HttpStatusCodes from "../../common/HttpStatusCodes";
 
 export = (dependencies: DependenciesInterface) => {
 	const {
@@ -17,7 +18,7 @@ export = (dependencies: DependenciesInterface) => {
 		const refreshToken = req.body.refreshToken;
 		if (!refreshToken) {
 			logger.info("No refresh token");
-			return res.status(401).json({ message: "Unauthorized" });
+			return res.status(HttpStatusCodes.UNAUTHORIZED).json({ message: "Unauthorized" });
 		}
 
 		try {
@@ -27,14 +28,14 @@ export = (dependencies: DependenciesInterface) => {
 			);
 			if (!payload.valid || !payload.id) {
 				logger.info("Invalid refresh token", payload);
-				return res.status(401).json({ message: payload.message });
+				return res.status(HttpStatusCodes.UNAUTHORIZED).json({ message: payload.message });
 			}
 
 			const user = await getUserById(payload.id);
 			if (!user) {
 				logger.info("User not found");
 				return res
-					.status(401)
+					.status(HttpStatusCodes.UNAUTHORIZED)
 					.json({ message: payload.message || "Unauthorized" });
 			}
 
@@ -56,7 +57,7 @@ export = (dependencies: DependenciesInterface) => {
 			});
 		} catch (error) {
 			logger.error("Error during token refresh:", error);
-			res.status(401).json({ message: "Unauthorized" });
+			res.status(HttpStatusCodes.UNAUTHORIZED).json({ message: "Unauthorized" });
 			next(error);
 		} finally {
 		/* 	logger.info(

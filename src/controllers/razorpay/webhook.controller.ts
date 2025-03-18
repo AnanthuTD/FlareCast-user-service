@@ -5,6 +5,7 @@ import { UserSubscriptionRepository } from "../../repositories/userSubscription.
 import eventEmitter from "../../eventEmitter";
 import EventName from "../../eventEmitter/eventNames";
 import env from "../../env";
+import HttpStatusCodes from "../../common/HttpStatusCodes";
 
 @Service()
 export class WebhookController {
@@ -58,7 +59,7 @@ export class WebhookController {
 				)
 			) {
 				console.error("Invalid webhook signature");
-				res.status(400).json({ error: "Invalid webhook signature" });
+				res.status(HttpStatusCodes.BAD_REQUEST).json({ error: "Invalid webhook signature" });
 				return;
 			}
 
@@ -104,7 +105,7 @@ export class WebhookController {
 				console.log(
 					`Ignoring event ${event.event} for subscription ${subscriptionId} as it has been processed or is in a final state.`
 				);
-				res.status(200).json({ success: true });
+				res.status(HttpStatusCodes.OK).json({ success: true });
 				return;
 			}
 
@@ -130,10 +131,10 @@ export class WebhookController {
 				status,
 			});
 
-			res.status(200).json({ success: true });
+			res.status(HttpStatusCodes.OK).json({ success: true });
 		} catch (error) {
 			console.error("Webhook error:", error);
-			res.status(500).json({ error: "Internal server error" });
+			res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
 		}
 	};
 }

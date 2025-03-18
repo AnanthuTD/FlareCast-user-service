@@ -1,6 +1,7 @@
 import { NextFunction, Request, RequestHandler, Response } from "express";
 import { DependenciesInterface } from "../../entities/interfaces";
 import prisma from "../../prismaClient";
+import HttpStatusCodes from "../../common/HttpStatusCodes";
 
 export = (dependencies: DependenciesInterface) => {
 	const isAuthenticated: RequestHandler = async (
@@ -10,7 +11,7 @@ export = (dependencies: DependenciesInterface) => {
 	) => {
 		const { user } = req;
 		if (!user) {
-			res.status(401).json({ message: "Unauthorized" });
+			res.status(HttpStatusCodes.UNAUTHORIZED).json({ message: "Unauthorized" });
 		} else {
 			const userData = await prisma.user.findUnique({
 				where: { id: user.id },
@@ -20,10 +21,20 @@ export = (dependencies: DependenciesInterface) => {
 							plan: true,
 						},
 					},
+					firstName: true,
+					id: true,
+					image: true,
+					lastName: true,
 				},
 			});
 
-			res.json({ user: { ...user, plan: userData?.activeSubscription?.plan } });
+			res.json({
+				user: {
+					...user,
+					plan: userData?.activeSubscription?.plan,
+					...userData,
+				},
+			});
 		}
 	};
 

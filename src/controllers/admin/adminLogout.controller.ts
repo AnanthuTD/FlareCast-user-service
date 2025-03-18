@@ -4,6 +4,7 @@ import env from "../../env";
 import { BlacklistRefreshTokenUseCase } from "../../usecases/user/blacklistRefreshToken.usecase";
 import { Inject, Service } from "typedi";
 import prisma from "../../prismaClient";
+import HttpStatusCodes from "../../common/HttpStatusCodes";
 
 // Define request interface
 interface AdminLogoutRequest extends Request {
@@ -23,7 +24,7 @@ export class AdminLogoutController {
 		try {
 			const authHeader = req.headers["authorization"];
 			if (!authHeader || !authHeader.startsWith("Bearer ")) {
-				res.status(401).json({ message: "No valid token provided" });
+				res.status(HttpStatusCodes.UNAUTHORIZED).json({ message: "No valid token provided" });
 				return;
 			}
 
@@ -35,7 +36,7 @@ export class AdminLogoutController {
 			};
 
 			if (decoded.type !== "admin") {
-				res.status(403).json({ message: "Admin access required" });
+				res.status(HttpStatusCodes.FORBIDDEN).json({ message: "Admin access required" });
 				return;
 			}
 
@@ -58,7 +59,7 @@ export class AdminLogoutController {
 			});
 
 			if (!admin) {
-				res.status(404).json({ message: "Admin not found" });
+				res.status(HttpStatusCodes.NOT_FOUND).json({ message: "Admin not found" });
 				return;
 			}
 
@@ -81,7 +82,7 @@ export class AdminLogoutController {
 			});
 
 			// Respond with success
-			res.status(200).json({ message: "Successfully logged out" });
+			res.status(HttpStatusCodes.OK).json({ message: "Successfully logged out" });
 		} catch (error) {
 			console.error("Admin logout error:", error);
 			if (error instanceof jwt.TokenExpiredError) {
@@ -95,11 +96,11 @@ export class AdminLogoutController {
 					secure: env.NODE_ENV === "production",
 					sameSite: "strict",
 				});
-				res.status(200).json({ message: "Logged out (token already expired)" });
+				res.status(HttpStatusCodes.OK).json({ message: "Logged out (token already expired)" });
 
 				return;
 			}
-			res.status(500).json({ message: "Internal server error" });
+			res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({ message: "Internal server error" });
 			next(error);
 		}
 	};

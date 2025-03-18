@@ -5,6 +5,7 @@ import prisma from "../../prismaClient";
 import env from "../../env";
 import { logger } from "../../logger/logger";
 import multer from "multer";
+import HttpStatusCodes from "../../common/HttpStatusCodes";
 
 interface User {
   id: string;
@@ -39,7 +40,7 @@ export const updateProfileController: RequestHandler = async (
     }) as User | null;
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(HttpStatusCodes.NOT_FOUND).json({ message: "User not found" });
     }
 
     let updatedImage = user.image;
@@ -66,6 +67,7 @@ export const updateProfileController: RequestHandler = async (
       );
 
       updatedImage = `${env.AWS_CLOUDFRONT_URL}/${key}`;
+      console.log(updatedImage);
     }
 
     let updatedPassword: string | undefined = user.hashedPassword;
@@ -85,13 +87,15 @@ export const updateProfileController: RequestHandler = async (
       },
     });
 
+    console.log(updatedUser);
+
     logger.info(`User ${userId} updated profile successfully`);
-    return res.status(200).json(updatedUser);
+    return res.status(HttpStatusCodes.OK).json(updatedUser);
   } catch (error) {
     logger.error(
       `Failed to update profile for user ${userId}: ${error.message}`
     );
-    return res.status(500).json({ message: "Failed to update profile" });
+    return res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({ message: "Failed to update profile" });
   }
 };
 
