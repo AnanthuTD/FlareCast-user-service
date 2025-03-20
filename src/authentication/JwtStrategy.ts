@@ -41,7 +41,7 @@ passport.use(
 			logger.info("=====================================");
 
 			const admin = jwt_payload
-			if (admin && !admin.isBanned) {
+			if (admin && admin.type === "admin") {
 				return done(null, admin);
 			} else {
 				return done(null, false);
