@@ -13,21 +13,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  USER
-  ADMIN
-}
-
-enum Resolution {
-  RES_240 // 240p: Low resolution, often used for mobile data saving
-  RES_360 // 360p: Standard resolution for small screens
-  RES_480 // 480p: Standard definition
-  RES_720 // 720p: HD Ready
-  RES_1080 // 1080p: Full HD
-  RES_1440 // 1440p: Quad HD 
-  RES_2160 // 2160p: 4K Ultra HD   
-}
-
 model User {
   id                   String             @id @default(auto()) @map("_id") @db.ObjectId
   email                String             @unique
@@ -37,7 +22,6 @@ model User {
   image                String?
   trial                Boolean            @default(false)
   hashedPassword       String?
-  role                 Role               @default(USER)
   watchLater           String[]
   trail                Boolean            @default(false)
   extraVideoCount      Int                @default(0)
@@ -86,7 +70,6 @@ model WatchHistory {
   isCompleted   Boolean
   lastWatchedAt DateTime
   watchDuration Int
-  resolution    Resolution
 }
 
 model Admin {

@@ -2,9 +2,11 @@ FROM node:23-alpine
 
 WORKDIR /usr/src/app
 
+RUN corepack enable pnpm
+
 COPY package.json pnpm-lock.yaml ./
 
-RUN corepack enable pnpm && pnpm install
+RUN pnpm install
 
 COPY prisma ./prisma
 
