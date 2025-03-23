@@ -3,7 +3,7 @@ import {
 	UserSubscription,
 	SubscriptionPlan,
 } from "@prisma/client";
-import { Service,  Inject } from "typedi";
+import { Service, Inject } from "typedi";
 import { IRazorpayRepository } from "@/app/repositories/IRazorpayRepository";
 import { PrismaClient } from "@prisma/client";
 import { Subscriptions } from "razorpay/dist/types/subscriptions";
@@ -15,7 +15,8 @@ import { inject, injectable } from "inversify";
 @injectable()
 export class UserSubscriptionRepository implements IUserSubscriptionRepository {
 	constructor(
-		@inject(TOKENS.RazorpayRepository) private readonly razorpayRepository: IRazorpayRepository,
+		@inject(TOKENS.RazorpayRepository)
+		private readonly razorpayRepository: IRazorpayRepository,
 		@inject(TOKENS.PrismaClient) private readonly prisma: PrismaClient
 	) {}
 
@@ -94,6 +95,21 @@ export class UserSubscriptionRepository implements IUserSubscriptionRepository {
 		} catch (error) {
 			logger.error(`Failed to fetch subscriptions for user ${userId}:`, error);
 			throw new Error(`Failed to fetch user subscriptions: ${error.message}`);
+		}
+	}
+
+	async findSubscription(userId: string): Promise<UserSubscription | null> {
+		try {
+			const subscription = await this.prisma.userSubscription.findFirst({
+				where: { userId, status: SubscriptionStatus.active },
+			});
+			return subscription;
+		} catch (error) {
+			logger.error(
+				`Failed to fetch subscription with id ${userId}:`,
+				error
+			);
+			throw new Error(`Failed to fetch subscription: ${error.message}`);
 		}
 	}
 

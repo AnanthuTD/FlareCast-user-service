@@ -38,6 +38,7 @@ export const TOKENS = {
 	HandleSubscriptionWebhookController: Symbol(
 		"HandleSubscriptionWebhookController"
 	),
+	VerifyPaymentController: Symbol.for("VerifyPaymentController"),
 	GetWorkspaceLimitController: Symbol("GetWorkspaceLimitController"),
 	GetUserProfileController: Symbol("GetUserProfileController"),
 	UpdateProfileController: Symbol("UpdateProfileController"),
@@ -49,11 +50,13 @@ export const TOKENS = {
 	EventService: Symbol("EventService"),
 	KafkaConsumerService: Symbol("KafkaConsumerService"),
 
-	ServiceUploadVideoPermissionsController: Symbol("ServiceVideoUploadPermission"),
+	ServiceUploadVideoPermissionsController: Symbol(
+		"ServiceVideoUploadPermission"
+	),
 
 	// services
 	EmailService: Symbol("EmailService"),
-  S3Service: Symbol.for("S3Service"),
+	S3Service: Symbol.for("S3Service"),
 
 	// usecases
 	AuthenticateUserUseCase: Symbol("AuthenticateUserUseCase"),
@@ -63,8 +66,10 @@ export const TOKENS = {
 	RefreshTokenUseCase: Symbol.for("RefreshTokenUseCase"),
 	UserLoginUseCase: Symbol.for("UserLoginUseCase"),
 	VerifyUserEmailUseCase: Symbol.for("VerifyUserEmailUseCase"),
-  GetActiveSubscriptionUseCase: Symbol.for("GetActiveSubscriptionUseCase"),
-  PublishUserVerifiedEventUseCase: Symbol.for("PublishUserVerifiedEventUseCase"),
+	GetActiveSubscriptionUseCase: Symbol.for("GetActiveSubscriptionUseCase"),
+	PublishUserVerifiedEventUseCase: Symbol.for(
+		"PublishUserVerifiedEventUseCase"
+	),
 	SignUpUseCase: Symbol.for("SignUpUseCase"),
 	ElectronPostLoginUseCase: Symbol.for("ElectronPostLoginUseCase"),
 	UploadVideoPermissionsUseCase: Symbol.for("UploadVideoPermissionsUseCase"),
@@ -74,9 +79,14 @@ export const TOKENS = {
 	GetSubscriptionsUseCase: Symbol.for("GetSubscriptionsUseCase"),
 	GetMemberLimitUseCase: Symbol.for("GetMemberLimitUseCase"),
 	GetPlansUseCase: Symbol.for("GetPlansUseCase"),
-	HandleSubscriptionWebhookUseCase: Symbol.for("HandleSubscriptionWebhookUseCase"),
+	HandleSubscriptionWebhookUseCase: Symbol.for(
+		"HandleSubscriptionWebhookUseCase"
+	),
 	GetWorkspaceLimitUseCase: Symbol.for("GetWorkspaceLimitUseCase"),
 	GetUserProfileUseCase: Symbol.for("GetUserProfileUseCase"),
 	UpdateProfileUseCase: Symbol.for("UpdateProfileUseCase"),
-	CheckUploadVideoPermissionUseCase: Symbol.for("CheckUploadVideoPermissionUseCase"),
+	CheckUploadVideoPermissionUseCase: Symbol.for(
+		"CheckUploadVideoPermissionUseCase"
+	),
+	VerifyPaymentUseCase: Symbol.for("VerifyPaymentUseCase"),
 };

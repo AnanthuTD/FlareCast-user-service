@@ -1,10 +1,5 @@
 import express, { Request, Response } from "express";
-import { CanSubscribeController } from "@/presentation/http/controllers/subscription/CanSubscribe";
-import { GetSubscriptionsController } from "@/presentation/http/controllers/subscription/History";
-import { GetPlansController } from "@/presentation/http/controllers/subscription/Plans";
-import { CancelSubscriptionController } from "@/presentation/http/controllers/subscription/Cancel";
 import { expressAdapter } from "@/presentation/adapters/express";
-import { CreateSubscribeController } from "@/presentation/http/controllers/subscription/Create";
 import container from "@/infra/di-container";
 import { TOKENS } from "@/app/tokens";
 
@@ -23,6 +18,17 @@ const getPlansController = container.get(TOKENS.GetPlansController);
 const cancelSubscriptionController = container.get(
 	TOKENS.CancelSubscriptionController
 );
+const verifyPaymentController = container.get(
+	TOKENS.VerifyPaymentController
+);
+
+/**
+ * Endpoint to check if the payment is valid.
+ */
+subscriptionRoutes.post("/verify-payment", async (req: Request, res: Response) => {
+	const httpResponse = await expressAdapter(req, verifyPaymentController);
+	res.status(httpResponse.statusCode).json(httpResponse.body);
+});
 
 /**
  * Endpoint to check if the authenticated user can subscribe (requires authentication).

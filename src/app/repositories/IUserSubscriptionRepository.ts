@@ -15,6 +15,7 @@ export interface IUserSubscriptionRepository {
 	getUserSubscription(userId: string): Promise<UserSubscription[]>;
 
 	getActiveSubscription(userId: string): Promise<SubscriptionPlan | null>;
+	findSubscription(userId: string): Promise<UserSubscription | null>
 
 	updateSubscriptionStatusToActive(userId: string): Promise<UserSubscription>;
 

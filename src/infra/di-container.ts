@@ -95,6 +95,12 @@ import { IS3Service } from "@/app/services/IS3Service";
 import { S3Service } from "@/app/services/implementation/S3Service";
 import { ICheckUploadVideoPermissionUseCase } from "@/app/use-cases/user/ICheckUploadVideoPermissionUseCase";
 import { CheckUploadVideoPermissionUseCase } from "@/app/use-cases/user/implementation/CheckUploadVideoPermissionUseCase";
+import { VerifyPaymentUseCase } from "@/app/use-cases/subscription/implementation/VerifyPaymentUseCase";
+import { VerifyPaymentDTO } from "@/domain/dtos/subscription/VerifyPaymentDTO";
+import { VerifyPaymentResponseDTO } from "@/domain/dtos/subscription/VerifyPaymentResponseDTO";
+import { IUseCase } from "@/app/use-cases/IUseCase";
+import { IController } from "@/presentation/http/controllers/IController";
+import { VerifyPaymentController } from "@/presentation/http/controllers/subscription/VerifyPayment";
 
 // Define TOKENS as Symbols (unchanged from your original setup)
 
@@ -149,64 +155,71 @@ export function setupDIContainer() {
 		.bind<ISignUpUseCase>(TOKENS.SignUpUseCase)
 		.to(SignUpUseCase)
 		.inSingletonScope();
-		container
-  .bind<IElectronPostLoginUseCase>(TOKENS.ElectronPostLoginUseCase)
-  .to(ElectronPostLoginUseCase)
-  .inSingletonScope();
 	container
-  .bind<IUploadVideoPermissionsUseCase>(TOKENS.UploadVideoPermissionsUseCase)
-  .to(UploadVideoPermissionsUseCase)
-  .inSingletonScope();
-	container
-  .bind<ICancelSubscriptionUseCase>(TOKENS.CancelSubscriptionUseCase)
-  .to(CancelSubscriptionUseCase)
-  .inSingletonScope();
-	container
-  .bind<ICanSubscribeUseCase>(TOKENS.CanSubscribeUseCase)
-  .to(CanSubscribeUseCase)
-  .inSingletonScope();
-	container
-  .bind<ICreateSubscribeUseCase>(TOKENS.CreateSubscribeUseCase)
-  .to(CreateSubscribeUseCase)
-  .inSingletonScope();
-	container
-  .bind<IGetSubscriptionsUseCase>(TOKENS.GetSubscriptionsUseCase)
-  .to(GetSubscriptionsUseCase)
-  .inSingletonScope();
-	container
-  .bind<IGetMemberLimitUseCase>(TOKENS.GetMemberLimitUseCase)
-  .to(GetMemberLimitUseCase)
-  .inSingletonScope();
-	container
-  .bind<IGetPlansUseCase>(TOKENS.GetPlansUseCase)
-  .to(GetPlansUseCase)
-  .inSingletonScope();
-	container
-  .bind<IHandleSubscriptionWebhookUseCase>(TOKENS.HandleSubscriptionWebhookUseCase)
-  .to(HandleSubscriptionWebhookUseCase)
-  .inSingletonScope();
-	container
-  .bind<IGetWorkspaceLimitUseCase>(TOKENS.GetWorkspaceLimitUseCase)
-  .to(GetWorkspaceLimitUseCase)
-  .inSingletonScope();
-	container
-  .bind<IGetUserProfileUseCase>(TOKENS.GetUserProfileUseCase)
-  .to(GetUserProfileUseCase)
-  .inSingletonScope();
-	container
-  .bind<IUpdateProfileUseCase>(TOKENS.UpdateProfileUseCase)
-  .to(UpdateProfileUseCase)
-  .inSingletonScope();
-	container
-  .bind<ICheckUploadVideoPermissionUseCase>(TOKENS.CheckUploadVideoPermissionUseCase)
-  .to(CheckUploadVideoPermissionUseCase)
-  .inSingletonScope();
-	
-	// services
-	container
-		.bind<IS3Service>(TOKENS.S3Service)
-		.to(S3Service)
+		.bind<IElectronPostLoginUseCase>(TOKENS.ElectronPostLoginUseCase)
+		.to(ElectronPostLoginUseCase)
 		.inSingletonScope();
+	container
+		.bind<IUploadVideoPermissionsUseCase>(TOKENS.UploadVideoPermissionsUseCase)
+		.to(UploadVideoPermissionsUseCase)
+		.inSingletonScope();
+	container
+		.bind<ICancelSubscriptionUseCase>(TOKENS.CancelSubscriptionUseCase)
+		.to(CancelSubscriptionUseCase)
+		.inSingletonScope();
+	container
+		.bind<ICanSubscribeUseCase>(TOKENS.CanSubscribeUseCase)
+		.to(CanSubscribeUseCase)
+		.inSingletonScope();
+	container
+		.bind<ICreateSubscribeUseCase>(TOKENS.CreateSubscribeUseCase)
+		.to(CreateSubscribeUseCase)
+		.inSingletonScope();
+	container
+		.bind<IGetSubscriptionsUseCase>(TOKENS.GetSubscriptionsUseCase)
+		.to(GetSubscriptionsUseCase)
+		.inSingletonScope();
+	container
+		.bind<IGetMemberLimitUseCase>(TOKENS.GetMemberLimitUseCase)
+		.to(GetMemberLimitUseCase)
+		.inSingletonScope();
+	container
+		.bind<IGetPlansUseCase>(TOKENS.GetPlansUseCase)
+		.to(GetPlansUseCase)
+		.inSingletonScope();
+	container
+		.bind<IHandleSubscriptionWebhookUseCase>(
+			TOKENS.HandleSubscriptionWebhookUseCase
+		)
+		.to(HandleSubscriptionWebhookUseCase)
+		.inSingletonScope();
+	container
+		.bind<IGetWorkspaceLimitUseCase>(TOKENS.GetWorkspaceLimitUseCase)
+		.to(GetWorkspaceLimitUseCase)
+		.inSingletonScope();
+	container
+		.bind<IGetUserProfileUseCase>(TOKENS.GetUserProfileUseCase)
+		.to(GetUserProfileUseCase)
+		.inSingletonScope();
+	container
+		.bind<IUpdateProfileUseCase>(TOKENS.UpdateProfileUseCase)
+		.to(UpdateProfileUseCase)
+		.inSingletonScope();
+	container
+		.bind<ICheckUploadVideoPermissionUseCase>(
+			TOKENS.CheckUploadVideoPermissionUseCase
+		)
+		.to(CheckUploadVideoPermissionUseCase)
+		.inSingletonScope();
+	container
+		.bind<IUseCase<VerifyPaymentDTO, VerifyPaymentResponseDTO>>(
+			TOKENS.VerifyPaymentUseCase
+		)
+		.to(VerifyPaymentUseCase)
+		.inSingletonScope();
+
+	// services
+	container.bind<IS3Service>(TOKENS.S3Service).to(S3Service).inSingletonScope();
 	container
 		.bind<IEmailService>(TOKENS.EmailService)
 		.to(EmailService)
@@ -375,6 +388,10 @@ export function setupDIContainer() {
 	container
 		.bind(TOKENS.GetWorkspaceLimitController)
 		.to(GetWorkspaceLimitController)
+		.inSingletonScope();
+	container
+		.bind<IController>(TOKENS.VerifyPaymentController)
+		.to(VerifyPaymentController)
 		.inSingletonScope();
 
 	// Controllers - Profile

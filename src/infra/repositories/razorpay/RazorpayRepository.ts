@@ -4,6 +4,7 @@ import { logger } from "@/infra/logger";
 import { IRazorpayRepository } from "@/app/repositories/IRazorpayRepository";
 import { injectable } from "inversify";
 import env from "@/infra/env";
+import { Orders } from "razorpay/dist/types/orders";
 
 interface CreateRazorpayOrderProps {
 	amount: number;
@@ -28,7 +29,10 @@ export class RazorpayRepository implements IRazorpayRepository {
 
 	async createOrder({ amount }: CreateRazorpayOrderProps): Promise<any> {
 		try {
-			const options = {
+			const options:
+				| Orders.RazorpayOrderCreateRequestBody
+				| Orders.RazorpayTransferCreateRequestBody
+				| Orders.RazorpayAuthorizationCreateRequestBody = {
 				amount: amount * 100, // Convert to paise (Razorpay expects amount in smallest currency unit)
 				currency: "INR",
 			};
@@ -136,4 +140,37 @@ export class RazorpayRepository implements IRazorpayRepository {
 			);
 		}
 	}
+
+	async fetchSubscription(subscriptionId: string): Promise<{
+    id: string;
+    status: string;
+    start_at?: number;
+    end_at?: number;
+    charge_at?: number;
+    paid_count?: number;
+    current_start?: number;
+    current_end?: number;
+  } | null> {
+    try {
+      const subscription = await this.razorPay.subscriptions.fetch(subscriptionId);
+      if (!subscription) {
+        logger.debug(`Subscription ${subscriptionId} not found in Razorpay`);
+        return null;
+      }
+
+      return {
+        id: subscription.id,
+        status: subscription.status,
+        start_at: subscription.start_at,
+        end_at: subscription.end_at,
+        charge_at: subscription.charge_at,
+        paid_count: subscription.paid_count,
+        current_start: subscription.current_start,
+        current_end: subscription.current_end,
+      };
+    } catch (err: any) {
+      logger.error(`Error fetching subscription ${subscriptionId} from Razorpay:`, err);
+      throw err;
+    }
+  }
 }
