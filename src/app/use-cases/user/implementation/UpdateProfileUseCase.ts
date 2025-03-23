@@ -5,8 +5,8 @@ import { IPasswordHasher } from "@/app/providers/IPasswordHasher";
 import { IS3Service } from "@/app/services/IS3Service";
 import { ResponseDTO } from "@/domain/dtos/Response";
 import { UpdateProfileDTO } from "@/domain/dtos/user/UpdateProfileDTO";
-import { UpdateProfileResponseDTO } from "@/domain/dtos/user/UpdateProfileResponseDTO";
-import { UpdateProfileErrorType } from "@/domain/enums/User/UpdateProfileErrorType";
+import { UpdateProfileResponseDTO } from "@/domain/dtos/User/UpdateProfileResponseDTO";
+import { UpdateProfileErrorType } from "@/domain/enums/user/UpdateProfileErrorType";
 import { IUpdateProfileUseCase } from "../IUpdateProfileUseCase";
 import { logger } from "@/infra/logger";
 

@@ -4,8 +4,8 @@ import { IUserSubscriptionRepository } from "@/app/repositories/IUserSubscriptio
 import { IUsersRepository } from "@/app/repositories/IUsersRepository";
 import { ResponseDTO } from "@/domain/dtos/Response";
 import { CheckUploadVideoPermissionDTO } from "@/domain/dtos/user/CheckUploadVideoPermissionDTO";
-import { CheckUploadVideoPermissionResponseDTO } from "@/domain/dtos/user/CheckUploadVideoPermissionResponseDTO";
-import { CheckUploadVideoPermissionErrorType } from "@/domain/enums/User/CheckUploadVideoPermissionErrorType";
+import { CheckUploadVideoPermissionResponseDTO } from "@/domain/dtos/User/CheckUploadVideoPermissionResponseDTO";
+import { CheckUploadVideoPermissionErrorType } from "@/domain/enums/user/CheckUploadVideoPermissionErrorType";
 import { ICheckUploadVideoPermissionUseCase } from "../ICheckUploadVideoPermissionUseCase";
 import { logger } from "@/infra/logger";
 

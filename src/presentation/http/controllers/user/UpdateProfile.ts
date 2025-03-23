@@ -10,7 +10,7 @@ import { TOKENS } from "@/app/tokens";
 import { inject, injectable } from "inversify";
 import { IUpdateProfileUseCase } from "@/app/use-cases/user/IUpdateProfileUseCase";
 import { UpdateProfileDTO } from "@/domain/dtos/user/UpdateProfileDTO";
-import { UpdateProfileErrorType } from "@/domain/enums/User/UpdateProfileErrorType";
+import { UpdateProfileErrorType } from "@/domain/enums/user/UpdateProfileErrorType";
 
 /**
  * Controller for handling user profile update requests.
