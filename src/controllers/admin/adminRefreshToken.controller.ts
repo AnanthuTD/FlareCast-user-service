@@ -9,12 +9,13 @@ import prisma from "../../prismaClient";
 import HttpStatusCodes from "../../common/HttpStatusCodes";
 
 @Service()
+@injectable()
 export class AdminRefreshTokenController {
 	constructor(
-		@Inject(() => BlacklistRefreshTokenUseCase)
+		@inject(() => BlacklistRefreshTokenUseCase)
 		private blacklistRefreshTokenUseCase: BlacklistRefreshTokenUseCase,
 
-		@Inject(() => ValidateRefreshTokenUseCase)
+		@inject(() => ValidateRefreshTokenUseCase)
 		private validateRefreshTokenUseCase: ValidateRefreshTokenUseCase
 	) {}
 

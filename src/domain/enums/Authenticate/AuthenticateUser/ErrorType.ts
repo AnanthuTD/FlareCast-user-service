@@ -4,8 +4,7 @@
  * @enum
  */
 export enum AuthenticateUserErrorType {
-  /**
-   * Error type indicating that the provided email or password is incorrect.
-   */
-  EmailOrPasswordWrong = 'Email or password incorrect.',
+  UserNotFound = "USER_NOT_FOUND",
+  UserBanned = "USER_BANNED",
+  InvalidToken = "INVALID_TOKEN",
 }

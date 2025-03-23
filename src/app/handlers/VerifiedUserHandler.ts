@@ -1,18 +1,25 @@
 import { logger } from "@/infra/logger";
 import { IUsersRepository } from "@/app/repositories/IUsersRepository";
-import { EventService } from "@/app/services/EventService";
 import { UserVerifiedEvent } from "@/domain/events/UserVerifiedEvent";
 import { Inject } from "typedi";
 import { ILocalEventEmitter } from "../providers/ILocalEventEmitter";
 import EventName from "../event-names";
 import { IEventHandler } from "../interfaces/IEventHandler";
 import { TOKENS } from "../tokens";
+import { inject, injectable } from "inversify";
+import { IUserSubscriptionRepository } from "../repositories/IUserSubscriptionRepository";
+import { IEventService } from "../services/IEventService";
 
-export class VerifiedUserHandler implements IEventHandler{
+@injectable()
+export class VerifiedUserHandler implements IEventHandler {
 	constructor(
-		@Inject(TOKENS.UserRepository) private readonly usersRepository: IUsersRepository,
-		@Inject(TOKENS.EventService) private readonly eventService: EventService,
-		@Inject(TOKENS.LocalEventEmitter) private readonly eventEmitter: ILocalEventEmitter
+		@inject(TOKENS.UserRepository)
+		private readonly usersRepository: IUsersRepository,
+		@inject(TOKENS.UserSubscriptionRepository)
+		private readonly usersSubscriptionRepository: IUserSubscriptionRepository,
+		@inject(TOKENS.EventService) private readonly eventService: IEventService,
+		@inject(TOKENS.LocalEventEmitter)
+		private readonly eventEmitter: ILocalEventEmitter
 	) {}
 
 	async handle(
@@ -32,12 +39,18 @@ export class VerifiedUserHandler implements IEventHandler{
 				throw new Error(`User not found or not verified: ${data.userId}`);
 			}
 
+			const activePlan =
+				await this.usersSubscriptionRepository.getActiveSubscription(
+					data.userId
+				);
+
 			const eventData: UserVerifiedEvent = {
 				userId: data.userId,
 				firstName: user.firstName,
 				lastName: user.lastName ?? "",
 				email: user.email.address,
 				image: user.image ?? "",
+				plan: activePlan,
 			};
 
 			await this.eventService.publishUserVerifiedEvent(eventData);

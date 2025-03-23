@@ -1,3 +1,4 @@
+import { injectable } from "inversify"
 import { User } from "./User"
 
 /**
@@ -17,6 +18,7 @@ export interface IRefreshTokenEntity {
  *
  * @class
  */
+@injectable()
 export class RefreshTokenEntity {
   private _expires_in: number
   private _user_id: string

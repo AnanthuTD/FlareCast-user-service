@@ -3,10 +3,13 @@ import { IPromotionalVideoRepository } from "@/app/repositories/IPromotionalVide
 import { logger } from "@/infra/logger";
 import {  Inject } from "typedi";
 import { TOKENS } from "@/app/tokens";
+import { inject, injectable } from "inversify";
+// import { TOKENS } from "@/infra/di-container";
 
+@injectable()
 export class PromotionalVideoRepository implements IPromotionalVideoRepository {
 	constructor(
-		@Inject(TOKENS.PrismaClient) private readonly prisma: PrismaClient
+		@inject(TOKENS.PrismaClient) private readonly prisma: PrismaClient
 	) {}
 
 	async updateTitleAndDescription(

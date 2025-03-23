@@ -1,7 +1,9 @@
 import env from "@/infra/env";
 import crypto from "node:crypto";
 import { IRazorpayManager } from "@/app/providers/IRazorpayManager";
+import { injectable } from "inversify";
 
+@injectable()
 export class RazorpayManager implements IRazorpayManager {
 	verifyWebhookSignature(
 		payload: string,

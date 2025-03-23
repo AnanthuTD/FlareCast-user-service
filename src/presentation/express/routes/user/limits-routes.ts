@@ -1,9 +1,7 @@
+import { TOKENS } from "@/app/tokens";
+import container from "@/infra/di-container";
 import { expressAdapter } from "@/presentation/adapters/express";
-import { GetMemberLimitController } from "@/presentation/http/controllers/subscription/MembersLimit";
-import { GetWorkspaceLimitController } from "@/presentation/http/controllers/subscription/WorkspaceLimit";
-import { UserUploadVideoPermissionController } from "@/presentation/http/controllers/user/VideoUploadPermission";
 import { Router, Request, Response } from "express";
-import { Container } from "typedi";
 
 /**
  * Router for handling limits-related routes.
@@ -11,21 +9,20 @@ import { Container } from "typedi";
 const limitsRoutes = Router();
 
 // Fetch controllers using TypeDI
-const userUploadVideoPermissionController = Container.get(
-	UserUploadVideoPermissionController
+const uploadVideoPermissionController = container.get(TOKENS.UserVideoController
 );
-const getWorkspaceLimitController = Container.get(GetWorkspaceLimitController);
-const getMemberLimitController = Container.get(GetMemberLimitController);
+const getWorkspaceLimitController = container.get(TOKENS.GetWorkspaceLimitController);
+const getMemberLimitController = container.get(TOKENS.GetMemberLimitController);
 
 /**
  * Endpoint to check video upload permissions for the authenticated user (requires authentication).
  */
 limitsRoutes.get(
-	"/user-upload-permission",
+	"/upload-permission",
 	async (req: Request, res: Response) => {
 		const httpResponse = await expressAdapter(
 			req,
-			userUploadVideoPermissionController
+			uploadVideoPermissionController
 		);
 		res.status(httpResponse.statusCode).json(httpResponse.body);
 	}

@@ -1,10 +1,12 @@
 import { Service } from 'typedi'
 import { IHttpResponse } from '../IHttpResponse'
+import { injectable } from 'inversify'
 
 /**
  * Implementation of IHttpResponse representing an HTTP response.
  */
-@Service()
+
+@injectable()
 export class HttpResponse implements IHttpResponse {
   /**
    * The HTTP status code of the response.

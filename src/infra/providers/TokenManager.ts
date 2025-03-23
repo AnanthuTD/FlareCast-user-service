@@ -2,6 +2,7 @@ import dayjs from "dayjs";
 import { verify, decode } from "jsonwebtoken";
 import { ITokenManagerProvider } from "../../app/providers/ITokenManager";
 import env from "../env";
+import { injectable } from "inversify";
 
 /**
  * Provider for managing and validating authentication tokens.
@@ -9,6 +10,7 @@ import env from "../env";
  * @class
  * @implements {ITokenManagerProvider}
  */
+@injectable()
 export class TokenManagerProvider implements ITokenManagerProvider {
 	/**
 	 * Validates whether a token has expired based on the provided expiration timestamp.
@@ -26,9 +28,18 @@ export class TokenManagerProvider implements ITokenManagerProvider {
 	 * @param {string} token - The token to validate.
 	 * @returns {boolean} True if the token is valid, false otherwise.
 	 */
-	validateToken(token: string): boolean {
+	validateAccessToken(token: string): boolean {
 		try {
 			verify(token, env.ACCESS_TOKEN_SECRET || "");
+			return true;
+		} catch (error) {
+			return false;
+		}
+	}
+
+	validateRefreshToken(token: string): boolean {
+		try {
+			verify(token, env.REFRESH_TOKEN_SECRET || "");
 			return true;
 		} catch (error) {
 			return false;

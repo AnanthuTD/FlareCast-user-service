@@ -1,11 +1,13 @@
 import { Service } from "typedi";
 import { IHttpErrors } from "../IHttpErrors";
 import { IHttpResponse } from "../IHttpResponse";
+import { injectable } from "inversify";
 
 /**
  * Implementation of the IHttpErrors interface for generating HTTP error responses.
  */
-@Service()
+
+@injectable()
 export class HttpErrors implements IHttpErrors {
   error_400(): IHttpResponse {
     return { statusCode: 400, body: { message: "Bad Request" } };

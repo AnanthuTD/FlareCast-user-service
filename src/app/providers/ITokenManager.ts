@@ -18,8 +18,9 @@ export interface ITokenManagerProvider {
 	 * @param {string} token - The token to be validated.
 	 * @returns {boolean} A boolean indicating whether the token is valid.
 	 */
-	validateToken(token: string): boolean;
-
+	validateAccessToken(token: string): boolean;
+	validateRefreshToken(token: string): boolean;
+	
 	getExpiresAt(token: string): number;
 
 	getPayload(token: string): { id: string; [key: string]: string };

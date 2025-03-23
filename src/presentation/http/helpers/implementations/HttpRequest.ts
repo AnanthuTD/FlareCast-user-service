@@ -1,10 +1,10 @@
-import { Service } from "typedi";
 import { IHttpRequest } from "../IHttpRequest";
+import { injectable } from "inversify";
 
 /**
  * Implementation of IHttpRequest representing an HTTP request.
  */
-@Service()
+@injectable()
 export class HttpRequest implements IHttpRequest {
 	/**
 	 * Represents the headers of the HTTP request.

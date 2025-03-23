@@ -1,13 +1,14 @@
 import express from "express";
 import adminSignInController from "../../controllers/admin/adminSignIn.controller";
 import { AdminRefreshTokenController } from "../../controllers/admin/adminRefreshToken.controller";
-import Container from "typedi";
 import { createAdminGoogleSignInHandler } from "../../controllers/admin/adminSignInGoogle.controller";
 import AdminLogoutController from "../../controllers/admin/adminLogout.controller";
+import container from "@/infra/di-container";
+import { TOKENS } from "@/app/tokens";
 
 const adminAuthRouter = express.Router();
-const refreshTokenController = Container.get(AdminRefreshTokenController);
-const adminLogoutController = Container.get(AdminLogoutController);
+const refreshTokenController = container.get(TOKENS.);
+const adminLogoutController = container.get(TOKENS.AdminLogoutController);
 
 adminAuthRouter.post("/sign-in", adminSignInController);
 adminAuthRouter.post("/google-sign-in", createAdminGoogleSignInHandler());

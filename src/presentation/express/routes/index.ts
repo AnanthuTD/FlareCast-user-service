@@ -1,6 +1,6 @@
 import express from "express";
 import interServiceRoutes from "./inter-service";
-import authRoutes from "./user/authenticate";
+import userRoutes from "./user";
 
 const router = express.Router();
 
@@ -8,6 +8,6 @@ const router = express.Router();
 router.use("/services", interServiceRoutes);
 
 /* user */
-router.use("/", authRoutes);
+router.use("/", userRoutes);
 
 export default router;

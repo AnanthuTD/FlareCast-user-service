@@ -2,9 +2,10 @@ import { RequestHandler } from "express";
 import { Inject } from "typedi";
 import { UserRepository } from "../../repositories/userRepository";
 
+@injectable()
 export class InsightsController {
 	constructor(
-		@Inject(() => UserRepository)
+		@inject(() => UserRepository)
 		private userRepository: UserRepository
 	) {}
 

@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import { Container } from "typedi";
 import { IHttpRequest } from "@/presentation/http/helpers/IHttpRequest";
-import { AuthenticateUserController } from "@/presentation/http/controllers/authenticate/Authenticate";
+import container from "@/infra/di-container";
+import { TOKENS } from "@/app/tokens";
 
 // Extend the Express Request type to include the user property
 declare global {
@@ -26,7 +26,7 @@ export const authenticateUserMiddleware = async (
 	res: Response,
 	next: NextFunction
 ) => {
-	const authenticateUserController = Container.get(AuthenticateUserController);
+	const authenticateUserController = container.get(TOKENS.AuthenticateUserController);
 
 	const httpRequest: IHttpRequest = {
 		body: req.body,

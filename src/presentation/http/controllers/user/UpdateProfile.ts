@@ -6,102 +6,95 @@ import { HttpResponse } from "@/presentation/http/helpers/implementations/HttpRe
 import { IController } from "@/presentation/http/controllers/IController";
 import { ResponseDTO } from "@/domain/dtos/Response";
 import { logger } from "@/infra/logger";
-import { Inject } from "typedi";
-import env from "@/infra/env";
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-import { IUsersRepository } from "@/app/repositories/IUsersRepository";
-import { IPasswordHasher } from "@/app/providers/IPasswordHasher";
 import { TOKENS } from "@/app/tokens";
+import { inject, injectable } from "inversify";
+import { IUpdateProfileUseCase } from "@/app/use-cases/user/IUpdateProfileUseCase";
+import { UpdateProfileDTO } from "@/domain/dtos/user/UpdateProfileDTO";
+import { UpdateProfileErrorType } from "@/domain/enums/User/UpdateProfileErrorType";
 
 /**
  * Controller for handling user profile update requests.
  */
+@injectable()
 export class UpdateProfileController implements IController {
 	constructor(
-		@Inject(TOKENS.UserRepository)
-		private readonly userRepository: IUsersRepository,
-		@Inject(TOKENS.HttpErrors) private readonly httpErrors: IHttpErrors,
-		@Inject(TOKENS.HttpSuccess) private readonly httpSuccess: IHttpSuccess,
-		@Inject(TOKENS.PasswordHasher)
-		private readonly passwordHasher: IPasswordHasher
+		@inject(TOKENS.UpdateProfileUseCase)
+		private readonly updateProfileUseCase: IUpdateProfileUseCase,
+		@inject(TOKENS.HttpErrors) private readonly httpErrors: IHttpErrors,
+		@inject(TOKENS.HttpSuccess) private readonly httpSuccess: IHttpSuccess
 	) {}
 
 	async handle(httpRequest: IHttpRequest): Promise<IHttpResponse> {
 		let error;
 		let response: ResponseDTO;
 
-		if (!httpRequest.user || !httpRequest.user.id) {
-			error = this.httpErrors.error_401();
-			return new HttpResponse(error.statusCode, { message: "Unauthorized" });
-		}
-
-		const userId = httpRequest.user.id;
-		const { firstName, lastName, password } = httpRequest.body as {
-			firstName?: string;
-			lastName?: string;
-			password?: string;
-		};
-
 		try {
-			const user = await this.userRepository.findById(userId);
-			if (!user) {
-				error = this.httpErrors.error_404();
-				return new HttpResponse(error.statusCode, {
-					message: "User not found",
-				});
+			// Ensure user is authenticated
+			if (!httpRequest.user || !httpRequest.user.id) {
+				error = this.httpErrors.error_401();
+				return new HttpResponse(error.statusCode, { message: "Unauthorized" });
 			}
 
-			let updatedImage = user.image ?? undefined;
-
-			// Handle image upload if present
-			if (httpRequest.file) {
-				const file = httpRequest.file;
-				const extension = file.originalname.split(".").pop() || "jpg";
-				const key = `profile/${userId}.${extension}`;
-
-				const s3Client = new S3Client({
-					region: env.AWS_REGION,
-				});
-
-				await s3Client.send(
-					new PutObjectCommand({
-						Bucket: env.AWS_S3_BUCKET_NAME,
-						Key: key,
-						Body: file.buffer,
-						ContentType: file.mimetype,
-					})
-				);
-
-				updatedImage = `${env.AWS_CLOUDFRONT_URL}/${key}`;
-				logger.debug(`Uploaded image to S3: ${updatedImage}`);
-			}
-
-			let updatedPassword: string | undefined =
-				user.hashedPassword ?? undefined;
-			if (password) {
-				updatedPassword = await this.passwordHasher.hashPassword(password);
-			}
-
-			const updatedUser = this.userRepository.update({
-				id: userId,
-				firstName: firstName,
-				lastName: lastName,
-				hashedPassword: updatedPassword,
-				image: updatedImage,
-			});
-
-			response = {
-				success: true,
-				data: updatedUser,
+			// Extract data from the request
+			const userId = httpRequest.user.id;
+			const { firstName, lastName, password } = httpRequest.body as {
+				firstName?: string;
+				lastName?: string;
+				password?: string;
 			};
-			logger.info(`User ${userId} updated profile successfully`);
+
+			// Create DTO and call the use case
+			const dto: UpdateProfileDTO = {
+				userId,
+				firstName,
+				lastName,
+				password,
+				file: httpRequest.file,
+			};
+			response = await this.updateProfileUseCase.execute(dto);
+
+			if (!response.success) {
+				const errorType = response.data.error as string;
+				switch (errorType) {
+					case UpdateProfileErrorType.MissingUserId:
+						error = this.httpErrors.error_401();
+						return new HttpResponse(error.statusCode, {
+							message: "Unauthorized",
+						});
+					case UpdateProfileErrorType.UserNotFound:
+						error = this.httpErrors.error_404();
+						return new HttpResponse(error.statusCode, {
+							message: "User not found",
+						});
+					case UpdateProfileErrorType.FailedToUploadImage:
+						error = this.httpErrors.error_500();
+						return new HttpResponse(error.statusCode, {
+							message: "Failed to upload image",
+						});
+					case UpdateProfileErrorType.FailedToUpdateProfile:
+						error = this.httpErrors.error_500();
+						return new HttpResponse(error.statusCode, {
+							message: "Failed to update profile",
+						});
+					default:
+						error = this.httpErrors.error_500();
+						return new HttpResponse(error.statusCode, {
+							message: "Internal server error",
+						});
+				}
+			}
+
+			// Return the response
 			const success = this.httpSuccess.success_200(response.data);
 			return new HttpResponse(success.statusCode, success.body);
-		} catch (err) {
-			logger.error(`Failed to update profile for user ${userId}:`, err);
+		} catch (err: any) {
+			logger.error(
+				`Failed to update profile for user ${httpRequest.user?.id}:`,
+				err
+			);
 			error = this.httpErrors.error_500();
 			return new HttpResponse(error.statusCode, {
-				message: "Failed to update profile",
+				message: "Internal server error",
 			});
 		}
 	}

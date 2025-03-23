@@ -3,10 +3,12 @@ import { IUsersRepository } from "@/app/repositories/IUsersRepository";
 import { VideoUploadEvent } from "@/domain/events/VideoUploadEvent";
 import { Inject } from "typedi";
 import { TOKENS } from "../tokens";
+import { inject, injectable } from "inversify";
 
+@injectable()
 export class VideoUploadHandler {
 	constructor(
-		@Inject(TOKENS.UserRepository)
+		@inject(TOKENS.UserRepository)
 		private readonly usersRepository: IUsersRepository
 	) {}
 

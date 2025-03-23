@@ -4,10 +4,12 @@ import { VideoRemovedEvent } from "@/domain/events/VideoRemovedEvent";
 import { Inject } from "typedi";
 import { IEventHandler } from "../interfaces/IEventHandler";
 import { TOKENS } from "../tokens";
+import { inject, injectable } from "inversify";
 
+@injectable()
 export class VideoRemoveHandler implements IEventHandler {
 	constructor(
-		@Inject(TOKENS.UserRepository)
+		@inject(TOKENS.UserRepository)
 		private readonly usersRepository: IUsersRepository
 	) {}
 

@@ -1,11 +1,12 @@
 import express, { Request, Response } from "express";
-import { Container } from "typedi";
 import { CanSubscribeController } from "@/presentation/http/controllers/subscription/CanSubscribe";
-import { SubscribeController } from "@/presentation/http/controllers/subscription/Create";
 import { GetSubscriptionsController } from "@/presentation/http/controllers/subscription/History";
 import { GetPlansController } from "@/presentation/http/controllers/subscription/Plans";
 import { CancelSubscriptionController } from "@/presentation/http/controllers/subscription/Cancel";
 import { expressAdapter } from "@/presentation/adapters/express";
+import { CreateSubscribeController } from "@/presentation/http/controllers/subscription/Create";
+import container from "@/infra/di-container";
+import { TOKENS } from "@/app/tokens";
 
 /**
  * Router for handling subscription-related routes.
@@ -13,12 +14,14 @@ import { expressAdapter } from "@/presentation/adapters/express";
 const subscriptionRoutes = express.Router();
 
 // Fetch controllers using TypeDI
-const canSubscribeController = Container.get(CanSubscribeController);
-const subscribeController = Container.get(SubscribeController);
-const getSubscriptionsController = Container.get(GetSubscriptionsController);
-const getPlansController = Container.get(GetPlansController);
-const cancelSubscriptionController = Container.get(
-	CancelSubscriptionController
+const canSubscribeController = container.get(TOKENS.CanSubscribeController);
+const subscribeController = container.get(TOKENS.CreateSubscribeController);
+const getSubscriptionsController = container.get(
+	TOKENS.GetSubscriptionsController
+);
+const getPlansController = container.get(TOKENS.GetPlansController);
+const cancelSubscriptionController = container.get(
+	TOKENS.CancelSubscriptionController
 );
 
 /**

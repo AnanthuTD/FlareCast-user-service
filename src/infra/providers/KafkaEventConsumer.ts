@@ -2,12 +2,14 @@ import { Kafka, Consumer } from "kafkajs";
 import { IEventConsumer } from "@/app/interfaces/IEventConsumer";
 import { logger } from "@/infra/logger";
 import env from "@/infra/env";
+import { injectable } from "inversify";
 
 interface KafkaConfig {
 	clientId: string;
 	brokers: string[];
 }
 
+@injectable()
 export class KafkaEventConsumer implements IEventConsumer {
 	private consumer: Consumer;
 	private clientId = "user-service";

@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import "./init-di-container";
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import compression from "compression";
@@ -8,23 +9,9 @@ import cookieParser from "cookie-parser";
 import { logger } from "@/infra/logger";
 import env from "@/infra/env";
 import { IHttpErrors } from "@/presentation/http/helpers/IHttpErrors";
-import { Container } from "typedi";
-import { mainRouter } from "../express/routes/user";
-import { setupDIContainer } from "@/infra/di-container";
+import container from "@/infra/di-container";
 import { TOKENS } from "@/app/tokens";
-import { KafkaConsumerService } from "@/infra/kafka/ConsumerService";
-
-setupDIContainer();
-console.log(
-	"Container length",
-	new (Container.get(TOKENS.KafkaConsumerService))()
-);
-
-// Start Kafka consumer
-const consumerService = Container.get(
-	TOKENS.KafkaConsumerService
-) as KafkaConsumerService;
-new consumerService().start();
+import routes from "@/presentation/express/routes";
 
 // Initialize Express app
 const app = express();
@@ -69,7 +56,7 @@ app.use(morgan("dev"));
 app.use("/static", express.static(path.join(__dirname, "public")));
 
 // API routes using mainRouter
-// app.use("/api", mainRouter);
+app.use("/api", routes);
 
 // Health check endpoint
 app.get("/", (req: Request, res: Response) => {
@@ -78,7 +65,7 @@ app.get("/", (req: Request, res: Response) => {
 
 // Catch-all route for handling unknown endpoints
 app.use((req: Request, res: Response) => {
-	const httpErrors = Container.get("HttpErrors") as IHttpErrors;
+	const httpErrors = container.get(TOKENS.HttpErrors) as IHttpErrors;
 	const error = httpErrors.error_404();
 	res.status(error.statusCode).json({ message: "API not found" });
 });
@@ -86,7 +73,7 @@ app.use((req: Request, res: Response) => {
 // Error handling middleware
 app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
 	logger.error(err.stack);
-	const httpErrors = Container.get("HttpErrors") as IHttpErrors;
+	const httpErrors = container.get(TOKENS.HttpErrors) as IHttpErrors;
 	const error = httpErrors.error_500();
 	res.status(error.statusCode).json({ message: "Something went wrong!" });
 });

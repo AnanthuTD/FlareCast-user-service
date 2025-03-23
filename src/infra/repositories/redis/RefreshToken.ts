@@ -3,6 +3,7 @@ import { Inject } from "typedi";
 import { logger } from "@/infra/logger";
 import { RedisClientType } from "redis";
 import { TOKENS } from "@/app/tokens";
+import { inject, injectable } from "inversify";
 
 /**
  * Prisma implementation of the refresh token repository.
@@ -10,6 +11,7 @@ import { TOKENS } from "@/app/tokens";
  * @class
  * @implements {IRefreshTokenRepository}
  */
+@injectable()
 export class RefreshTokenRepository implements IRefreshTokenRepository {
 	/**
 	 * Creates an instance of RefreshTokenPrismaRepository.
@@ -18,7 +20,7 @@ export class RefreshTokenRepository implements IRefreshTokenRepository {
 	 * @param {PrismaClient} prisma - The Prisma client instance.
 	 */
 	constructor(
-		@Inject(TOKENS.RedisClient) private readonly redis: RedisClientType,
+		@inject(TOKENS.RedisClient) private readonly redis: RedisClientType,
 	) {}
 
 	private blacklistPrefix = "blacklist:";

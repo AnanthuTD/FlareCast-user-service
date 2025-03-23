@@ -10,10 +10,11 @@ import { User } from "@/domain/entities/User";
 import { Email } from "@/domain/valueObjects/email";
 import { logger } from "@/infra/logger";
 import { TOKENS } from "@/app/tokens";
+import { inject, injectable } from "inversify";
 
-@Service()
+@injectable()
 export class UserRepository implements IUsersRepository {
-	constructor(@Inject(TOKENS.PrismaClient) private readonly prisma: PrismaClient) {}
+	constructor(@inject(TOKENS.PrismaClient) private readonly prisma: PrismaClient) {}
 
 	private mapToDomain(user: PrismaUser): User {
 		return User.create({

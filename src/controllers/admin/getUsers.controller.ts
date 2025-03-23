@@ -4,9 +4,10 @@ import { UserRepository } from "../../repositories/userRepository";
 import HttpStatusCodes from "../../common/HttpStatusCodes";
 
 @Service()
+@injectable()
 export class UsersController {
   constructor(
-    @Inject(() => UserRepository)
+    @inject(() => UserRepository)
     private userRepository: UserRepository
   ) {}
 

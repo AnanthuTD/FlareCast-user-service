@@ -1,58 +1,74 @@
-// backend/src/presentation/http/controllers/can-subscribe-controller.ts
 import { IHttpErrors } from "@/presentation/http/helpers/IHttpErrors";
 import { IHttpRequest } from "@/presentation/http/helpers/IHttpRequest";
 import { IHttpResponse } from "@/presentation/http/helpers/IHttpResponse";
 import { IHttpSuccess } from "@/presentation/http/helpers/IHttpSuccess";
-import { HttpErrors } from "@/presentation/http/helpers/implementations/HttpErrors";
 import { HttpResponse } from "@/presentation/http/helpers/implementations/HttpResponse";
-import { HttpSuccess } from "@/presentation/http/helpers/implementations/HttpSuccess";
 import { IController } from "@/presentation/http/controllers/IController";
-import { IUsersRepository } from "@/app/repositories/IUsersRepository";
 import { ResponseDTO } from "@/domain/dtos/Response";
 import { logger } from "@/infra/logger";
-import {  Inject } from "typedi";
 import { TOKENS } from "@/app/tokens";
+import { inject, injectable } from "inversify";
+import { ICanSubscribeUseCase } from "@/app/use-cases/subscription/ICanSubscribeUseCase";
+import { CanSubscribeDTO } from "@/domain/dtos/subscription/CanSubscribeDTO";
+import { CanSubscribeErrorType } from "@/domain/enums/Subscription/CanSubscribeErrorType";
 
 /**
  * Controller for checking if a user can subscribe.
  */
+@injectable()
 export class CanSubscribeController implements IController {
   constructor(
-    @Inject(TOKENS.UserSubscriptionRepository)
-        @Inject(TOKENS.UserRepository)
-        private readonly usersRepository: IUsersRepository,
-        @Inject(TOKENS.HttpErrors) private readonly httpErrors: IHttpErrors,
-        @Inject(TOKENS.HttpSuccess) private readonly httpSuccess: IHttpSuccess
+    @inject(TOKENS.CanSubscribeUseCase)
+    private readonly canSubscribeUseCase: ICanSubscribeUseCase,
+    @inject(TOKENS.HttpErrors) private readonly httpErrors: IHttpErrors,
+    @inject(TOKENS.HttpSuccess) private readonly httpSuccess: IHttpSuccess
   ) {}
 
   async handle(httpRequest: IHttpRequest): Promise<IHttpResponse> {
     let error;
     let response: ResponseDTO;
 
-    if (!httpRequest.user || !httpRequest.user.id) {
-      error = this.httpErrors.error_401();
-      return new HttpResponse(error.statusCode, { message: "Unauthorized" });
-    }
-
-    const userId = httpRequest.user.id;
-
     try {
-      const result = await this.usersRepository.canSubscribe(userId);
-      if (!result.canSubscribe) {
-        error = this.httpErrors.error_400();
-        return new HttpResponse(error.statusCode, result);
+      // Validate user authentication
+      if (!httpRequest.user || !httpRequest.user.id) {
+        error = this.httpErrors.error_401();
+        return new HttpResponse(error.statusCode, { message: "Unauthorized" });
       }
 
-      response = {
-        success: true,
-        data: { message: "User can subscribe" },
-      };
+      // Create DTO and call the use case
+      const dto: CanSubscribeDTO = { userId: httpRequest.user.id };
+      response = await this.canSubscribeUseCase.execute(dto);
+
+      if (!response.success) {
+        const errorData = response.data;
+        const errorType = errorData.error as string;
+        switch (errorType) {
+          case CanSubscribeErrorType.MissingUserId:
+            error = this.httpErrors.error_401();
+            return new HttpResponse(error.statusCode, { message: "Unauthorized" });
+          case CanSubscribeErrorType.CannotSubscribe:
+            error = this.httpErrors.error_400();
+            return new HttpResponse(error.statusCode, {
+              message: errorData.message,
+              canSubscribe: errorData.canSubscribe,
+            });
+          default:
+            error = this.httpErrors.error_500();
+            return new HttpResponse(error.statusCode, {
+              message: "Internal server error",
+            });
+        }
+      }
+
+      // Return the response
       const success = this.httpSuccess.success_200(response.data);
       return new HttpResponse(success.statusCode, success.body);
-    } catch (err) {
+    } catch (err: any) {
       logger.error("Error checking subscription eligibility:", err);
       error = this.httpErrors.error_500();
-      return new HttpResponse(error.statusCode, { message: "Internal server error" });
+      return new HttpResponse(error.statusCode, {
+        message: "Internal server error",
+      });
     }
   }
 }

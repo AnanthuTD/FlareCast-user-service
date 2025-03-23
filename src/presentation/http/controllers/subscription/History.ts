@@ -6,47 +6,58 @@ import { HttpResponse } from "@/presentation/http/helpers/implementations/HttpRe
 import { IController } from "@/presentation/http/controllers/IController";
 import { ResponseDTO } from "@/domain/dtos/Response";
 import { logger } from "@/infra/logger";
-import { Service, Inject } from "typedi";
-import env from "@/infra/env";
-import { IUserSubscriptionRepository } from "@/app/repositories/IUserSubscriptionRepository";
 import { TOKENS } from "@/app/tokens";
+import { inject, injectable } from "inversify";
+import { IGetSubscriptionsUseCase } from "@/app/use-cases/subscription/IGetSubscriptionsUseCase";
+import { GetSubscriptionsDTO } from "@/domain/dtos/subscription/GetSubscriptionsDTO";
+import { GetSubscriptionsErrorType } from "@/domain/enums/Subscription/GetSubscriptionsErrorType";
 
 /**
  * Controller for fetching user subscriptions.
  */
+@injectable()
 export class GetSubscriptionsController implements IController {
   constructor(
-    @Inject(TOKENS.UserSubscriptionRepository)
-		private readonly userSubscriptionRepository: IUserSubscriptionRepository,
-		@Inject(TOKENS.HttpErrors) private readonly httpErrors: IHttpErrors,
-		@Inject(TOKENS.HttpSuccess) private readonly httpSuccess: IHttpSuccess
+    @inject(TOKENS.GetSubscriptionsUseCase)
+    private readonly getSubscriptionsUseCase: IGetSubscriptionsUseCase,
+    @inject(TOKENS.HttpErrors) private readonly httpErrors: IHttpErrors,
+    @inject(TOKENS.HttpSuccess) private readonly httpSuccess: IHttpSuccess
   ) {}
 
   async handle(httpRequest: IHttpRequest): Promise<IHttpResponse> {
     let error;
     let response: ResponseDTO;
 
-    if (!httpRequest.user || !httpRequest.user.id) {
-      error = this.httpErrors.error_401();
-      return new HttpResponse(error.statusCode, { message: "Unauthorized" });
-    }
-
-    const userId = httpRequest.user.id;
-
     try {
-      const subscriptions = await this.userSubscriptionRepository.getUserSubscription(userId);
-      const subscriptionsWithKey = subscriptions.map((sub) => ({
-        ...sub,
-        razorpayKeyId: env.RAZORPAY_KEY_ID,
-      }));
+      // Validate user authentication
+      if (!httpRequest.user || !httpRequest.user.id) {
+        error = this.httpErrors.error_401();
+        return new HttpResponse(error.statusCode, { message: "Unauthorized" });
+      }
 
-      response = {
-        success: true,
-        data: subscriptionsWithKey,
-      };
+      // Create DTO and call the use case
+      const dto: GetSubscriptionsDTO = { userId: httpRequest.user.id };
+      response = await this.getSubscriptionsUseCase.execute(dto);
+
+      if (!response.success) {
+        const errorType = response.data.error as string;
+        switch (errorType) {
+          case GetSubscriptionsErrorType.MissingUserId:
+            error = this.httpErrors.error_401();
+            return new HttpResponse(error.statusCode, { message: "Unauthorized" });
+          case GetSubscriptionsErrorType.FailedToFetchSubscriptions:
+            error = this.httpErrors.error_500();
+            return new HttpResponse(error.statusCode, { message: "Internal server error" });
+          default:
+            error = this.httpErrors.error_500();
+            return new HttpResponse(error.statusCode, { message: "Internal server error" });
+        }
+      }
+
+      // Return the response
       const success = this.httpSuccess.success_200(response.data);
       return new HttpResponse(success.statusCode, success.body);
-    } catch (err) {
+    } catch (err: any) {
       logger.error("Error fetching subscriptions:", err);
       error = this.httpErrors.error_500();
       return new HttpResponse(error.statusCode, { message: "Internal server error" });

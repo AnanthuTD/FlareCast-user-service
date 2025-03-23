@@ -4,6 +4,7 @@ import { VideoSummaryTitleEvent } from "@/domain/events/VideoSummaryTitleEvent";
 import { Inject } from "typedi";
 import { TOKENS } from "../tokens";
 import { IEventHandler } from "../interfaces/IEventHandler";
+import { inject, injectable } from "inversify";
 
 enum VideoStatus {
 	SUCCESS = "success",
@@ -11,9 +12,10 @@ enum VideoStatus {
 	PROCESSING = "processing",
 }
 
+@injectable()
 export class TitleAndSummaryHandler implements IEventHandler {
 	constructor(
-		@Inject(TOKENS.PromotionalVideoRepository) private readonly promotionalVideoRepository: IPromotionalVideoRepository
+		@inject(TOKENS.PromotionalVideoRepository) private readonly promotionalVideoRepository: IPromotionalVideoRepository
 	) {}
 
 	async handle(

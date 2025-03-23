@@ -2,7 +2,9 @@ import { Kafka, type Producer } from "kafkajs";
 import { IEventPublisher } from "@/app/interfaces/IEventPublisher";
 import { logger } from "@/infra/logger";
 import env from "@/infra/env";
+import { injectable } from "inversify";
 
+@injectable()
 export class KafkaEventPublisher implements IEventPublisher {
   private producer: Producer;
   private clientId = "user-service";

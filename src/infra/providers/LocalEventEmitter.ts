@@ -1,6 +1,8 @@
 import { EventEmitter } from "events";
 import { ILocalEventEmitter } from "@/app/providers/ILocalEventEmitter";
+import { injectable } from "inversify";
 
+@injectable()
 export class LocalEventEmitter implements ILocalEventEmitter {
   private emitter = new EventEmitter();
 

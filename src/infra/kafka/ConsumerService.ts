@@ -1,32 +1,34 @@
 import { createTopicHandlers } from "@/app/event-handlers";
 import { logger } from "@/infra/logger";
-import { Container, Inject } from "typedi";
-import { TOKENS } from "@/app/tokens";
 import { IPromotionalVideoRepository } from "@/app/repositories/IPromotionalVideoRepository";
 import { IUsersRepository } from "@/app/repositories/IUsersRepository";
 import { ILocalEventEmitter } from "@/app/providers/ILocalEventEmitter";
 import { KafkaEventConsumer } from "../providers/KafkaEventConsumer";
-import { EventService } from "@/app/services/EventService";
+import { inject, injectable } from "inversify";
+import { TOKENS } from "@/app/tokens";
+import { IUserSubscriptionRepository } from "@/app/repositories/IUserSubscriptionRepository";
+import { IEventService } from "@/app/services/IEventService";
 
+@injectable()
 export class KafkaConsumerService {
-	
 	constructor(
-		@Inject(TOKENS.KafkaEventConsumer) private consumer: KafkaEventConsumer,
-		@Inject(TOKENS.UserRepository) private usersRepository: IUsersRepository,
-		@Inject(TOKENS.PromotionalVideoRepository)
+		@inject(TOKENS.KafkaEventConsumer) private consumer: KafkaEventConsumer,
+		@inject(TOKENS.UserRepository) private usersRepository: IUsersRepository,
+		@inject(TOKENS.PromotionalVideoRepository)
 		private promotionalVideoRepository: IPromotionalVideoRepository,
-		@Inject(TOKENS.EventService) private eventService: EventService,
-		@Inject(TOKENS.LocalEventEmitter) private eventEmitter: ILocalEventEmitter,
-	) {
-		
-	}
+		@inject(TOKENS.EventService) private eventService: IEventService,
+		@inject(TOKENS.LocalEventEmitter) private eventEmitter: ILocalEventEmitter,
+		@inject(TOKENS.UserSubscriptionRepository)
+		private userSubscriptionRepository: IUserSubscriptionRepository
+	) {}
 
 	async start() {
 		const topicHandlers = createTopicHandlers(
 			this.usersRepository,
 			this.promotionalVideoRepository,
 			this.eventService,
-			this.eventEmitter
+			this.eventEmitter,
+			this.userSubscriptionRepository
 		);
 		const topics = Object.keys(topicHandlers) as string[];
 

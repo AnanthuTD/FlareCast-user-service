@@ -1,14 +1,15 @@
 import express, { Request, Response } from "express";
-import Container from "typedi";
 import { GetUserProfileController } from "@/presentation/http/controllers/user/GetProfile";
 import { UpdateProfileController } from "@/presentation/http/controllers/user/UpdateProfile";
 import { uploadMiddleware } from "../../middlewares/multer.middleware";
 import { expressAdapter } from "@/presentation/adapters/express";
+import container from "@/infra/di-container";
+import { TOKENS } from "@/app/tokens";
 
 const profileRoutes = express.Router();
 
-const userProfileController = Container.get(GetUserProfileController);
-const updateProfileController = Container.get(UpdateProfileController);
+const userProfileController = container.get(TOKENS.GetUserProfileController);
+const updateProfileController = container.get(TOKENS.UpdateProfileController);
 
 /**
  * Endpoint to fetch user profile (requires authentication).

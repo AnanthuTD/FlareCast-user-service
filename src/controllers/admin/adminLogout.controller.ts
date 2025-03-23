@@ -13,9 +13,10 @@ interface AdminLogoutRequest extends Request {
 }
 
 @Service()
+@injectable()
 export class AdminLogoutController {
 	constructor(
-		@Inject()
+		@inject()
 		private blacklistRefreshTokenUseCase: BlacklistRefreshTokenUseCase
 	) {}
 

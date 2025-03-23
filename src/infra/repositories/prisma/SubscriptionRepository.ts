@@ -3,11 +3,13 @@ import { TOKENS } from "@/app/tokens";
 import { logger } from "@/infra/logger";
 import { SubscriptionPlan } from "@prisma/client";
 import { PrismaClient } from "@prisma/client";
+import { inject, injectable } from "inversify";
 import { Inject } from "typedi";
 
+@injectable()
 export class SubscriptionRepository implements ISubscriptionRepository {
 	constructor(
-		@Inject(TOKENS.PrismaClient) private readonly prisma: PrismaClient
+		@inject(TOKENS.PrismaClient) private readonly prisma: PrismaClient
 	) {}
 
 	async findById(id: string): Promise<SubscriptionPlan | null | never> {

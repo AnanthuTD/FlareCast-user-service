@@ -1,6 +1,4 @@
-// backend/src/infra/routes/auth-routes.ts
 import { Router, Request, Response } from "express";
-import { Container } from "typedi";
 import { IHttpRequest } from "@/presentation/http/helpers/IHttpRequest";
 import {
 	authenticateUser,

@@ -1,6 +1,7 @@
 import { sign } from "jsonwebtoken";
 import { IGenerateRefreshTokenProvider } from "../../app/providers/IGenerateRefreshToken";
 import env from "@/infra/env";
+import { injectable } from "inversify";
 
 /**
  * Implementation of the refresh token generation provider.
@@ -8,6 +9,7 @@ import env from "@/infra/env";
  * @class
  * @implements {IGenerateRefreshTokenProvider}
  */
+@injectable()
 export class GenerateRefreshTokenProvider
 	implements IGenerateRefreshTokenProvider
 {

@@ -10,11 +10,13 @@ import { Subscriptions } from "razorpay/dist/types/subscriptions";
 import { logger } from "@/infra/logger";
 import { IUserSubscriptionRepository } from "@/app/repositories/IUserSubscriptionRepository";
 import { TOKENS } from "@/app/tokens";
+import { inject, injectable } from "inversify";
 
+@injectable()
 export class UserSubscriptionRepository implements IUserSubscriptionRepository {
 	constructor(
-		@Inject(TOKENS.RazorpayRepository) private readonly razorpayRepository: IRazorpayRepository,
-		@Inject(TOKENS.PrismaClient) private readonly prisma: PrismaClient
+		@inject(TOKENS.RazorpayRepository) private readonly razorpayRepository: IRazorpayRepository,
+		@inject(TOKENS.PrismaClient) private readonly prisma: PrismaClient
 	) {}
 
 	async createUserSubscription({

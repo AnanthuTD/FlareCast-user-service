@@ -1,23 +1,21 @@
 import express, { Request, Response } from "express";
-import { Container } from "typedi";
 import { expressAdapter } from "@/presentation/adapters/express";
 import { TOKENS } from "@/app/tokens";
+import container from "@/infra/di-container";
 
 /**
  * Router for handling authentication-related routes.
  */
 const authRoutes = express.Router();
 
-console.log(Container.length)
-
 // Fetch controllers using TypeDI
-const signUpController = Container.get(TOKENS.SignUpController);
-const signInController = Container.get(TOKENS.SignInController);
-const googleSignInController = Container.get(TOKENS.GoogleSigninController);
-const refreshTokenController = Container.get(TOKENS.RefreshTokenController);
-const userLogoutController = Container.get(TOKENS.UserLogoutController);
-const electronPostLoginController = Container.get(TOKENS.ElectronPostLoginController);
-const userExistController = Container.get(TOKENS.UserExistController);
+const signUpController = container.get(TOKENS.SignUpController);
+const signInController = container.get(TOKENS.SignInController);
+const googleSignInController = container.get(TOKENS.GoogleSigninController);
+const refreshTokenController = container.get(TOKENS.RefreshTokenController);
+const userLogoutController = container.get(TOKENS.UserLogoutController);
+const electronPostLoginController = container.get(TOKENS.ElectronPostLoginController);
+const userExistController = container.get(TOKENS.UserExistController);
 
 /**
  * Endpoint to check if a user exists (public).

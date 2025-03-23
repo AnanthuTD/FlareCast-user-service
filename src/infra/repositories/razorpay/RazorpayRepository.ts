@@ -2,6 +2,8 @@ import Razorpay from "razorpay";
 import crypto from "node:crypto";
 import { logger } from "@/infra/logger";
 import { IRazorpayRepository } from "@/app/repositories/IRazorpayRepository";
+import { injectable } from "inversify";
+import env from "@/infra/env";
 
 interface CreateRazorpayOrderProps {
 	amount: number;
@@ -13,6 +15,7 @@ interface PaymentVerificationProps {
 	razorpaySignature: string;
 }
 
+@injectable()
 export class RazorpayRepository implements IRazorpayRepository {
 	private razorPay: Razorpay;
 

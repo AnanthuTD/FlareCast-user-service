@@ -1,6 +1,7 @@
 import { sign } from "jsonwebtoken";
 import { IGenerateAccessTokenProvider } from "@/app/providers/IGenerateAccessToken";
 import env from "@/infra/env";
+import { injectable } from "inversify";
 
 /**
  * Implementation of the Access token generation provider.
@@ -8,6 +9,7 @@ import env from "@/infra/env";
  * @class
  * @implements {IGenerateAccessTokenProvider}
  */
+@injectable()
 export class GenerateAccessTokenProvider
 	implements IGenerateAccessTokenProvider
 {

@@ -1,18 +1,18 @@
 import { Router, Request, Response } from "express";
-import { Container } from "typedi";
-import { GetPlansController } from "@/presentation/http/controllers/subscription/Plans";
 import authRoutes from "./authenticate";
 import { webhookRoutes } from "./webhook.router";
 import { protectedUserRoutes } from "./protected";
 import { expressAdapter } from "@/presentation/adapters/express";
+import container from "@/infra/di-container";
+import { TOKENS } from "@/app/tokens";
 
 /**
  * Main router for combining all route modules.
  */
-const mainRouter = Router();
+const userRouter = Router();
 
 // Fetch controller using TypeDI
-const plansController = Container.get(GetPlansController);
+const plansController = container.get(TOKENS.GetPlansController);
 
 /**
  * Unprotected Routes
@@ -21,7 +21,7 @@ const plansController = Container.get(GetPlansController);
 /**
  * Endpoint to fetch available subscription plans (public).
  */
-mainRouter.get("/subscription-plans", async (req: Request, res: Response) => {
+userRouter.get("/subscription-plans", async (req: Request, res: Response) => {
 	const adapter = await expressAdapter(req, plansController);
 	res.status(adapter.statusCode).json(adapter.body);
 });
@@ -29,13 +29,13 @@ mainRouter.get("/subscription-plans", async (req: Request, res: Response) => {
 /**
  * Authentication-related routes (public and protected).
  */
-mainRouter.use("/auth", authRoutes);
+userRouter.use("/auth", authRoutes);
 
 /**
  * Webhook-related routes (public).
  */
-mainRouter.use("/webhook", webhookRoutes);
+userRouter.use("/webhook", webhookRoutes);
 
-authRoutes.use("/", protectedUserRoutes);
+userRouter.use("/", protectedUserRoutes);
 
-export { mainRouter };
+export default userRouter;

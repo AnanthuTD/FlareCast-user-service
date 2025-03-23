@@ -5,17 +5,20 @@ import { TitleAndSummaryHandler } from "@/app/handlers/TitleAndSummaryHandler";
 import { TOPICS } from "@/infra/kafka/topics";
 import { IUsersRepository } from "@/app/repositories/IUsersRepository";
 import { IPromotionalVideoRepository } from "@/app/repositories/IPromotionalVideoRepository";
-import { IEventEmitter } from "@/app/interfaces/event-emitter";
-import { EventService } from "@/app/services/EventService";
+import { IEventService } from "./services/IEventService";
+import { ILocalEventEmitter } from "./providers/ILocalEventEmitter";
+import { IUserSubscriptionRepository } from "./repositories/IUserSubscriptionRepository";
 
 export function createTopicHandlers(
 	usersRepository: IUsersRepository,
 	promotionalVideoRepository: IPromotionalVideoRepository,
-	eventService: EventService,
-	eventEmitter: IEventEmitter
+	eventService: IEventService,
+	eventEmitter: ILocalEventEmitter,
+	userSubscriptionRepository: IUserSubscriptionRepository
 ): Record<string, (topic: string, data: any) => Promise<void>> {
 	const verifiedUserHandler = new VerifiedUserHandler(
 		usersRepository,
+		userSubscriptionRepository,
 		eventService,
 		eventEmitter
 	);

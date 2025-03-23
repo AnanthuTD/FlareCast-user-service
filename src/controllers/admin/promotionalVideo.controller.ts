@@ -5,6 +5,7 @@ import env from "../../env";
 import { sendVideoUploadEvent } from "../../kafka/handlers/videoUploadEvent.producer";
 import HttpStatusCodes from "../../common/HttpStatusCodes";
 
+@injectable()
 export class PromotionalVideoController {
 	// Get signed URL for direct S3 upload
 	static getSignedUrl: RequestHandler = async (

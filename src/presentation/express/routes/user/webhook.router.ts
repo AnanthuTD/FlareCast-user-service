@@ -1,7 +1,8 @@
 import express, { Request, Response } from "express";
-import { Container } from "typedi";
 import { HandleSubscriptionWebhookController } from "@/presentation/http/controllers/subscription/Webhook";
 import { expressAdapter } from "@/presentation/adapters/express";
+import container from "@/infra/di-container";
+import { TOKENS } from "@/app/tokens";
 
 /**
  * Router for handling webhook-related routes.
@@ -9,7 +10,7 @@ import { expressAdapter } from "@/presentation/adapters/express";
 const webhookRoutes = express.Router();
 
 // Fetch controller using TypeDI
-const webhookController = Container.get(HandleSubscriptionWebhookController);
+const webhookController = container.get(TOKENS.HandleSubscriptionWebhookController);
 
 /**
  * Endpoint to handle Razorpay subscription webhooks (public).

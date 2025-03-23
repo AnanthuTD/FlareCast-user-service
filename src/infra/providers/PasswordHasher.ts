@@ -1,6 +1,7 @@
 import * as bcrypt from 'bcryptjs'
 
 import { IPasswordHasher } from '../../app/providers/IPasswordHasher'
+import { injectable } from 'inversify'
 
 /**
  * Implementation of the password hashing provider using bcrypt.
@@ -8,6 +9,7 @@ import { IPasswordHasher } from '../../app/providers/IPasswordHasher'
  * @class
  * @implements {IPasswordHasher}
  */
+@injectable()
 export class PasswordHasher implements IPasswordHasher {
   /**
    * The number of salt rounds to use for password hashing.

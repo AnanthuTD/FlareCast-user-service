@@ -1,11 +1,13 @@
 import { IHttpSuccess } from "../IHttpSuccess";
 import { IHttpResponse } from "../IHttpResponse";
 import { Service } from "typedi";
+import { injectable } from "inversify";
 
 /**
  * Implementation of the IHttpSuccess interface for generating HTTP success responses.
  */
-@Service()
+
+@injectable()
 export class HttpSuccess implements IHttpSuccess {
   success_200(data?: any): IHttpResponse {
     return { statusCode: 200, body: data || { message: "OK" } };

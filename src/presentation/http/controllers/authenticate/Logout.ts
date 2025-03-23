@@ -6,52 +6,59 @@ import { HttpResponse } from "@/presentation/http/helpers/implementations/HttpRe
 import { IController } from "@/presentation/http/controllers/IController";
 import { ResponseDTO } from "@/domain/dtos/Response";
 import { logger } from "@/infra/logger";
-import { Service, Inject } from "typedi";
-import { ITokenManagerProvider } from "@/app/providers/ITokenManager";
 import { TOKENS } from "@/app/tokens";
-import { IRefreshTokenRepository } from "@/app/repositories/IRefreshTokenRepository";
+import { inject, injectable } from "inversify";
+import { IUserLogoutUseCase } from "@/app/use-cases/auth/IUserLogoutUseCase";
+import { UserLogoutDTO } from "@/domain/dtos/authenticate/UserLogoutDTO";
+import { UserLogoutErrorType } from "@/domain/enums/Authenticate/UserLogoutErrorType";
 
 /**
  * Controller for handling user logout requests.
  */
+@injectable()
 export class UserLogoutController implements IController {
-
   constructor(
-    @Inject(TOKENS.HttpErrors) private readonly httpErrors: IHttpErrors ,
-    @Inject(TOKENS.HttpSuccess) private readonly httpSuccess: IHttpSuccess,
-    @Inject(TOKENS.RefreshTokenRepository) private readonly refreshTokenRepository: IRefreshTokenRepository,
-    @Inject(TOKENS.TokenManagerProvider) private readonly tokenManager: ITokenManagerProvider,
-  ) {
-    
-  }
+    @inject(TOKENS.UserLogoutUseCase)
+    private readonly userLogoutUseCase: IUserLogoutUseCase,
+    @inject(TOKENS.HttpErrors) private readonly httpErrors: IHttpErrors,
+    @inject(TOKENS.HttpSuccess) private readonly httpSuccess: IHttpSuccess
+  ) {}
 
   async handle(httpRequest: IHttpRequest): Promise<IHttpResponse> {
     let error;
     let response: ResponseDTO;
 
-    const refreshToken = httpRequest.cookies?.refreshToken;
-
     try {
-      // If a refresh token is present, delete it from the database
-      if (refreshToken) {
-        const expiresAt = this.tokenManager.getExpiresAt(refreshToken)
-        await this.refreshTokenRepository.blacklistToken(refreshToken, expiresAt);
-      } else {
-        logger.debug("No refresh token found in cookies during logout");
+      // Extract the refresh token from cookies
+      const refreshToken = httpRequest.cookies?.refreshToken;
+
+      // Create DTO and call the use case
+      const dto: UserLogoutDTO = { refreshToken };
+      response = await this.userLogoutUseCase.execute(dto);
+
+      if (!response.success) {
+        const errorType = response.data.error as string;
+        if (errorType === UserLogoutErrorType.InvalidRefreshToken) {
+          error = this.httpErrors.error_400();
+          return new HttpResponse(error.statusCode, {
+            message: "Invalid refresh token",
+          });
+        }
+        error = this.httpErrors.error_500();
+        return new HttpResponse(error.statusCode, {
+          message: "Internal server error",
+        });
       }
 
-      response = {
-        success: true,
-        data: {
-          message: "Logged out successfully",
-        },
-      };
+      // Return the response
       const success = this.httpSuccess.success_200(response.data);
       return new HttpResponse(success.statusCode, success.body);
-    } catch (err) {
+    } catch (err: any) {
       logger.error("Error during user logout:", err);
       error = this.httpErrors.error_500();
-      return new HttpResponse(error.statusCode, { message: "Internal server error" });
+      return new HttpResponse(error.statusCode, {
+        message: "Internal server error",
+      });
     }
   }
 }

@@ -1,10 +1,10 @@
 import EventName from "@/app/event-names";
 import { IUsersRepository } from "@/app/repositories/IUsersRepository";
 import { TOKENS } from "@/app/tokens";
+import container from "@/infra/di-container";
 import { authenticateWebsocketAdmin } from "@/presentation/express/middlewares/socketAuth.middleware";
 import { Namespace, Socket } from "socket.io";
 import { EventEmitter } from "stream";
-import Container from "typedi";
 
 export const setupAdminDashboardNamespace = (
 	namespace: Namespace,
@@ -32,21 +32,21 @@ export const setupAdminDashboardNamespace = (
 		});
 
 		const totalUsers = (
-			(await Container.get(TOKENS.UserRepository)) as IUsersRepository
+			(await container.get(TOKENS.UserRepository)) as IUsersRepository
 		).getTotalUsersCount();
 		const sevenDaysAgo = new Date();
 		sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 		const newSignups = (
-			(await Container.get(TOKENS.UserRepository)) as IUsersRepository
+			(await container.get(TOKENS.UserRepository)) as IUsersRepository
 		).getUsersSignedUpBetween(sevenDaysAgo, new Date());
 		const activeUsers = userNamespace.sockets.size;
 		const subscriptionData = await (
-			(await Container.get(
+			(await container.get(
 				TOKENS.UserSubscriptionRepository
 			)) as IUsersRepository
 		).getLatestSubscriptions();
 		const activeSubscriptionsCount = await (
-			(await Container.get(
+			(await container.get(
 				TOKENS.UserSubscriptionRepository
 			)) as IUsersRepository
 		).activeSubscriptionsCount();
@@ -60,7 +60,7 @@ export const setupAdminDashboardNamespace = (
 		});
 	});
 
-	const eventEmitter = Container.get(TOKENS.EventEmitter) as EventEmitter;
+	const eventEmitter = container.get(TOKENS.EventEmitter) as EventEmitter;
 
 	// Existing events
 	eventEmitter.on(EventName.ACTIVE_USERS_COUNT, (activeUserCount) => {

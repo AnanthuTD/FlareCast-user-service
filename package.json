@@ -58,6 +58,7 @@
     "envalid": "^8.0.0",
     "express": "^4.21.2",
     "google-auth-library": "^9.15.0",
+    "inversify": "^7.2.0",
     "jsonwebtoken": "^9.0.2",
     "kafkajs": "^2.2.4",
     "module-alias": "^2.2.3",
