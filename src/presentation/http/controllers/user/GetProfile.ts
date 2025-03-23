@@ -10,7 +10,7 @@ import { TOKENS } from "@/app/tokens";
 import { inject, injectable } from "inversify";
 import { IGetUserProfileUseCase } from "@/app/use-cases/user/IGetUserProfileUseCase";
 import { GetUserProfileDTO } from "@/domain/dtos/user/GetUserProfileDTO";
-import { GetUserProfileErrorType } from "@/domain/enums/User/GetUserProfileErrorType";
+import { GetUserProfileErrorType } from "@/domain/enums/user/GetUserProfileErrorType";
 
 /**
  * Controller for fetching user profile information.

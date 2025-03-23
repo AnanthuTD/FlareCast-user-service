@@ -7,8 +7,8 @@ import { GetUserProfileDTO } from "@/domain/dtos/user/GetUserProfileDTO";
 import {
 	GetUserProfileResponseDTO,
 	UserProfileDTO,
-} from "@/domain/dtos/user/GetUserProfileResponseDTO";
-import { GetUserProfileErrorType } from "@/domain/enums/User/GetUserProfileErrorType";
+} from "@/domain/dtos/User/GetUserProfileResponseDTO";
+import { GetUserProfileErrorType } from "@/domain/enums/user/GetUserProfileErrorType";
 import { IGetUserProfileUseCase } from "../IGetUserProfileUseCase";
 import { logger } from "@/infra/logger";
 
@@ -48,11 +48,11 @@ export class GetUserProfileUseCase implements IGetUserProfileUseCase {
 
 			// Prepare the response
 			const userProfile: UserProfileDTO = {
-				id: user.id,
-				email: user.email,
+				id: user.id!,
+				email: user.email!,
 				firstName: user.firstName,
-				lastName: user.lastName,
-				image: user.image,
+				lastName: user.lastName ?? "",
+				image: user.image ?? "",
 				plan: activeSubscription ? { planId: activeSubscription.planId } : null,
 			};
 
