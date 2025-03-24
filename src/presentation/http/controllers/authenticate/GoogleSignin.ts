@@ -73,7 +73,8 @@ export class GoogleSignInController implements IController {
 			const success = this.httpSuccess.success_200(response.data);
 			return new HttpResponse(success.statusCode, success.body);
 		} catch (err: any) {
-			logger.error("Error during Google sign-in:", err);
+			console.log(err.message)
+			logger.error("Error during Google sign-in:");
 			error = this.httpErrors.error_500();
 			return new HttpResponse(error.statusCode, {
 				message: "Internal server error",

@@ -47,7 +47,7 @@ export class TokenManagerProvider implements ITokenManagerProvider {
 	}
 
 	getExpiresAt(token: string): number {
-		const decoded = verify(token, env.ACCESS_TOKEN_SECRET as string) as {
+		const decoded = decode(token) as {
 			exp: number;
 		};
 		return decoded.exp;

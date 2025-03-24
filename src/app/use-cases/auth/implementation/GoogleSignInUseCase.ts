@@ -32,17 +32,26 @@ export class GoogleSignInUseCase implements IGoogleSignInUseCase {
 	async execute(dto: GoogleSignInDTO): Promise<ResponseDTO> {
 		try {
 			// Exchange the authorization code for an access token
-			const tokenResponse = await axios.post(
-				"https://oauth2.googleapis.com/token",
-				{
-					code: dto.code,
-					client_id: env.GOOGLE_CLIENT_ID,
-					grant_type: "authorization_code",
-				}
-			);
+			// const tokenResponse = await axios.post(
+			// 	"https://oauth2.googleapis.com/token",
+			// 	{
+			// 		code: dto.code,
+			// 		client_id: env.GOOGLE_CLIENT_ID,
+			// 		grant_type: "authorization_code",
+			// 	}
+			// );
 
-			const { access_token } = tokenResponse.data;
-			if (!access_token) {
+			// const { access_token } = tokenResponse.data;
+
+			/* 
+				access_token: 'ya29.a0AeXRPp5f1tYs0fQYc3loyMP07fohdKdFNydF-36ScMtocJ2BMwEgIsl2CfhNIjq3IOnBP_qEl2bREpM3z20NX9xyz97qbX3GLabXUsr894ynNE02hGCAxqLCOGgWA9pRHknWAq8_VFyscv8DFa-AflRJn2jk5CpyqOIzYk1ILuoaCgYKASkSARESFQHGX2MiX7fQ3JKyFGMURrvuOmJh9g0178',
+				token_type: 'Bearer',
+				expires_in: 3599,
+				scope: 'email profile https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile openid',
+				authuser: '0',
+				prompt: 'none'
+			*/
+			if (!dto.code || !dto.code.access_token) {
 				logger.error("Failed to exchange authorization code for access token");
 				return {
 					success: false,
@@ -55,7 +64,7 @@ export class GoogleSignInUseCase implements IGoogleSignInUseCase {
 				"https://www.googleapis.com/oauth2/v1/userinfo",
 				{
 					headers: {
-						Authorization: `Bearer ${access_token}`,
+						Authorization: `Bearer ${dto.code.access_token}`,
 						Accept: "application/json",
 					},
 				}
@@ -133,6 +142,8 @@ export class GoogleSignInUseCase implements IGoogleSignInUseCase {
 				data: userResponse,
 			};
 		} catch (err: any) {
+			if (axios.isAxiosError(err))
+				console.error(JSON.stringify(err.response?.data, null, 2));
 			logger.error("Error during Google sign-in:", err);
 			return {
 				success: false,
