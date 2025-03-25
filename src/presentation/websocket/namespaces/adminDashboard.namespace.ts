@@ -1,5 +1,6 @@
 import EventName from "@/app/event-names";
 import { IUsersRepository } from "@/app/repositories/IUsersRepository";
+import { IUserSubscriptionRepository } from "@/app/repositories/IUserSubscriptionRepository";
 import { TOKENS } from "@/app/tokens";
 import container from "@/infra/di-container";
 import { authenticateWebsocketAdmin } from "@/presentation/express/middlewares/socketAuthMiddleware";
@@ -43,12 +44,12 @@ export const setupAdminDashboardNamespace = (
 		const subscriptionData = await (
 			(await container.get(
 				TOKENS.UserSubscriptionRepository
-			)) as IUsersRepository
+			)) as IUserSubscriptionRepository
 		).getLatestSubscriptions();
 		const activeSubscriptionsCount = await (
 			(await container.get(
 				TOKENS.UserSubscriptionRepository
-			)) as IUsersRepository
+			)) as IUserSubscriptionRepository
 		).activeSubscriptionsCount();
 
 		namespace.emit(EventName.ADMIN_DASHBOARD_INITIAL_DATA, {
