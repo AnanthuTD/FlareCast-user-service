@@ -3,6 +3,8 @@ import { expressAdapter } from "@/presentation/adapters/express";
 import { TOKENS } from "@/app/tokens";
 import container from "@/infra/di-container";
 import env from "@/infra/env";
+import { setAuthCookies } from "../../setAuthCookies";
+import { IController } from "@/presentation/http/controllers/IController";
 
 /**
  * Router for handling authentication-related routes.
@@ -10,40 +12,15 @@ import env from "@/infra/env";
 const authRoutes = express.Router();
 
 // Fetch controllers using TypeDI
-const signUpController = container.get(TOKENS.SignUpController);
-const signInController = container.get(TOKENS.SignInController);
-const googleSignInController = container.get(TOKENS.GoogleSigninController);
-const refreshTokenController = container.get(TOKENS.RefreshTokenController);
-const userLogoutController = container.get(TOKENS.UserLogoutController);
-const electronPostLoginController = container.get(
+const signUpController = container.get<IController>(TOKENS.SignUpController);
+const signInController = container.get<IController>(TOKENS.SignInController);
+const googleSignInController = container.get<IController>(TOKENS.GoogleSigninController);
+const refreshTokenController = container.get<IController>(TOKENS.RefreshTokenController);
+const userLogoutController = container.get<IController>(TOKENS.UserLogoutController);
+const electronPostLoginController = container.get<IController>(
 	TOKENS.ElectronPostLoginController
 );
-const userExistController = container.get(TOKENS.UserExistController);
-
-// Utility function to set cookies conditionally
-const setAuthCookies = (
-	res: Response,
-	accessToken?: string,
-	refreshToken?: string
-) => {
-	if (accessToken) {
-		res.cookie("accessToken", accessToken, {
-			httpOnly: false,
-			secure: env.NODE_ENV === "production",
-			sameSite: "strict",
-			maxAge: 15 * 60 * 1000, // 15 minutes
-		});
-	}
-
-	if (refreshToken) {
-		res.cookie("refreshToken", refreshToken, {
-			httpOnly: true,
-			secure: env.NODE_ENV === "production",
-			sameSite: "strict",
-			maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-		});
-	}
-};
+const userExistController = container.get<IController>(TOKENS.UserExistController);
 
 /**
  * Endpoint to check if a user exists (public).

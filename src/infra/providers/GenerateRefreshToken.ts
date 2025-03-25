@@ -40,4 +40,24 @@ export class GenerateRefreshTokenProvider
 
 		return generatedToken;
 	}
+
+	async generateAdminToken(token: {
+		id: string;
+		[key: string]: any;
+	}): Promise<string> {
+		const secretKey = env.ADMIN_REFRESH_TOKEN_SECRET;
+
+		if (!secretKey) {
+			throw new Error(
+				"REFRESH_TOKEN_SECRET is missing in the environment variables."
+			);
+		}
+
+		const generatedToken = sign(token, secretKey, {
+			subject: token.id,
+			expiresIn: "30d",
+		});
+
+		return generatedToken;
+	}
 }

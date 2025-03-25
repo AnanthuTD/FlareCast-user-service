@@ -54,7 +54,7 @@ export class GoogleSignInUseCase implements IGoogleSignInUseCase {
 				logger.error("Failed to fetch user information from Google");
 				return {
 					success: false,
-					data: { error: GoogleSignInErrorType.FailedToFetchUserInfo },
+					data: { error: GoogleSignInErrorType.FailedToFetchAdminInfo },
 				};
 			}
 

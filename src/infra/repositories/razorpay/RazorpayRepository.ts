@@ -1,7 +1,7 @@
 import Razorpay from "razorpay";
 import crypto from "node:crypto";
 import { logger } from "@/infra/logger";
-import { IRazorpayRepository } from "@/app/repositories/IRazorpayRepository";
+import { IPaymentGateway } from "@/app/repositories/IPaymentGateway";
 import { injectable } from "inversify";
 import env from "@/infra/env";
 import { Orders } from "razorpay/dist/types/orders";
@@ -17,7 +17,7 @@ interface PaymentVerificationProps {
 }
 
 @injectable()
-export class RazorpayRepository implements IRazorpayRepository {
+export class RazorpayRepository implements IPaymentGateway {
 	private razorPay: Razorpay;
 
 	constructor() {
@@ -170,6 +170,29 @@ export class RazorpayRepository implements IRazorpayRepository {
       };
     } catch (err: any) {
       logger.error(`Error fetching subscription ${subscriptionId} from Razorpay:`, err);
+      throw err;
+    }
+  }
+
+	async createPlan(params: {
+    period: string;
+    interval: number;
+    item: {
+      name: string;
+      amount: number;
+      currency: string;
+    };
+  }): Promise<{
+    id: string;
+  }> {
+    try {
+      const plan = await this.razorPay.plans.create(params);
+      return { id: plan.id };
+    } catch (err: any) {
+      logger.error("Error creating Razorpay plan:", {
+        message: err.message,
+        stack: err.stack,
+      });
       throw err;
     }
   }

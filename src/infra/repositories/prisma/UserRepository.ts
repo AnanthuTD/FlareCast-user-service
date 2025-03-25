@@ -29,7 +29,7 @@ export class UserRepository implements IUsersRepository {
 		});
 	}
 
-	async findUsersPaginated({
+	async findPaginatedUsers({
 		page = 1,
 		limit = 10,
 		searchQuery = "",

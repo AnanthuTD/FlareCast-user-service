@@ -6,8 +6,13 @@ const env = cleanEnv(process.env, {
 	}),
 	PORT: port(),
 	DATABASE_URL: url(),
+
 	ACCESS_TOKEN_SECRET: str(),
 	REFRESH_TOKEN_SECRET: str(),
+
+	ADMIN_ACCESS_TOKEN_SECRET: str(),
+	ADMIN_REFRESH_TOKEN_SECRET: str(),
+
 	GOOGLE_CLIENT_ID: str(),
 	KAFKA_BROKER: str(),
 

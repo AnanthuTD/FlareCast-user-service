@@ -51,7 +51,7 @@ export class GoogleSignInController implements IController {
 						return new HttpResponse(error.statusCode, {
 							message: "Failed to authenticate with Google",
 						});
-					case GoogleSignInErrorType.FailedToFetchUserInfo:
+					case GoogleSignInErrorType.FailedToFetchAdminInfo:
 						error = this.httpErrors.error_400();
 						return new HttpResponse(error.statusCode, {
 							message: "Failed to fetch user information from Google",

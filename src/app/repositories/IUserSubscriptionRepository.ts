@@ -45,4 +45,5 @@ export interface IUserSubscriptionRepository {
 	>;
 
 	activeSubscriptionsCount(): Promise<number>;
+	countActiveByPlanId(planId: string): Promise<number>;
 }

@@ -14,7 +14,7 @@ export interface CanSubscribeResult {
 }
 
 export interface IUsersRepository {
-	findUsersPaginated({
+	findPaginatedUsers({
 		page,
 		limit,
 		searchQuery,

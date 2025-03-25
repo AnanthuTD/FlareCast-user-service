@@ -1,7 +1,7 @@
 import EventName from "@/app/event-names";
 import { TOKENS } from "@/app/tokens";
 import container from "@/infra/di-container";
-import { authenticateWebsocketUser } from "@/presentation/express/middlewares/socketAuth.middleware";
+import { authenticateWebsocketUser } from "@/presentation/express/middlewares/socketAuthMiddleware";
 import { Namespace, Socket } from "socket.io";
 import { EventEmitter } from "stream";
 

@@ -2,7 +2,7 @@ import EventName from "@/app/event-names";
 import { IUsersRepository } from "@/app/repositories/IUsersRepository";
 import { TOKENS } from "@/app/tokens";
 import container from "@/infra/di-container";
-import { authenticateWebsocketAdmin } from "@/presentation/express/middlewares/socketAuth.middleware";
+import { authenticateWebsocketAdmin } from "@/presentation/express/middlewares/socketAuthMiddleware";
 import { Namespace, Socket } from "socket.io";
 import { EventEmitter } from "stream";
 

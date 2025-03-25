@@ -1,7 +1,7 @@
 import express from "express";
 import profileRoutes from "./userProfile.route";
 import { limitsRoutes } from "./limits-routes";
-import { authenticateUserMiddleware } from "../../middlewares/auth.middleware";
+import { authenticateUserMiddleware } from "../../middlewares/authMiddleware";
 import { subscriptionRoutes } from "./userSubscriptionRouter";
 
 

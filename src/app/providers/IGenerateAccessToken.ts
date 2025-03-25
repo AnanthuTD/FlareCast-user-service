@@ -12,4 +12,5 @@ export interface IGenerateAccessTokenProvider {
 	 * @returns {Promise<string>} The generated refresh token.
 	 */
 	generateToken(token: { id: string; [key: string]: any }): Promise<string>;
+	generateAdminToken(token: { id: string; [key: string]: any }): Promise<string>;
 }

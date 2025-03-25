@@ -101,6 +101,62 @@ import { VerifyPaymentResponseDTO } from "@/domain/dtos/subscription/VerifyPayme
 import { IUseCase } from "@/app/use-cases/IUseCase";
 import { IController } from "@/presentation/http/controllers/IController";
 import { VerifyPaymentController } from "@/presentation/http/controllers/subscription/VerifyPayment";
+import { GetAdminProfileDTO } from "@/domain/dtos/admin/GetAdminProfileDTO";
+import { GetAdminProfileResponseDTO } from "@/domain/dtos/admin/GetAdminProfileResponseDTO";
+import { GetAdminProfileController } from "@/presentation/http/controllers/admin/GetAdminProfileController";
+import { AdminRepository } from "./repositories/prisma/AdminRepository";
+import { IAdminRepository } from "@/app/repositories/IAdminRepository";
+import { IAdminSignInUseCase } from "@/app/use-cases/admin/IAdminSignInUseCase";
+import { AdminSignInUseCase } from "@/app/use-cases/admin/implementation/AdminSignInUseCase";
+import { AdminSignInController } from "@/presentation/http/controllers/admin/AdminSignInController";
+import { GetAdminProfileUseCase } from "@/app/use-cases/admin/implementation/GetAdminProfileUseCase";
+import { IBanUserUseCase } from "@/app/use-cases/admin/IBanUserUseCase";
+import { BanUserUseCase } from "@/app/use-cases/admin/implementation/BanUserUseCase";
+import { BanUserController } from "@/presentation/http/controllers/admin/BanUserController";
+import { IGetPaginatedUsersUseCase } from "@/app/use-cases/admin/IGetPaginatedUsersUseCase";
+import { GetPaginatedUsersUseCase } from "@/app/use-cases/admin/implementation/GetPaginatedUsersUseCase";
+import { GetPaginatedUsersController } from "@/presentation/http/controllers/admin/GetPaginatedUsersController";
+import { IVideoServiceClient } from "@/app/services/IVideoServiceClient";
+import { VideoServiceClient } from "@/app/services/implementation/VideoServiceClient";
+import { IPromotionalVideoRepository } from "@/app/repositories/IPromotionalVideoRepository";
+import { DeletePromotionalVideoController } from "@/presentation/http/controllers/admin/promotionalVideo/DeletePromotionalVideoController";
+import { UpdatePromotionalVideoController } from "@/presentation/http/controllers/admin/promotionalVideo/UpdatePromotionalVideoController";
+import { GetPromotionalVideoByIdController } from "@/presentation/http/controllers/admin/promotionalVideo/GetPromotionalVideoByIdController";
+import { GetPromotionalVideosController } from "@/presentation/http/controllers/admin/promotionalVideo/GetPromotionalVideosController";
+import { UploadPromotionalVideoController } from "@/presentation/http/controllers/admin/promotionalVideo/UploadPromotionalVideoController";
+import { GetSignedUrlController } from "@/presentation/http/controllers/admin/promotionalVideo/GetSignedUrlController";
+import { DeletePromotionalVideoUseCase } from "@/app/use-cases/admin/promotionalVideo/implementation/DeletePromotionalVideoUseCase";
+import { IDeletePromotionalVideoUseCase } from "@/app/use-cases/admin/promotionalVideo/IDeletePromotionalVideoUseCase";
+import { IUpdatePromotionalVideoUseCase } from "@/app/use-cases/admin/promotionalVideo/IUpdatePromotionalVideoUseCase";
+import { UpdatePromotionalVideoUseCase } from "@/app/use-cases/admin/promotionalVideo/implementation/UpdatePromotionalVideoUseCase";
+import { GetPromotionalVideoByIdUseCase } from "@/app/use-cases/admin/promotionalVideo/implementation/GetPromotionalVideoByIdUseCase";
+import { IGetPromotionalVideoByIdUseCase } from "@/app/use-cases/admin/promotionalVideo/IGetPromotionalVideoByIdUseCase";
+import { GetPromotionalVideosUseCase } from "@/app/use-cases/admin/promotionalVideo/implementation/GetPromotionalVideosUseCase";
+import { IGetPromotionalVideosUseCase } from "@/app/use-cases/admin/promotionalVideo/IGetPromotionalVideosUseCase";
+import { UploadPromotionalVideoUseCase } from "@/app/use-cases/admin/promotionalVideo/implementation/UploadPromotionalVideoUseCase";
+import { IUploadPromotionalVideoUseCase } from "@/app/use-cases/admin/promotionalVideo/IUploadPromotionalVideoUseCase";
+import { GetSignedUrlUseCase } from "@/app/use-cases/admin/promotionalVideo/implementation/GetSignedUrlUseCase";
+import { IGetSignedUrlUseCase } from "@/app/use-cases/admin/promotionalVideo/IGetSignedUrlUseCase";
+import { IPaymentGateway } from "@/app/repositories/IPaymentGateway";
+import { IUserSubscriptionRepository } from "@/app/repositories/IUserSubscriptionRepository";
+import { ISubscriptionRepository } from "@/app/repositories/ISubscriptionRepository";
+import { TogglePlanActiveController } from "@/presentation/http/controllers/admin/subscriptionPlan/TogglePlanActiveController";
+import { DeletePlanController } from "@/presentation/http/controllers/admin/subscriptionPlan/DeletePlanController";
+import { CreatePlanController } from "@/presentation/http/controllers/admin/subscriptionPlan/CreatePlanController";
+import { TogglePlanActiveUseCase } from "@/app/use-cases/admin/subscriptionPlan/implementation/TogglePlanActiveUseCase";
+import { ITogglePlanActiveUseCase } from "@/app/use-cases/admin/subscriptionPlan/ITogglePlanActiveUseCase";
+import { DeletePlanUseCase } from "@/app/use-cases/admin/subscriptionPlan/implementation/DeletePlanUseCase";
+import { IDeletePlanUseCase } from "@/app/use-cases/admin/subscriptionPlan/IDeletePlanUseCase";
+import { CreatePlanUseCase } from "@/app/use-cases/admin/subscriptionPlan/implementation/CreatePlanUseCase";
+import { ICreatePlanUseCase } from "@/app/use-cases/admin/subscriptionPlan/ICreatePlanUseCase";
+import { AuthenticateAdminController } from "@/presentation/http/controllers/admin/Authenticate";
+import { AdminRefreshTokenController } from "@/presentation/http/controllers/admin/RefreshToken";
+import { AdminGoogleSignInController } from "@/presentation/http/controllers/admin/GoogleSignin";
+import { AuthenticateAdminUseCase } from "@/app/use-cases/admin/implementation/AuthenticateAdminUseCase";
+import { AdminRefreshTokenUseCase } from "@/app/use-cases/admin/implementation/RefreshTokenUseCase";
+import { AdminGoogleSigninUseCase } from "@/app/use-cases/admin/implementation/GoogleSignInUseCase";
+import { AdminLogoutUseCase } from "@/app/use-cases/admin/implementation/AdminLogoutUseCase";
+import { AdminLogoutController } from "@/presentation/http/controllers/admin/Logout";
 
 // Define TOKENS as Symbols (unchanged from your original setup)
 
@@ -217,6 +273,113 @@ export function setupDIContainer() {
 		)
 		.to(VerifyPaymentUseCase)
 		.inSingletonScope();
+	container
+		.bind<IUseCase<GetAdminProfileDTO, GetAdminProfileResponseDTO>>(
+			TOKENS.GetAdminProfileUseCase
+		)
+		.to(GetAdminProfileUseCase)
+		.inSingletonScope();
+	container
+		.bind<IController>(TOKENS.GetAdminProfileController)
+		.to(GetAdminProfileController)
+		.inSingletonScope();
+	container
+		.bind<IAdminRepository>(TOKENS.AdminRepository)
+		.to(AdminRepository)
+		.inSingletonScope();
+	container
+		.bind<IAdminSignInUseCase>(TOKENS.AdminSignInUseCase)
+		.to(AdminSignInUseCase)
+		.inSingletonScope();
+
+	container
+		.bind<IController>(TOKENS.AdminSignInController)
+		.to(AdminSignInController)
+		.inSingletonScope();
+	container
+		.bind<IBanUserUseCase>(TOKENS.BanUserUseCase)
+		.to(BanUserUseCase)
+		.inSingletonScope();
+
+	container
+		.bind<IController>(TOKENS.BanUserController)
+		.to(BanUserController)
+		.inSingletonScope();
+	container
+		.bind<IGetPaginatedUsersUseCase>(TOKENS.GetPaginatedUsersUseCase)
+		.to(GetPaginatedUsersUseCase)
+		.inSingletonScope();
+
+	container
+		.bind<IController>(TOKENS.GetPaginatedUsersController)
+		.to(GetPaginatedUsersController)
+		.inSingletonScope();
+	container
+		.bind<IGetSignedUrlUseCase>(TOKENS.GetSignedUrlUseCase)
+		.to(GetSignedUrlUseCase)
+		.inSingletonScope();
+
+	container
+		.bind<IUploadPromotionalVideoUseCase>(TOKENS.UploadPromotionalVideoUseCase)
+		.to(UploadPromotionalVideoUseCase)
+		.inSingletonScope();
+
+	container
+		.bind<IGetPromotionalVideosUseCase>(TOKENS.GetPromotionalVideosUseCase)
+		.to(GetPromotionalVideosUseCase)
+		.inSingletonScope();
+
+	container
+		.bind<IGetPromotionalVideoByIdUseCase>(
+			TOKENS.GetPromotionalVideoByIdUseCase
+		)
+		.to(GetPromotionalVideoByIdUseCase)
+		.inSingletonScope();
+
+	container
+		.bind<IUpdatePromotionalVideoUseCase>(TOKENS.UpdatePromotionalVideoUseCase)
+		.to(UpdatePromotionalVideoUseCase)
+		.inSingletonScope();
+
+	container
+		.bind<IDeletePromotionalVideoUseCase>(TOKENS.DeletePromotionalVideoUseCase)
+		.to(DeletePromotionalVideoUseCase)
+		.inSingletonScope();
+
+	container
+		.bind<IController>(TOKENS.GetSignedUrlController)
+		.to(GetSignedUrlController)
+		.inSingletonScope();
+
+	container
+		.bind<IController>(TOKENS.UploadPromotionalVideoController)
+		.to(UploadPromotionalVideoController)
+		.inSingletonScope();
+
+	container
+		.bind<IController>(TOKENS.GetPromotionalVideosController)
+		.to(GetPromotionalVideosController)
+		.inSingletonScope();
+
+	container
+		.bind<IController>(TOKENS.GetPromotionalVideoByIdController)
+		.to(GetPromotionalVideoByIdController)
+		.inSingletonScope();
+
+	container
+		.bind<IController>(TOKENS.UpdatePromotionalVideoController)
+		.to(UpdatePromotionalVideoController)
+		.inSingletonScope();
+
+	container
+		.bind<IController>(TOKENS.DeletePromotionalVideoController)
+		.to(DeletePromotionalVideoController)
+		.inSingletonScope();
+
+	container
+		.bind<IVideoServiceClient>(TOKENS.VideoServiceClient)
+		.to(VideoServiceClient)
+		.inSingletonScope();
 
 	// services
 	container.bind<IS3Service>(TOKENS.S3Service).to(S3Service).inSingletonScope();
@@ -225,28 +388,100 @@ export function setupDIContainer() {
 		.to(EmailService)
 		.inSingletonScope();
 
+		container
+  .bind<IGetPlansUseCase>(TOKENS.GetPlansUseCase)
+  .to(GetPlansUseCase)
+  .inSingletonScope();
+
+container
+  .bind<ICreatePlanUseCase>(TOKENS.CreatePlanUseCase)
+  .to(CreatePlanUseCase)
+  .inSingletonScope();
+
+container
+  .bind<IDeletePlanUseCase>(TOKENS.DeletePlanUseCase)
+  .to(DeletePlanUseCase)
+  .inSingletonScope();
+
+container
+  .bind<ITogglePlanActiveUseCase>(TOKENS.TogglePlanActiveUseCase)
+  .to(TogglePlanActiveUseCase)
+  .inSingletonScope();
+
+container
+  .bind<IController>(TOKENS.GetPlansController)
+  .to(GetPlansController)
+  .inSingletonScope();
+
+container
+  .bind<IController>(TOKENS.CreatePlanController)
+  .to(CreatePlanController)
+  .inSingletonScope();
+
+container
+  .bind<IController>(TOKENS.DeletePlanController)
+  .to(DeletePlanController)
+  .inSingletonScope();
+
+container
+  .bind<IController>(TOKENS.TogglePlanActiveController)
+  .to(TogglePlanActiveController)
+  .inSingletonScope();
+
+container
+  .bind<IUserSubscriptionRepository>(TOKENS.UserSubscriptionRepository)
+  .to(UserSubscriptionRepository)
+  .inSingletonScope();
+
+	container.bind<IController>(TOKENS.AuthenticateAdminController).to(
+		AuthenticateAdminController
+	).inSingletonScope()
+	container.bind<IController>(TOKENS.AdminRefreshTokenController).to(
+		AdminRefreshTokenController
+	).inSingletonScope()
+	container.bind<IController>(TOKENS.AdminGoogleSignInController).to(
+		AdminGoogleSignInController
+	).inSingletonScope()
+
+	container.bind(TOKENS.AuthenticateAdminUserCase).to(
+		AuthenticateAdminUseCase
+	).inSingletonScope()
+	container.bind<IRefreshTokenUseCase>(TOKENS.AdminRefreshTokenUseCase).to(
+		AdminRefreshTokenUseCase
+	).inSingletonScope()
+	container.bind<IGoogleSignInUseCase>(TOKENS.AdminGoogleSignInUseCase).to(
+		AdminGoogleSigninUseCase
+	).inSingletonScope()
+	container.bind<IUserLogoutUseCase>(TOKENS.AdminLogoutUseCase).to(
+		AdminLogoutUseCase
+	).inSingletonScope()
+	container.bind<IController>(TOKENS.AdminLogoutController).to(
+		AdminLogoutController
+	).inSingletonScope()
+
+	
 	// Repositories
 	container
-		.bind(TOKENS.PromotionalVideoRepository)
+	.bind<IPromotionalVideoRepository>(TOKENS.PromotionalVideoRepository)
 		.to(PromotionalVideoRepository)
 		.inSingletonScope();
-	container.bind(TOKENS.UserRepository).to(UserRepository).inSingletonScope();
-	container
+		container.bind(TOKENS.UserRepository).to(UserRepository).inSingletonScope();
+		container
 		.bind(TOKENS.RefreshTokenRepository)
 		.to(RefreshTokenRepository)
 		.inSingletonScope();
-	container
-		.bind(TOKENS.SubscriptionRepository)
+		container
+		.bind<ISubscriptionRepository>(TOKENS.SubscriptionRepository)
 		.to(SubscriptionRepository)
 		.inSingletonScope();
-	container
+		container
 		.bind(TOKENS.UserSubscriptionRepository)
 		.to(UserSubscriptionRepository)
 		.inSingletonScope();
-	container
-		.bind(TOKENS.RazorpayRepository)
-		.to(RazorpayRepository)
-		.inSingletonScope();
+		container
+			.bind<IPaymentGateway>(TOKENS.RazorpayRepository)
+			.to(RazorpayRepository)
+			.inSingletonScope();
 
 	// Infrastructure/Providers
 	container

@@ -4,7 +4,7 @@ import {
 	SubscriptionPlan,
 } from "@prisma/client";
 import { Service, Inject } from "typedi";
-import { IRazorpayRepository } from "@/app/repositories/IRazorpayRepository";
+import { IPaymentGateway } from "@/app/repositories/IPaymentGateway.ts";
 import { PrismaClient } from "@prisma/client";
 import { Subscriptions } from "razorpay/dist/types/subscriptions";
 import { logger } from "@/infra/logger";
@@ -16,7 +16,7 @@ import { inject, injectable } from "inversify";
 export class UserSubscriptionRepository implements IUserSubscriptionRepository {
 	constructor(
 		@inject(TOKENS.RazorpayRepository)
-		private readonly razorpayRepository: IRazorpayRepository,
+		private readonly razorpayRepository: IPaymentGateway,
 		@inject(TOKENS.PrismaClient) private readonly prisma: PrismaClient
 	) {}
 
@@ -466,4 +466,19 @@ export class UserSubscriptionRepository implements IUserSubscriptionRepository {
 			);
 		}
 	}
+
+	async countActiveByPlanId(planId: string): Promise<number> {
+    try {
+      const count = await this.prisma.userSubscription.count({
+        where: { planId, status: "active" },
+      });
+      return count;
+    } catch (err: any) {
+      logger.error(`Error counting active subscriptions for plan ${planId}:`, {
+        message: err.message,
+        stack: err.stack,
+      });
+      throw err;
+    }
+  }
 }

@@ -19,7 +19,12 @@ export interface ITokenManagerProvider {
 	 * @returns {boolean} A boolean indicating whether the token is valid.
 	 */
 	validateAccessToken(token: string): boolean;
+
+	validateAdminAccessToken(token: string): boolean;
+
 	validateRefreshToken(token: string): boolean;
+
+	validateAdminRefreshToken(token: string): boolean;
 	
 	getExpiresAt(token: string): number;
 

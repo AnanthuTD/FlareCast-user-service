@@ -1,7 +1,7 @@
 // backend/src/app/use-cases/subscription/implementation/VerifyPaymentUseCase.ts
 import { injectable, inject } from "inversify";
 import { TOKENS } from "@/app/tokens";
-import { IRazorpayRepository } from "@/app/repositories/IRazorpayRepository";
+import { IPaymentGateway } from "@/app/repositories/IPaymentGateway.ts";
 import { IUserSubscriptionRepository } from "@/app/repositories/IUserSubscriptionRepository";
 import { ResponseDTO } from "@/domain/dtos/Response";
 import { IUseCase } from "@/app/use-cases/IUseCase";
@@ -16,7 +16,7 @@ export class VerifyPaymentUseCase
 {
 	constructor(
 		@inject(TOKENS.RazorpayRepository)
-		private readonly razorpayRepository: IRazorpayRepository,
+		private readonly razorpayRepository: IPaymentGateway,
 		@inject(TOKENS.UserSubscriptionRepository)
 		private readonly subscriptionRepository: IUserSubscriptionRepository
 	) {}

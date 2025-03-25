@@ -36,11 +36,30 @@ export class TokenManagerProvider implements ITokenManagerProvider {
 			return false;
 		}
 	}
+	validateAdminAccessToken(token: string): boolean {
+		try {
+			verify(token, env.ADMIN_ACCESS_TOKEN_SECRET || "");
+			return true;
+		} catch (error) {
+			return false;
+		}
+	}
 
 	validateRefreshToken(token: string): boolean {
 		try {
 			console.log(token);
 			console.log(env.REFRESH_TOKEN_SECRET)
+			verify(token, env.REFRESH_TOKEN_SECRET || "");
+			return true;
+		} catch (error) {
+			console.log(error);
+			return false;
+		}
+	}
+	validateAdminRefreshToken(token: string): boolean {
+		try {
+			console.log(token);
+			console.log(env.ADMIN_REFRESH_TOKEN_SECRET)
 			verify(token, env.REFRESH_TOKEN_SECRET || "");
 			return true;
 		} catch (error) {

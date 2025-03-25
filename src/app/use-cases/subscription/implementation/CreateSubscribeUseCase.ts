@@ -3,7 +3,7 @@ import { TOKENS } from "@/app/tokens";
 import { IUsersRepository } from "@/app/repositories/IUsersRepository";
 import { IUserSubscriptionRepository } from "@/app/repositories/IUserSubscriptionRepository";
 import { ISubscriptionRepository } from "@/app/repositories/ISubscriptionRepository";
-import { IRazorpayRepository } from "@/app/repositories/IRazorpayRepository";
+import { IPaymentGateway } from "@/app/repositories/IPaymentGateway.ts";
 import { ResponseDTO } from "@/domain/dtos/Response";
 import { CreateSubscribeDTO } from "@/domain/dtos/subscription/CreateSubscribeDTO";
 import { CreateSubscribeResponseDTO } from "@/domain/dtos/subscription/CreateSubscribeResponseDTO";
@@ -22,7 +22,7 @@ export class CreateSubscribeUseCase implements ICreateSubscribeUseCase {
     @inject(TOKENS.SubscriptionRepository)
     private readonly subscriptionRepository: ISubscriptionRepository,
     @inject(TOKENS.RazorpayRepository)
-    private readonly razorpayRepository: IRazorpayRepository
+    private readonly razorpayRepository: IPaymentGateway
   ) {}
 
   async execute(dto: CreateSubscribeDTO): Promise<ResponseDTO> {
