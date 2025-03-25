@@ -4,5 +4,5 @@ export interface UserVerifiedEvent {
 	lastName: string;
 	email: string;
 	image: string;
-	plan: 
+	plan: any
 }

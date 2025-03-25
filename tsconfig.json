@@ -14,27 +14,24 @@
 		"strict": true,
 		"noImplicitAny": false,
 		"strictPropertyInitialization": false,
-    "lib": ["ES2020"],                   
-    "baseUrl": "./",
-    "skipLibCheck": true,                     
-    "paths": {
-      "@/*": ["src/*"]
-    },
-    "useUnknownInCatchVariables": false
+		"lib": ["ES2020"],
+		"baseUrl": "./",
+		"skipLibCheck": true,
+		"paths": {
+			"@/*": ["src/*"]
+		},
+		"useUnknownInCatchVariables": false
 	},
-	"exclude": ["node_modules", "**/*.test.ts"],
-  "ts-node": {
-    "swc": true,
-    "require": [
-      "tsconfig-paths/register",
-      "./config.ts"
-    ],
-  },
-  "include": [
-    "src/**/*.ts",
-    "spec/**/*.ts",
-    "config.ts",
-    "scripts",
-    "eslint.config.ts"
-  ],
+	"exclude": ["node_modules", "**/*.test.ts", "src/controllers", "src/routes"],
+	"ts-node": {
+		"swc": true,
+		"require": ["tsconfig-paths/register", "./config.ts"]
+	},
+	"include": [
+		"src/**/*.ts",
+		"spec/**/*.ts",
+		"config.ts",
+		"scripts",
+		"eslint.config.ts"
+	]
 }
