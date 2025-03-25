@@ -39,9 +39,12 @@ export class TokenManagerProvider implements ITokenManagerProvider {
 
 	validateRefreshToken(token: string): boolean {
 		try {
+			console.log(token);
+			console.log(env.REFRESH_TOKEN_SECRET)
 			verify(token, env.REFRESH_TOKEN_SECRET || "");
 			return true;
 		} catch (error) {
+			console.log(error);
 			return false;
 		}
 	}

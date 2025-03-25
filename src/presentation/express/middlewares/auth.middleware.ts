@@ -36,12 +36,12 @@ export const authenticateUserMiddleware = async (
 		cookies: req.cookies,
 		user: req.user,
 		file: req.file,
-		res,
 	};
 
 	const httpResponse = await authenticateUserController.handle(httpRequest);
 
 	if (httpResponse.statusCode !== 200) {
+		console.log(req.cookies)
 		res.status(httpResponse.statusCode).json(httpResponse.body);
 		return;
 	}

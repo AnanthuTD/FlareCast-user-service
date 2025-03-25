@@ -28,6 +28,7 @@ export class ElectronPostLoginUseCase implements IElectronPostLoginUseCase {
   ) {}
 
   async execute(dto: ElectronPostLoginDTO): Promise<ResponseDTO> {
+    console.log(dto)
     try {
       // Check if refresh token is provided
       if (!dto.refreshToken) {

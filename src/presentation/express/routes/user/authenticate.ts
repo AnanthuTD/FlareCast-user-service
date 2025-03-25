@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import { expressAdapter } from "@/presentation/adapters/express";
 import { TOKENS } from "@/app/tokens";
 import container from "@/infra/di-container";
+import env from "@/infra/env";
 
 /**
  * Router for handling authentication-related routes.
@@ -14,8 +15,35 @@ const signInController = container.get(TOKENS.SignInController);
 const googleSignInController = container.get(TOKENS.GoogleSigninController);
 const refreshTokenController = container.get(TOKENS.RefreshTokenController);
 const userLogoutController = container.get(TOKENS.UserLogoutController);
-const electronPostLoginController = container.get(TOKENS.ElectronPostLoginController);
+const electronPostLoginController = container.get(
+	TOKENS.ElectronPostLoginController
+);
 const userExistController = container.get(TOKENS.UserExistController);
+
+// Utility function to set cookies conditionally
+const setAuthCookies = (
+	res: Response,
+	accessToken?: string,
+	refreshToken?: string
+) => {
+	if (accessToken) {
+		res.cookie("accessToken", accessToken, {
+			httpOnly: false,
+			secure: env.NODE_ENV === "production",
+			sameSite: "strict",
+			maxAge: 15 * 60 * 1000, // 15 minutes
+		});
+	}
+
+	if (refreshToken) {
+		res.cookie("refreshToken", refreshToken, {
+			httpOnly: true,
+			secure: env.NODE_ENV === "production",
+			sameSite: "strict",
+			maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+		});
+	}
+};
 
 /**
  * Endpoint to check if a user exists (public).
@@ -30,8 +58,6 @@ authRoutes.get("/user-exist", async (req: Request, res: Response) => {
  */
 authRoutes.post("/sign-up", async (req: Request, res: Response) => {
 	const adapter = await expressAdapter(req, signUpController);
-	res.cookie("accessToken", adapter.body.accessToken);
-	res.cookie("refreshToken", adapter.body.refreshToken);
 	res.status(adapter.statusCode).json(adapter.body);
 });
 
@@ -40,8 +66,7 @@ authRoutes.post("/sign-up", async (req: Request, res: Response) => {
  */
 authRoutes.post("/sign-in", async (req: Request, res: Response) => {
 	const adapter = await expressAdapter(req, signInController);
-	res.cookie("accessToken", adapter.body.accessToken);
-	res.cookie("refreshToken", adapter.body.refreshToken);
+	setAuthCookies(res, adapter.body.accessToken, adapter.body.refreshToken);
 	res.status(adapter.statusCode).json(adapter.body);
 });
 
@@ -50,8 +75,7 @@ authRoutes.post("/sign-in", async (req: Request, res: Response) => {
  */
 authRoutes.post("/google-sign-in", async (req: Request, res: Response) => {
 	const adapter = await expressAdapter(req, googleSignInController);
-	res.cookie("accessToken", adapter.body.accessToken);
-	res.cookie("refreshToken", adapter.body.refreshToken);
+	setAuthCookies(res, adapter.body.accessToken, adapter.body.refreshToken);
 	res.status(adapter.statusCode).json(adapter.body);
 });
 
@@ -60,8 +84,7 @@ authRoutes.post("/google-sign-in", async (req: Request, res: Response) => {
  */
 authRoutes.get("/refresh-token", async (req: Request, res: Response) => {
 	const adapter = await expressAdapter(req, refreshTokenController);
-	res.cookie("accessToken", adapter.body.accessToken);
-	res.cookie("refreshToken", adapter.body.refreshToken);
+	setAuthCookies(res, adapter.body.accessToken, adapter.body.refreshToken);
 	res.status(adapter.statusCode).json(adapter.body);
 });
 
@@ -70,8 +93,8 @@ authRoutes.get("/refresh-token", async (req: Request, res: Response) => {
  */
 authRoutes.post("/logout", async (req: Request, res: Response) => {
 	const adapter = await expressAdapter(req, userLogoutController);
-	res.cookie("accessToken", adapter.body.accessToken);
-	res.cookie("refreshToken", adapter.body.refreshToken);
+	res.clearCookie("refreshToken");
+	res.clearCookie("accessToken");
 	res.status(adapter.statusCode).json(adapter.body);
 });
 
@@ -80,8 +103,7 @@ authRoutes.post("/logout", async (req: Request, res: Response) => {
  */
 authRoutes.post("/post-login", async (req: Request, res: Response) => {
 	const adapter = await expressAdapter(req, electronPostLoginController);
-	res.cookie("accessToken", adapter.body.accessToken);
-	res.cookie("refreshToken", adapter.body.refreshToken);
+	setAuthCookies(res, adapter.body.accessToken, adapter.body.refreshToken);
 	res.status(adapter.statusCode).json(adapter.body);
 });
 

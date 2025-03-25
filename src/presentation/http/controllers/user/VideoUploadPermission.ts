@@ -29,6 +29,7 @@ export class UploadVideoPermissionController implements IController {
     let response: ResponseDTO;
 
     try {
+      console.log(httpRequest.user)
       // Ensure user is authenticated
       if (!httpRequest.user || !httpRequest.user.id) {
         error = this.httpErrors.error_401();

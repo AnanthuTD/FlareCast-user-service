@@ -75,6 +75,7 @@ export class RefreshTokenController implements IController {
 
       // Return the response
       const success = this.httpSuccess.success_200(response.data);
+      console.log("Refreshing response: ", success)
       return new HttpResponse(success.statusCode, success.body);
     } catch (err: any) {
       logger.error("Error during refresh token handling:", err);

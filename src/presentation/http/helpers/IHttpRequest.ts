@@ -20,7 +20,7 @@ export interface IHttpRequest {
 	/**
 	 * Represents the path parameters of the HTTP request.
 	 */
-	path?: unknown;
+	params?: unknown;
 
 	/**
 	 * Represents the user of the HTTP request.

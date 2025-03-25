@@ -71,6 +71,7 @@ export class GoogleSignInController implements IController {
 
 			// Return the response
 			const success = this.httpSuccess.success_200(response.data);
+			console.log(success)
 			return new HttpResponse(success.statusCode, success.body);
 		} catch (err: any) {
 			console.log(err.message)

@@ -1,7 +1,6 @@
 import { logger } from "@/infra/logger";
 import { IUsersRepository } from "@/app/repositories/IUsersRepository";
 import { VideoUploadEvent } from "@/domain/events/VideoUploadEvent";
-import { Inject } from "typedi";
 import { TOKENS } from "../tokens";
 import { inject, injectable } from "inversify";
 
@@ -29,7 +28,7 @@ export class VideoUploadHandler {
 				`🔴 Failed to handle video upload event for video ${data.videoId}:`,
 				error
 			);
-			throw error;
+			// throw error;
 		}
 	}
 }

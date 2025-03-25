@@ -46,6 +46,6 @@ export class RefreshTokenRepository implements IRefreshTokenRepository {
 	async isTokenBlacklisted(token: string): Promise<boolean> {
 		const result = await this.redis.get(`${this.blacklistPrefix}${token}`);
 		logger.debug(`isTokenBlacklisted ${result} from redis`);
-		return result === null;
+		return !!result;
 	}
 }

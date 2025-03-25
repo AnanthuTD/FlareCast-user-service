@@ -20,7 +20,7 @@ export async function expressAdapter(
 	const httpRequest: IHttpRequest = new HttpRequest({
 		header: request.header,
 		body: request.body,
-		path: request.params,
+		params: request.params,
 		query: request.query,
 		cookies: request.cookies,
 		user: request.user as { id: string },

@@ -10,7 +10,6 @@ import { GoogleSignInErrorType } from "@/domain/enums/Authenticate/GoogleSignInE
 import { IGoogleSignInUseCase } from "../IGoogleSignInUseCase";
 import { logger } from "@/infra/logger";
 import axios from "axios";
-import env from "@/infra/env";
 import { IUserSubscriptionRepository } from "@/app/repositories/IUserSubscriptionRepository";
 import { IEventService } from "@/app/services/IEventService";
 
@@ -31,26 +30,6 @@ export class GoogleSignInUseCase implements IGoogleSignInUseCase {
 
 	async execute(dto: GoogleSignInDTO): Promise<ResponseDTO> {
 		try {
-			// Exchange the authorization code for an access token
-			// const tokenResponse = await axios.post(
-			// 	"https://oauth2.googleapis.com/token",
-			// 	{
-			// 		code: dto.code,
-			// 		client_id: env.GOOGLE_CLIENT_ID,
-			// 		grant_type: "authorization_code",
-			// 	}
-			// );
-
-			// const { access_token } = tokenResponse.data;
-
-			/* 
-				access_token: 'ya29.a0AeXRPp5f1tYs0fQYc3loyMP07fohdKdFNydF-36ScMtocJ2BMwEgIsl2CfhNIjq3IOnBP_qEl2bREpM3z20NX9xyz97qbX3GLabXUsr894ynNE02hGCAxqLCOGgWA9pRHknWAq8_VFyscv8DFa-AflRJn2jk5CpyqOIzYk1ILuoaCgYKASkSARESFQHGX2MiX7fQ3JKyFGMURrvuOmJh9g0178',
-				token_type: 'Bearer',
-				expires_in: 3599,
-				scope: 'email profile https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile openid',
-				authuser: '0',
-				prompt: 'none'
-			*/
 			if (!dto.code || !dto.code.access_token) {
 				logger.error("Failed to exchange authorization code for access token");
 				return {
