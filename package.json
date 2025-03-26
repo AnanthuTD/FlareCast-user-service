@@ -7,7 +7,7 @@
     "dev": "ts-node src/presentation/settings/server.ts",
     "dev:hot": "nodemon --exec \"npm run dev\" --watch ./src --ext .ts",
     "docker:dev": "nodemon --exec \"npm run dev\" --watch ./src --ext .ts",
-    "start": "node -r ./config.js ./src/presentation/settings/server.js",
+    "start": "node -r ./config.js ./dist/presentation/settings/server.js",
     "tsc": "npx tsc -p .",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
