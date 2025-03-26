@@ -18,7 +18,7 @@ import { RefreshTokenErrorType } from "@/domain/enums/Admin/Authentication/Refre
 @injectable()
 export class AdminRefreshTokenController implements IController {
   constructor(
-    @inject(TOKENS.RefreshTokenUseCase)
+    @inject(TOKENS.AdminRefreshTokenUseCase)
     private readonly refreshTokenUseCase: IRefreshTokenUseCase,
     @inject(TOKENS.HttpErrors) private readonly httpErrors: IHttpErrors,
     @inject(TOKENS.HttpSuccess) private readonly httpSuccess: IHttpSuccess

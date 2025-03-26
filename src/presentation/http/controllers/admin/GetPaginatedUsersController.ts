@@ -11,6 +11,7 @@ import { inject, injectable } from "inversify";
 import { IGetPaginatedUsersUseCase } from "@/app/use-cases/admin/IGetPaginatedUsersUseCase";
 import { GetPaginatedUsersResponseDTO } from "@/domain/dtos/admin/GetPaginatedUsersResponseDTO";
 import { GetPaginatedUsersErrorType } from "@/domain/enums/Admin/GetPaginatedUsersErrorType";
+import { GetPaginatedUsersDTO } from "@/domain/dtos/admin/GetPaginatedUsersDTO";
 /**
  * Controller for fetching paginated users.
  */
@@ -28,12 +29,6 @@ export class GetPaginatedUsersController implements IController {
     let response: ResponseDTO & { data: GetPaginatedUsersResponseDTO | { error: string } };
 
     try {
-      // Ensure user is authenticated and authorized (e.g., admin)
-      if (!httpRequest.user || httpRequest.user.type !== "admin") {
-        error = this.httpErrors.error_401();
-        return new HttpResponse(error.statusCode, { message: "Admin access required" });
-      }
-
       // Extract query parameters
       const page = parseInt(httpRequest.query.page as string) || 1;
       const limit = parseInt(httpRequest.query.limit as string) || 10;

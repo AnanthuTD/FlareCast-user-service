@@ -21,8 +21,8 @@ export class CreateSubscribeUseCase implements ICreateSubscribeUseCase {
     private readonly userSubscriptionRepository: IUserSubscriptionRepository,
     @inject(TOKENS.SubscriptionRepository)
     private readonly subscriptionRepository: ISubscriptionRepository,
-    @inject(TOKENS.RazorpayRepository)
-    private readonly razorpayRepository: IPaymentGateway
+    @inject(TOKENS.PaymentGateway)
+    private readonly paymentGateway: IPaymentGateway
   ) {}
 
   async execute(dto: CreateSubscribeDTO): Promise<ResponseDTO> {
@@ -90,7 +90,7 @@ export class CreateSubscribeUseCase implements ICreateSubscribeUseCase {
       }
 
       // Create the subscription on Razorpay
-      const razorpayResponse = await this.razorpayRepository.subscribe({
+      const razorpayResponse = await this.paymentGateway.subscribe({
         notify_email: user.email.address,
         totalCount: 12,
         planId: subscriptionPlan.planId,

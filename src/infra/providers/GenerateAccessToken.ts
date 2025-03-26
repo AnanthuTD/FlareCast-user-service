@@ -55,7 +55,7 @@ export class GenerateAccessTokenProvider
 
 		const generatedToken = sign(token, secretKey, {
 			subject: token.id,
-			expiresIn: "15m",
+			expiresIn: "15s",
 		});
 
 		return generatedToken;

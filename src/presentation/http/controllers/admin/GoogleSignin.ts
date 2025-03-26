@@ -11,6 +11,8 @@ import { inject, injectable } from "inversify";
 import { IGoogleSignInUseCase } from "@/app/use-cases/admin/IGoogleSignInUseCase";
 import { GoogleSignInDTO } from "@/domain/dtos/authenticate/GoogleSignInDTO";
 import { GoogleSignInErrorType } from "@/domain/enums/Admin/Authentication/GoogleSignInErrorType";
+import { IGenerateRefreshTokenProvider } from "@/app/providers/IGenerateRefreshToken";
+import { ITokenManagerProvider } from "@/app/providers/ITokenManager";
 
 /**
  * Controller for handling Google sign-in requests.
@@ -21,7 +23,9 @@ export class AdminGoogleSignInController implements IController {
 		@inject(TOKENS.AdminGoogleSignInUseCase)
 		private readonly googleSignInUseCase: IGoogleSignInUseCase,
 		@inject(TOKENS.HttpErrors) private readonly httpErrors: IHttpErrors,
-		@inject(TOKENS.HttpSuccess) private readonly httpSuccess: IHttpSuccess
+		@inject(TOKENS.HttpSuccess) private readonly httpSuccess: IHttpSuccess,
+		@inject(TOKENS.GenerateRefreshTokenProvider)
+		private readonly tokenManager: ITokenManagerProvider
 	) {}
 
 	async handle(httpRequest: IHttpRequest): Promise<IHttpResponse> {
@@ -71,10 +75,11 @@ export class AdminGoogleSignInController implements IController {
 
 			// Return the response
 			const success = this.httpSuccess.success_200(response.data);
-			console.log(success)
+			console.log(success);
+
 			return new HttpResponse(success.statusCode, success.body);
 		} catch (err: any) {
-			console.log(err.message)
+			console.log(err.message);
 			logger.error("Error during Google sign-in:");
 			error = this.httpErrors.error_500();
 			return new HttpResponse(error.statusCode, {

@@ -13,9 +13,9 @@ import { GetPlansResponseDTO } from "@/domain/dtos/admin/subscriptionPlan/GetPla
 import { GetPlansErrorType } from "@/domain/enums/Admin/SubscriptionPlan/GetPlansErrorType";
 
 @injectable()
-export class GetPlansController implements IController {
+export class GetAdminPlansController implements IController {
   constructor(
-    @inject(TOKENS.GetPlansUseCase)
+    @inject(TOKENS.GetAdminPlansUseCase)
     private readonly getPlansUseCase: IGetPlansUseCase,
     @inject(TOKENS.HttpErrors) private readonly httpErrors: IHttpErrors,
     @inject(TOKENS.HttpSuccess) private readonly httpSuccess: IHttpSuccess

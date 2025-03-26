@@ -16,12 +16,18 @@ export class VideoServiceClient implements IVideoServiceClient {
       type: string;
       videoExtension: string;
     }) => {
-      const { data } = await axios.post(
-        `${env.VIDEO_SERVICE}/api/interservice/promotional-video`,
-        body,
-        { timeout: 2000 }
-      );
-      return data;
+      try {
+        
+        const { data } = await axios.post(
+          `${env.VIDEO_SERVICE}/api/interservice/promotional-video`,
+          body,
+          { timeout: 2000 }
+        );
+        return data;
+      } catch (error) {
+        console.error(error)
+        throw error
+      }
     };
 
     this.videoServiceBreaker = new CircuitBreaker(callVideoService, {

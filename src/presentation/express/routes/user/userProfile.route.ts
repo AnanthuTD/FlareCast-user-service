@@ -1,7 +1,5 @@
 import express, { Request, Response } from "express";
-import { GetUserProfileController } from "@/presentation/http/controllers/user/GetProfile";
-import { UpdateProfileController } from "@/presentation/http/controllers/user/UpdateProfile";
-import { uploadMiddleware } from "../../middlewares/multer.middleware";
+import { uploadMiddleware } from "../../middlewares/multerMiddleware";
 import { expressAdapter } from "@/presentation/adapters/express";
 import container from "@/infra/di-container";
 import { TOKENS } from "@/app/tokens";

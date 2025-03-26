@@ -59,8 +59,7 @@ export class TokenManagerProvider implements ITokenManagerProvider {
 	validateAdminRefreshToken(token: string): boolean {
 		try {
 			console.log(token);
-			console.log(env.ADMIN_REFRESH_TOKEN_SECRET)
-			verify(token, env.REFRESH_TOKEN_SECRET || "");
+			verify(token, env.ADMIN_REFRESH_TOKEN_SECRET || "");
 			return true;
 		} catch (error) {
 			console.log(error);

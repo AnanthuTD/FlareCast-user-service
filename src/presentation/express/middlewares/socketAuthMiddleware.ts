@@ -74,6 +74,6 @@ export const authenticateWebsocketAdmin = async (
 	}
 
 	// Attach the authenticated user to the request object
-	socket.user = httpResponse.body.user;
+	socket.admin = httpResponse.body.admin;
 	next();
 };

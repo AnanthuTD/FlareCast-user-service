@@ -17,12 +17,14 @@ export class VideoUploadHandler {
 				`⌛ Handling video upload event: ${JSON.stringify(data, null, 2)}`
 			);
 
-			const newCount = await this.usersRepository.incrementVideoCount(
-				data.userId
-			);
-			logger.info(
-				`✅ Video count incremented for user ${data.userId}. New count: ${newCount}`
-			);
+			if (data.userId) {
+				const newCount = await this.usersRepository.incrementVideoCount(
+					data.userId
+				);
+				logger.info(
+					`✅ Video count incremented for user ${data.userId}. New count: ${newCount}`
+				);
+			}
 		} catch (error) {
 			logger.error(
 				`🔴 Failed to handle video upload event for video ${data.videoId}:`,

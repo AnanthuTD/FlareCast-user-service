@@ -157,6 +157,8 @@ import { AdminRefreshTokenUseCase } from "@/app/use-cases/admin/implementation/R
 import { AdminGoogleSigninUseCase } from "@/app/use-cases/admin/implementation/GoogleSignInUseCase";
 import { AdminLogoutUseCase } from "@/app/use-cases/admin/implementation/AdminLogoutUseCase";
 import { AdminLogoutController } from "@/presentation/http/controllers/admin/Logout";
+import { GetPlansUseCase as GetAdminPlansUseCase } from "@/app/use-cases/admin/subscriptionPlan/implementation/GetPlansUseCase";
+import { GetAdminPlansController } from "@/presentation/http/controllers/admin/subscriptionPlan/GetPlansController";
 
 // Define TOKENS as Symbols (unchanged from your original setup)
 
@@ -389,8 +391,8 @@ export function setupDIContainer() {
 		.inSingletonScope();
 
 		container
-  .bind<IGetPlansUseCase>(TOKENS.GetPlansUseCase)
-  .to(GetPlansUseCase)
+  .bind<IGetPlansUseCase>(TOKENS.GetAdminPlansUseCase)
+  .to(GetAdminPlansUseCase)
   .inSingletonScope();
 
 container
@@ -409,8 +411,8 @@ container
   .inSingletonScope();
 
 container
-  .bind<IController>(TOKENS.GetPlansController)
-  .to(GetPlansController)
+  .bind<IController>(TOKENS.GetAdminPlansController)
+  .to(GetAdminPlansController)
   .inSingletonScope();
 
 container
@@ -443,7 +445,7 @@ container
 		AdminGoogleSignInController
 	).inSingletonScope()
 
-	container.bind(TOKENS.AuthenticateAdminUserCase).to(
+	container.bind(TOKENS.AuthenticateAdminCase).to(
 		AuthenticateAdminUseCase
 	).inSingletonScope()
 	container.bind<IRefreshTokenUseCase>(TOKENS.AdminRefreshTokenUseCase).to(
@@ -475,11 +477,7 @@ container
 		.to(SubscriptionRepository)
 		.inSingletonScope();
 		container
-		.bind(TOKENS.UserSubscriptionRepository)
-		.to(UserSubscriptionRepository)
-		.inSingletonScope();
-		container
-			.bind<IPaymentGateway>(TOKENS.RazorpayRepository)
+			.bind<IPaymentGateway>(TOKENS.PaymentGateway)
 			.to(RazorpayRepository)
 			.inSingletonScope();
 

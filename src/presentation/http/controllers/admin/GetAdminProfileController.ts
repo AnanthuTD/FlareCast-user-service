@@ -30,12 +30,7 @@ export class GetAdminProfileController implements IController {
     let response: ResponseDTO & { data: GetAdminProfileResponseDTO | { error: string } };
 
     try {
-      // Ensure user is authenticated
-      if (!httpRequest.user || !httpRequest.user.id) {
-        error = this.httpErrors.error_401();
-        return new HttpResponse(error.statusCode, { message: "Unauthorized" });
-      }
-
+      console.log(httpRequest.user)
       // Create DTO and call the use case
       const dto: GetAdminProfileDTO = { userId: httpRequest.user.id };
       response = await this.getAdminProfileUseCase.execute(dto);

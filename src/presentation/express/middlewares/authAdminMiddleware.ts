@@ -33,6 +33,7 @@ export const authenticateAdminMiddleware = async (
   }
 
   // Attach the authenticated user to the request object
-  req.user = httpResponse.body.user;
+  req.user = httpResponse.body.admin;
+  console.log(req.user)
   next();
 };

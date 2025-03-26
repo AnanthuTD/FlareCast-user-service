@@ -17,7 +17,7 @@ import { AuthenticateAdminErrorType } from "@/domain/enums/Admin/Authentication/
 @injectable()
 export class AuthenticateAdminController implements IController {
 	constructor(
-		@inject(TOKENS.AuthenticateAdminUseCase)
+		@inject(TOKENS.AuthenticateAdminCase)
 		private readonly authenticateAdminUseCase: AuthenticateAdminUseCase,
 		@inject(TOKENS.HttpErrors) private readonly httpErrors: IHttpErrors,
 		@inject(TOKENS.HttpSuccess) private readonly httpSuccess: IHttpSuccess

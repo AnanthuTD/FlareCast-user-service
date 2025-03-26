@@ -84,11 +84,11 @@ export class UserRepository implements IUsersRepository {
 		});
 
 		const rawUsers = usersResult.cursor.firstBatch as PrismaUser[];
-		const users = rawUsers.map(this.mapToDomain);
+		// const users = rawUsers.map(this.mapToDomain);
 		const total = totalResult.cursor.firstBatch[0]?.total || 0;
 
 		return {
-			users,
+			users: rawUsers,
 			total,
 			totalPages: Math.ceil(total / limit),
 			currentPage: page,

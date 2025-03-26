@@ -3,20 +3,19 @@ import {
 	UserSubscription,
 	SubscriptionPlan,
 } from "@prisma/client";
-import { Service, Inject } from "typedi";
-import { IPaymentGateway } from "@/app/repositories/IPaymentGateway.ts";
 import { PrismaClient } from "@prisma/client";
 import { Subscriptions } from "razorpay/dist/types/subscriptions";
 import { logger } from "@/infra/logger";
 import { IUserSubscriptionRepository } from "@/app/repositories/IUserSubscriptionRepository";
 import { TOKENS } from "@/app/tokens";
 import { inject, injectable } from "inversify";
+import { IPaymentGateway } from "@/app/repositories/IPaymentGateway";
 
 @injectable()
 export class UserSubscriptionRepository implements IUserSubscriptionRepository {
 	constructor(
-		@inject(TOKENS.RazorpayRepository)
-		private readonly razorpayRepository: IPaymentGateway,
+		@inject(TOKENS.PaymentGateway)
+		private readonly paymentGateway: IPaymentGateway,
 		@inject(TOKENS.PrismaClient) private readonly prisma: PrismaClient
 	) {}
 
@@ -371,7 +370,7 @@ export class UserSubscriptionRepository implements IUserSubscriptionRepository {
 				};
 			}
 
-			const razorpayResponse = await this.razorpayRepository.cancelSubscription(
+			const razorpayResponse = await this.paymentGateway.cancelSubscription(
 				subscription.razorpaySubscriptionId
 			);
 

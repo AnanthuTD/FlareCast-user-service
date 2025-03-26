@@ -15,8 +15,8 @@ export class VerifyPaymentUseCase
 	implements IUseCase<VerifyPaymentDTO, VerifyPaymentResponseDTO>
 {
 	constructor(
-		@inject(TOKENS.RazorpayRepository)
-		private readonly razorpayRepository: IPaymentGateway,
+		@inject(TOKENS.PaymentGateway)
+		private readonly paymentGateway: IPaymentGateway,
 		@inject(TOKENS.UserSubscriptionRepository)
 		private readonly subscriptionRepository: IUserSubscriptionRepository
 	) {}
@@ -41,7 +41,7 @@ export class VerifyPaymentUseCase
 			}
 
 			// Verify the payment
-			const isValid = this.razorpayRepository.verifyPayment({
+			const isValid = this.paymentGateway.verifyPayment({
 				razorpayOrderId: dto.razorpaySubscriptionId,
 				razorpayPaymentId: dto.razorpayPaymentId,
 				razorpaySignature: dto.razorpaySignature,
@@ -56,7 +56,7 @@ export class VerifyPaymentUseCase
 			}
 
 			// Fetch subscription details from Razorpay
-			const subscription = await this.razorpayRepository.fetchSubscription(
+			const subscription = await this.paymentGateway.fetchSubscription(
 				dto.razorpaySubscriptionId
 			);
 			if (!subscription) {

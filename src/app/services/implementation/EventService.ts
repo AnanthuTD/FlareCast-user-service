@@ -103,15 +103,16 @@ export class EventService implements IEventService {
     try {
       logger.info("Preparing to send video upload event");
 
-      const eventData: VideoUploadEvent = {
+     /*  const eventData: VideoUploadEvent = {
         videoId: data.videoId,
         userId: data.userId ?? "",
         title: "", // Placeholder; title might be set later
         url: data.s3Key,
         createdAt: new Date().toISOString(),
-      };
+      }; */
 
-      await this.publishVideoUploadEvent(eventData);
+      // await this.publishVideoUploadEvent(eventData);
+      await this.eventPublisher.publish(TOPICS.VIDEO_UPLOAD_EVENT, data);
       logger.info("✅ Video upload event sent successfully");
     } catch (error: any) {
       logger.error("Failed to send video upload event:", error);
