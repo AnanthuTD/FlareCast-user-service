@@ -25,6 +25,7 @@ interface AuthRepository<T> {
 }
 
 @Service()
+@injectable()
 export class GoogleSignInController<T> {
 	private readonly entityType: EntityType;
 

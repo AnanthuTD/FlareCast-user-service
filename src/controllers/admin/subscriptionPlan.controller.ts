@@ -7,6 +7,7 @@ import { Period, SubscriptionPlan } from "@prisma/client";
 import HttpStatusCodes from "../../common/HttpStatusCodes";
 
 @Service()
+@injectable()
 export class SubscriptionPlansController {
 	private razorpay: Razorpay;
 

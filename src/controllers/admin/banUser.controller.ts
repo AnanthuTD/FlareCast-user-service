@@ -5,9 +5,10 @@ import { UserRepository } from "../../repositories/userRepository";
 import HttpStatusCodes from "../../common/HttpStatusCodes";
 
 @Service()
+@injectable()
 export class BanUserController {
   constructor(
-    @Inject(() => UserRepository)
+    @inject(() => UserRepository)
     private userRepository: UserRepository
   ) {}
 
