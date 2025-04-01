@@ -168,6 +168,7 @@ import { PlanGroupController } from "@/presentation/http/controllers/reports/Pla
 import { FreePlanUsageController } from "@/presentation/http/controllers/reports/FreePlanUsageController";
 import { RevenueByPeriodController } from "@/presentation/http/controllers/reports/RevenueByPeriodController";
 import { StatusDistributionController } from "@/presentation/http/controllers/reports/StatusDistributionController";
+import { GetSubscriptionByRazorpayId } from "@/presentation/http/controllers/subscription/GetSubscriptionByRazorpayId";
 
 // Define TOKENS as Symbols (unchanged from your original setup)
 
@@ -678,6 +679,7 @@ container.bind<IController>(TOKENS.PlanGroupController).to(PlanGroupController);
 container.bind<IController>(TOKENS.FreePlanUsageController).to(FreePlanUsageController);
 container.bind<IController>(TOKENS.RevenueByPeriodController).to(RevenueByPeriodController);
 container.bind<IController>(TOKENS.StatusDistributionController).to(StatusDistributionController);
+container.bind<IController>(TOKENS.GetSubscriptionByRazorpayId).to(GetSubscriptionByRazorpayId);
 
 	console.log("Container setup complete");
 

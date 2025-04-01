@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import { expressAdapter } from "@/presentation/adapters/express";
 import container from "@/infra/di-container";
 import { TOKENS } from "@/app/tokens";
+import { IController } from "@/presentation/http/controllers/IController";
 
 /**
  * Router for handling subscription-related routes.
@@ -9,26 +10,38 @@ import { TOKENS } from "@/app/tokens";
 const subscriptionRoutes = express.Router();
 
 // Fetch controllers using TypeDI
-const canSubscribeController = container.get(TOKENS.CanSubscribeController);
-const subscribeController = container.get(TOKENS.CreateSubscribeController);
-const getSubscriptionsController = container.get(
+const canSubscribeController = container.get<IController>(
+	TOKENS.CanSubscribeController
+);
+const subscribeController = container.get<IController>(
+	TOKENS.CreateSubscribeController
+);
+const getSubscriptionsController = container.get<IController>(
 	TOKENS.GetSubscriptionsController
 );
-const getPlansController = container.get(TOKENS.GetPlansController);
-const cancelSubscriptionController = container.get(
+const getPlansController = container.get<IController>(
+	TOKENS.GetPlansController
+);
+const cancelSubscriptionController = container.get<IController>(
 	TOKENS.CancelSubscriptionController
 );
-const verifyPaymentController = container.get(
+const verifyPaymentController = container.get<IController>(
 	TOKENS.VerifyPaymentController
+);
+const getSubscriptionByRazorpayId = container.get<IController>(
+	TOKENS.GetSubscriptionByRazorpayId
 );
 
 /**
  * Endpoint to check if the payment is valid.
  */
-subscriptionRoutes.post("/verify-payment", async (req: Request, res: Response) => {
-	const httpResponse = await expressAdapter(req, verifyPaymentController);
-	res.status(httpResponse.statusCode).json(httpResponse.body);
-});
+subscriptionRoutes.post(
+	"/verify-payment",
+	async (req: Request, res: Response) => {
+		const httpResponse = await expressAdapter(req, verifyPaymentController);
+		res.status(httpResponse.statusCode).json(httpResponse.body);
+	}
+);
 
 /**
  * Endpoint to check if the authenticated user can subscribe (requires authentication).
@@ -69,5 +82,13 @@ subscriptionRoutes.post("/cancel", async (req: Request, res: Response) => {
 	const httpResponse = await expressAdapter(req, cancelSubscriptionController);
 	res.status(httpResponse.statusCode).json(httpResponse.body);
 });
+
+subscriptionRoutes.get(
+	"/:razorpaySubscriptionId",
+	async (req: Request, res: Response) => {
+		const httpResponse = await expressAdapter(req, getSubscriptionByRazorpayId);
+		res.status(httpResponse.statusCode).json(httpResponse.body);
+	}
+);
 
 export { subscriptionRoutes };

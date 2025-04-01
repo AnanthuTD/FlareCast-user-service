@@ -645,4 +645,32 @@ export class UserSubscriptionRepository implements IUserSubscriptionRepository {
 			activeUsers,
 		};
 	}
+
+	findByRazorpaySubscriptionId(razorpaySubscriptionId: string) {
+		return this.prisma.userSubscription.findFirst({
+			where: { razorpaySubscriptionId },
+			select: {
+				id: true,
+				razorpaySubscriptionId: true,
+				status: true,
+				amount: true,
+				startDate: true,
+				endDate: true,
+				plan: {
+					select: {
+						name: true,
+						price: true,
+						period: true,
+						maxWorkspaces: true,
+						maxVideoCount: true,
+					},
+				},
+				user: {
+					select: {
+						firstName: true,
+					},
+				},
+			},
+		});
+	}
 }

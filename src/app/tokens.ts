@@ -148,4 +148,5 @@ export const TOKENS = {
   FreePlanUsageController: Symbol.for('FreePlanUsageController'),
   RevenueByPeriodController: Symbol.for('RevenueByPeriodController'),
   StatusDistributionController: Symbol.for('StatusDistributionController'),
+	GetSubscriptionByRazorpayId: Symbol.for('GetSubscriptionByRazorpayId'),
 };

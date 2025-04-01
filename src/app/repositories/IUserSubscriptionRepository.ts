@@ -84,4 +84,6 @@ export interface IUserSubscriptionRepository {
 		totalSubscriptions: number;
 		activeUsers: number;
 	}>;
+
+	findByRazorpaySubscriptionId(razorpaySubscriptionId: string): Promise<any>;
 }
