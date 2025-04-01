@@ -30,8 +30,6 @@ export class UploadVideoPermissionController implements IController {
     let response: ResponseDTO;
 
     try {
-      console.log(httpRequest.user)
-
       // Create DTO and call the use case
       const dto: CheckUploadVideoPermissionDTO = { userId: httpRequest.user.id };
       response = await this.checkUploadVideoPermissionUseCase.execute(dto);

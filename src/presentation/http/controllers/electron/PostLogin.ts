@@ -29,7 +29,6 @@ export class ElectronPostLoginController implements IController {
 		let response: ResponseDTO;
 
 		try {
-			console.log(httpRequest.body);
 			// Extract refresh token from cookies or body
 			let refreshToken = httpRequest.cookies?.refreshToken;
 			if (refreshToken === "undefined") {

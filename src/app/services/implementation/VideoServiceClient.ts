@@ -17,6 +17,8 @@ export class VideoServiceClient implements IVideoServiceClient {
       videoExtension: string;
     }) => {
       try {
+
+        logger.debug("body: ", body)
         
         const { data } = await axios.post(
           `${env.VIDEO_SERVICE}/api/interservice/promotional-video`,
@@ -47,7 +49,7 @@ export class VideoServiceClient implements IVideoServiceClient {
     );
   }
 
-  async getSignedUrl(params: {
+  async getSignedUrl(params: { 
     title?: string;
     description?: string;
     type: string;

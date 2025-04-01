@@ -24,18 +24,14 @@ export const authenticateAdminMiddleware = async (
     file: req.file,
   };
 
-  console.log(httpRequest)
-
   const httpResponse = await authenticateAdminController.handle(httpRequest);
 
   if (httpResponse.statusCode !== 200) {
-    console.log(req.cookies)
     res.status(httpResponse.statusCode).json(httpResponse.body);
     return;
   }
 
   // Attach the authenticated user to the request object
   req.user = httpResponse.body.admin;
-  console.log(req.user)
   next();
 };

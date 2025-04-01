@@ -50,7 +50,7 @@ export class UploadPromotionalVideoUseCase implements IUploadPromotionalVideoUse
         };
       }
 
-      console.log(dto)
+      // console.log(dto)
 
       // Trigger video processing via Kafka
       await this.eventService.sendVideoUploadEvent({

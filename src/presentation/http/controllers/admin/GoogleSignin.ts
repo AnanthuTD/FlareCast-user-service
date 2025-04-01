@@ -75,11 +75,10 @@ export class AdminGoogleSignInController implements IController {
 
 			// Return the response
 			const success = this.httpSuccess.success_200(response.data);
-			console.log(success);
 
 			return new HttpResponse(success.statusCode, success.body);
 		} catch (err: any) {
-			console.log(err.message);
+			console.log(err)
 			logger.error("Error during Google sign-in:");
 			error = this.httpErrors.error_500();
 			return new HttpResponse(error.statusCode, {

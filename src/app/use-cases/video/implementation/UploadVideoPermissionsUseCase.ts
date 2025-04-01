@@ -19,7 +19,7 @@ export class UploadVideoPermissionsUseCase implements IUploadVideoPermissionsUse
   ) {}
 
   async execute(dto: UploadVideoPermissionsDTO): Promise<ResponseDTO> {
-    console.log(dto)
+    // console.log(dto)
     try {
       // Validate user ID
       if (!dto.userId) {

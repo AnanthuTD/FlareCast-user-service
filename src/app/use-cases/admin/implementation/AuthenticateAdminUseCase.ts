@@ -18,7 +18,7 @@ export class AuthenticateAdminUseCase {
 
 	async execute(dto: AuthenticateAdminDTO): Promise<ResponseDTO> {
 		try {
-			console.log("DTO: ", dto)
+			// console.log("DTO: ", dto)
 			// Step 1: Validate the token's authenticity
 			const isValidToken = this.tokenManager.validateAdminAccessToken(
 				dto.accessToken

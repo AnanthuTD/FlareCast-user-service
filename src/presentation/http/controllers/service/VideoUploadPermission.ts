@@ -32,8 +32,6 @@ export class UploadVideoPermissionsController implements IController {
       // Extract user ID from request params
       const userId = httpRequest.params?.userId;
 
-      console.log(httpRequest.params)
-
       // Create DTO and call the use case
       const dto: UploadVideoPermissionsDTO = { userId };
       response = await this.uploadVideoPermissionsUseCase.execute(dto);

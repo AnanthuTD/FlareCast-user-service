@@ -485,7 +485,7 @@ export class UserSubscriptionRepository implements IUserSubscriptionRepository {
 		take: number;
 		status?: SubscriptionStatus;
 	}): Promise<UserSubscription[]> {
-		console.log(skip, take, status);
+		// console.log(skip, take, status);
 		const subscriptions = await this.prisma.userSubscription.findMany({
 			where: {
 				...(status ? { status } : {}),
