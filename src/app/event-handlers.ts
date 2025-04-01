@@ -29,8 +29,8 @@ export function createTopicHandlers(
 	);
 
 	return {
-		[TOPICS.USER_VERIFIED_EVENT]: (topic: string, data: any) =>
-			verifiedUserHandler.handle(topic, data),
+		/* [TOPICS.USER_VERIFIED_EVENT]: (topic: string, data: any) =>
+			verifiedUserHandler.handle(topic, data), */
 		[TOPICS.VIDEO_UPLOAD_EVENT]: (topic: string, data: any) =>
 			videoUploadHandler.handle(topic, data),
 		[TOPICS.VIDEO_REMOVED_EVENT]: (topic: string, data: any) =>

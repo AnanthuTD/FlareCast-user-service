@@ -3,6 +3,7 @@ import { verify, decode } from "jsonwebtoken";
 import { ITokenManagerProvider } from "../../app/providers/ITokenManager";
 import env from "../env";
 import { injectable } from "inversify";
+import { logger } from "../logger";
 
 /**
  * Provider for managing and validating authentication tokens.
@@ -38,9 +39,12 @@ export class TokenManagerProvider implements ITokenManagerProvider {
 	}
 	validateAdminAccessToken(token: string): boolean {
 		try {
+			console.log(token, env.ADMIN_ACCESS_TOKEN_SECRET);
 			verify(token, env.ADMIN_ACCESS_TOKEN_SECRET || "");
+			logger.info("Admin access token is valid")
 			return true;
 		} catch (error) {
+			console.error("Error when validating admin access token: ", error);
 			return false;
 		}
 	}
@@ -48,7 +52,7 @@ export class TokenManagerProvider implements ITokenManagerProvider {
 	validateRefreshToken(token: string): boolean {
 		try {
 			console.log(token);
-			console.log(env.REFRESH_TOKEN_SECRET)
+			console.log(env.REFRESH_TOKEN_SECRET);
 			verify(token, env.REFRESH_TOKEN_SECRET || "");
 			return true;
 		} catch (error) {
@@ -58,7 +62,7 @@ export class TokenManagerProvider implements ITokenManagerProvider {
 	}
 	validateAdminRefreshToken(token: string): boolean {
 		try {
-			console.log(token);
+			console.log(token, env.ADMIN_REFRESH_TOKEN_SECRET);
 			verify(token, env.ADMIN_REFRESH_TOKEN_SECRET || "");
 			return true;
 		} catch (error) {

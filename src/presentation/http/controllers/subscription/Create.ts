@@ -12,6 +12,7 @@ import { inject, injectable } from "inversify";
 import { ICreateSubscribeUseCase } from "@/app/use-cases/subscription/ICreateSubscribeUseCase";
 import { CreateSubscribeDTO } from "@/domain/dtos/subscription/CreateSubscribeDTO";
 import { CreateSubscribeErrorType } from "@/domain/enums/Subscription/CreateSubscribeErrorType";
+import { ResponseMessage } from "@/domain/enums/Messages";
 
 /**
  * Controller for subscribing to a plan.
@@ -30,12 +31,6 @@ export class CreateSubscribeController implements IController {
     let response: ResponseDTO;
 
     try {
-      // Validate user authentication
-      if (!httpRequest.user || !httpRequest.user.id) {
-        error = this.httpErrors.error_401();
-        return new HttpResponse(error.statusCode, { message: "Unauthorized" });
-      }
-
       // Extract plan ID from request body
       const { planId } = httpRequest.body as { planId?: string };
 
@@ -52,11 +47,11 @@ export class CreateSubscribeController implements IController {
         switch (errorType) {
           case CreateSubscribeErrorType.MissingUserId:
             error = this.httpErrors.error_401();
-            return new HttpResponse(error.statusCode, { message: "Unauthorized" });
+            return new HttpResponse(error.statusCode, { message: ResponseMessage.UNAUTHORIZED });
           case CreateSubscribeErrorType.MissingPlanId:
             error = this.httpErrors.error_400();
             return new HttpResponse(error.statusCode, {
-              message: "Plan ID is required",
+              message: ResponseMessage.PLAN_ID_REQUIRED,
             });
           case CreateSubscribeErrorType.CannotSubscribe:
             error = this.httpErrors.error_400();
@@ -67,32 +62,32 @@ export class CreateSubscribeController implements IController {
           case CreateSubscribeErrorType.ActiveSubscriptionExists:
             error = this.httpErrors.error_400();
             return new HttpResponse(error.statusCode, {
-              message: "User already has an active subscription",
+              message: ResponseMessage.USER_ALREADY_SUBSCRIBED,
             });
           case CreateSubscribeErrorType.SubscriptionPlanNotFound:
             error = this.httpErrors.error_404();
             return new HttpResponse(error.statusCode, {
-              message: "Subscription plan not found",
+              message: ResponseMessage.SubscriptionPlanNotFound,
             });
           case CreateSubscribeErrorType.UserNotFound:
             error = this.httpErrors.error_404();
             return new HttpResponse(error.statusCode, {
-              message: "User not found",
+              message: ResponseMessage.USER_NOT_FOUND,
             });
           case CreateSubscribeErrorType.FailedToCreateRazorpaySubscription:
             error = this.httpErrors.error_500();
             return new HttpResponse(error.statusCode, {
-              message: "Failed to create subscription on Razorpay",
+              message: ResponseMessage.FailedToCreateSubscription,
             });
           case CreateSubscribeErrorType.FailedToCreateUserSubscription:
             error = this.httpErrors.error_500();
             return new HttpResponse(error.statusCode, {
-              message: "Failed to create user subscription",
+              message: errorType,
             });
           default:
             error = this.httpErrors.error_500();
             return new HttpResponse(error.statusCode, {
-              message: "Internal server error",
+              message: errorType,
             });
         }
       }
@@ -104,7 +99,7 @@ export class CreateSubscribeController implements IController {
       logger.error("Error creating subscription:", err);
       error = this.httpErrors.error_500();
       return new HttpResponse(error.statusCode, {
-        message: "Internal server error",
+        message: ResponseMessage.INTERNAL_SERVER_ERROR,
       });
     }
   }

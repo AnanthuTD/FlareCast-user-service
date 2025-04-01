@@ -60,7 +60,7 @@ export class CreateSubscribeUseCase implements ICreateSubscribeUseCase {
       }
 
       // Check for an existing active subscription
-      const existingSubscription = await this.userSubscriptionRepository.getActiveSubscription(dto.userId);
+      const existingSubscription = await this.userSubscriptionRepository.getActivePlan(dto.userId);
       if (existingSubscription && existingSubscription.type === "paid") {
         logger.debug(`User ${dto.userId} already has an active subscription`);
         return {

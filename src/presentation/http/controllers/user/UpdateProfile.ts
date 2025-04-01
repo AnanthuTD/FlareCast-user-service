@@ -11,6 +11,7 @@ import { inject, injectable } from "inversify";
 import { IUpdateProfileUseCase } from "@/app/use-cases/user/IUpdateProfileUseCase";
 import { UpdateProfileDTO } from "@/domain/dtos/user/UpdateProfileDTO";
 import { UpdateProfileErrorType } from "@/domain/enums/user/UpdateProfileErrorType";
+import { ResponseMessage } from "@/domain/enums/Messages";
 
 /**
  * Controller for handling user profile update requests.
@@ -59,27 +60,27 @@ export class UpdateProfileController implements IController {
 					case UpdateProfileErrorType.MissingUserId:
 						error = this.httpErrors.error_401();
 						return new HttpResponse(error.statusCode, {
-							message: "Unauthorized",
+							message: ResponseMessage.UNAUTHORIZED,
 						});
 					case UpdateProfileErrorType.UserNotFound:
 						error = this.httpErrors.error_404();
 						return new HttpResponse(error.statusCode, {
-							message: "User not found",
+							message: ResponseMessage.USER_NOT_FOUND,
 						});
 					case UpdateProfileErrorType.FailedToUploadImage:
 						error = this.httpErrors.error_500();
 						return new HttpResponse(error.statusCode, {
-							message: "Failed to upload image",
+							message: ResponseMessage.FAILED_TO_UPLOAD_IMAGE,
 						});
 					case UpdateProfileErrorType.FailedToUpdateProfile:
 						error = this.httpErrors.error_500();
 						return new HttpResponse(error.statusCode, {
-							message: "Failed to update profile",
+							message: ResponseMessage.FAILED_TO_UPDATE_PROFILE,
 						});
 					default:
 						error = this.httpErrors.error_500();
 						return new HttpResponse(error.statusCode, {
-							message: "Internal server error",
+							message: ResponseMessage.INTERNAL_SERVER_ERROR,
 						});
 				}
 			}
@@ -94,7 +95,7 @@ export class UpdateProfileController implements IController {
 			);
 			error = this.httpErrors.error_500();
 			return new HttpResponse(error.statusCode, {
-				message: "Internal server error",
+				message: ResponseMessage.INTERNAL_SERVER_ERROR,
 			});
 		}
 	}

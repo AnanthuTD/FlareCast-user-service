@@ -32,7 +32,6 @@ export interface PlanProps {
   updatedAt?: Date;
 }
 
-@injectable()
 export class Plan {
   private _id?: string;
   private _type: PlanType;

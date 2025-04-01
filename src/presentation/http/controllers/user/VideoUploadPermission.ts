@@ -11,6 +11,7 @@ import { inject, injectable } from "inversify";
 import { ICheckUploadVideoPermissionUseCase } from "@/app/use-cases/user/ICheckUploadVideoPermissionUseCase";
 import { CheckUploadVideoPermissionDTO } from "@/domain/dtos/user/CheckUploadVideoPermissionDTO";
 import { CheckUploadVideoPermissionErrorType } from "@/domain/enums/user/CheckUploadVideoPermissionErrorType";
+import { ResponseMessage } from "@/domain/enums/Messages";
 
 /**
  * Controller for checking video upload permissions for the authenticated user.
@@ -30,11 +31,6 @@ export class UploadVideoPermissionController implements IController {
 
     try {
       console.log(httpRequest.user)
-      // Ensure user is authenticated
-      if (!httpRequest.user || !httpRequest.user.id) {
-        error = this.httpErrors.error_401();
-        return new HttpResponse(error.statusCode, { message: "Unauthorized" });
-      }
 
       // Create DTO and call the use case
       const dto: CheckUploadVideoPermissionDTO = { userId: httpRequest.user.id };
@@ -46,18 +42,18 @@ export class UploadVideoPermissionController implements IController {
         switch (errorType) {
           case CheckUploadVideoPermissionErrorType.MissingUserId:
             error = this.httpErrors.error_401();
-            return new HttpResponse(error.statusCode, { message: "Unauthorized" });
+            return new HttpResponse(error.statusCode, { message: ResponseMessage.UNAUTHORIZED });
           case CheckUploadVideoPermissionErrorType.NoActiveSubscription:
             error = this.httpErrors.error_403();
             return new HttpResponse(error.statusCode, {
-              message: "You don't have an active subscription plan",
+              message: ResponseMessage.NO_ACTIVE_SUBSCRIPTION,
             });
           case CheckUploadVideoPermissionErrorType.VideoLimitExceeded:
             error = this.httpErrors.error_403();
             return new HttpResponse(error.statusCode, errorData.details);
           default:
             error = this.httpErrors.error_500();
-            return new HttpResponse(error.statusCode, { message: "Internal server error" });
+            return new HttpResponse(error.statusCode, { message: ResponseMessage.INTERNAL_SERVER_ERROR });
         }
       }
 
@@ -67,7 +63,7 @@ export class UploadVideoPermissionController implements IController {
     } catch (err: any) {
       logger.error("Error checking user upload video permission:", err);
       error = this.httpErrors.error_500();
-      return new HttpResponse(error.statusCode, { message: "Internal server error" });
+      return new HttpResponse(error.statusCode, { message: ResponseMessage.INTERNAL_SERVER_ERROR });
     }
   }
 }

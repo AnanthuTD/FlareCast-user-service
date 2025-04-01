@@ -12,6 +12,7 @@ import { IUseCase } from "@/app/use-cases/IUseCase";
 import { VerifyPaymentDTO } from "@/domain/dtos/subscription/VerifyPaymentDTO";
 import { VerifyPaymentResponseDTO } from "@/domain/dtos/subscription/VerifyPaymentResponseDTO";
 import { VerifyPaymentErrorType } from "@/domain/enums/Subscription/VerifyPaymentErrorType";
+import { ResponseMessage } from "@/domain/enums/Messages";
 
 /**
  * Controller for verifying Razorpay payments.
@@ -51,22 +52,22 @@ export class VerifyPaymentController implements IController {
           case VerifyPaymentErrorType.MissingRequiredFields:
             error = this.httpErrors.error_400();
             return new HttpResponse(error.statusCode, {
-              message: "Missing required fields",
+              message: errorType,
             });
           case VerifyPaymentErrorType.InvalidPayment:
             error = this.httpErrors.error_400();
             return new HttpResponse(error.statusCode, {
-              message: "Invalid payment",
+              message: errorType,
             });
           case VerifyPaymentErrorType.InternalError:
             error = this.httpErrors.error_500();
             return new HttpResponse(error.statusCode, {
-              message: "Internal server error",
+              message: ResponseMessage.INTERNAL_SERVER_ERROR,
             });
           default:
             error = this.httpErrors.error_500();
             return new HttpResponse(error.statusCode, {
-              message: "Internal server error",
+              message: ResponseMessage.INTERNAL_SERVER_ERROR,
             });
         }
       }
@@ -78,7 +79,7 @@ export class VerifyPaymentController implements IController {
       logger.error("Error verifying payment:", err);
       error = this.httpErrors.error_500();
       return new HttpResponse(error.statusCode, {
-        message: "Internal server error",
+        message: ResponseMessage.INTERNAL_SERVER_ERROR,
       });
     }
   }

@@ -70,7 +70,7 @@ export class GoogleSignInUseCase implements IGoogleSignInUseCase {
 				});
 
 				const activePlan =
-					await this.userSubscriptionRepository.getActiveSubscription(user.id!);
+					await this.userSubscriptionRepository.getActivePlan(user.id!);
 
 				// Publish user verified event
 				await this.eventService.publishUserVerifiedEvent({

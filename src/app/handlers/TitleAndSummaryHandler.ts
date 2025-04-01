@@ -1,7 +1,6 @@
 import { logger } from "@/infra/logger";
 import { IPromotionalVideoRepository } from "@/app/repositories/IPromotionalVideoRepository";
 import { VideoSummaryTitleEvent } from "@/domain/events/VideoSummaryTitleEvent";
-import { Inject } from "typedi";
 import { TOKENS } from "../tokens";
 import { IEventHandler } from "../interfaces/IEventHandler";
 import { inject, injectable } from "inversify";
@@ -54,7 +53,7 @@ export class TitleAndSummaryHandler implements IEventHandler {
 			await this.promotionalVideoRepository.updateTitleAndDescription(
 				data.videoId,
 				data.title,
-				data.summary
+				data.description
 			);
 
 			logger.info("✅ Title and description updated successfully!");

@@ -24,6 +24,8 @@ export const authenticateAdminMiddleware = async (
     file: req.file,
   };
 
+  console.log(httpRequest)
+
   const httpResponse = await authenticateAdminController.handle(httpRequest);
 
   if (httpResponse.statusCode !== 200) {

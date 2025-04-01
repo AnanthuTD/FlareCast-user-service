@@ -55,7 +55,7 @@ export class GetPlansUseCase implements IGetPlansUseCase {
 			// If a user ID is provided, fetch their active subscription and mark the active plan
 			if (dto.userId) {
 				activeSubscription =
-					await this.userSubscriptionRepository.getActiveSubscription(
+					await this.userSubscriptionRepository.getActivePlan(
 						dto.userId
 					);
         if(activeSubscription){

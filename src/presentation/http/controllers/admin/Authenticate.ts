@@ -62,6 +62,8 @@ export class AuthenticateAdminController implements IController {
 				}
 			}
 
+			logger.debug("In auth controller");
+
 			// Return the authenticated user data
 			const success = this.httpSuccess.success_200(response.data);
 			return new HttpResponse(success.statusCode, success.body);

@@ -17,7 +17,6 @@ export interface UserProps {
   createdAt?: Date; 
 }
 
-@injectable()
 export class User {
   private _id?: string;
   private _email: Email;

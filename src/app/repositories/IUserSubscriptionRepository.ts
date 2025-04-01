@@ -14,8 +14,8 @@ export interface IUserSubscriptionRepository {
 
 	getUserSubscription(userId: string): Promise<UserSubscription[]>;
 
-	getActiveSubscription(userId: string): Promise<SubscriptionPlan | null>;
-	findSubscription(userId: string): Promise<UserSubscription | null>
+	getActivePlan(userId: string): Promise<SubscriptionPlan | null>;
+	findSubscription(userId: string): Promise<UserSubscription | null>;
 
 	updateSubscriptionStatusToActive(userId: string): Promise<UserSubscription>;
 
@@ -46,4 +46,42 @@ export interface IUserSubscriptionRepository {
 
 	activeSubscriptionsCount(): Promise<number>;
 	countActiveByPlanId(planId: string): Promise<number>;
+
+	getPaginatedPayments({
+		skip,
+		take,
+		status,
+	}: {
+		skip: number;
+		take: number;
+		status?: SubscriptionStatus;
+	}): Promise<UserSubscription[]>;
+
+	groupByPlan(): Promise<
+		{
+			plan: SubscriptionPlan | null;
+			count: number;
+		}[]
+	>;
+
+	freePlanUsage(): Promise<
+		{
+			plan: SubscriptionPlan | null;
+			count: number;
+		}[]
+	>;
+
+	getStatus(): string[];
+
+	revenueByPeriod(
+		period: "daily" | "weekly" | "monthly" | "yearly"
+	): Promise<any>;
+
+	statusDistribution(): Promise<any>;
+
+	salesSummary(): Promise<{
+		totalRevenue: number;
+		totalSubscriptions: number;
+		activeUsers: number;
+	}>;
 }

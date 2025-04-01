@@ -104,31 +104,26 @@ export class UserSubscriptionRepository implements IUserSubscriptionRepository {
 			});
 			return subscription;
 		} catch (error) {
-			logger.error(
-				`Failed to fetch subscription with id ${userId}:`,
-				error
-			);
+			logger.error(`Failed to fetch subscription with id ${userId}:`, error);
 			throw new Error(`Failed to fetch subscription: ${error.message}`);
 		}
 	}
 
-	async getActiveSubscription(
-		userId: string
-	): Promise<SubscriptionPlan | null> {
+	async getActivePlan(userId: string): Promise<SubscriptionPlan | null> {
 		try {
-			const activePlan = await this.prisma.userSubscription.findFirst({
+			const activeSubscription = await this.prisma.userSubscription.findFirst({
 				where: { userId, status: SubscriptionStatus.active },
 				orderBy: { createdAt: "desc" },
 				select: { plan: true },
 			});
 
-			if (!activePlan) {
+			if (!activeSubscription) {
 				return await this.prisma.subscriptionPlan.findFirst({
 					where: { type: "free", isActive: true },
 				});
 			}
 
-			return activePlan?.plan;
+			return activeSubscription?.plan;
 		} catch (error) {
 			logger.error(
 				`Failed to fetch active subscription for user ${userId}:`,
@@ -467,17 +462,187 @@ export class UserSubscriptionRepository implements IUserSubscriptionRepository {
 	}
 
 	async countActiveByPlanId(planId: string): Promise<number> {
-    try {
-      const count = await this.prisma.userSubscription.count({
-        where: { planId, status: "active" },
-      });
-      return count;
-    } catch (err: any) {
-      logger.error(`Error counting active subscriptions for plan ${planId}:`, {
-        message: err.message,
-        stack: err.stack,
-      });
-      throw err;
-    }
-  }
+		try {
+			const count = await this.prisma.userSubscription.count({
+				where: { planId, status: "active" },
+			});
+			return count;
+		} catch (err: any) {
+			logger.error(`Error counting active subscriptions for plan ${planId}:`, {
+				message: err.message,
+				stack: err.stack,
+			});
+			throw err;
+		}
+	}
+
+	async getPaginatedPayments({
+		skip,
+		take,
+		status,
+	}: {
+		skip: number;
+		take: number;
+		status?: SubscriptionStatus;
+	}): Promise<UserSubscription[]> {
+		console.log(skip, take, status);
+		const subscriptions = await this.prisma.userSubscription.findMany({
+			where: {
+				...(status ? { status } : {}),
+			},
+			skip,
+			take,
+			orderBy: { createdAt: "desc" },
+			select: {
+				id: true,
+				userId: true,
+				planId: true,
+				status: true,
+				createdAt: true,
+				updatedAt: true,
+				cancelledAt: true,
+				remainingCount: true,
+				razorpaySubscriptionId: true,
+				amount: true,
+				plan: { select: { name: true } },
+				user: { select: { email: true } },
+			},
+		});
+		const total = await this.prisma.userSubscription.count();
+
+		return { subscriptions, total };
+	}
+
+	getStatus(): string[] {
+		return Object.values(SubscriptionStatus);
+	}
+	async groupByPlan() {
+		const subscriptions = await this.prisma.userSubscription.aggregateRaw({
+			pipeline: [
+				{
+					$group: {
+						_id: "$planId",
+						count: { $sum: 1 },
+						totalAmount: { $sum: "$amount" },
+					},
+				},
+				{
+					$lookup: {
+						from: "SubscriptionPlan",
+						localField: "_id",
+						foreignField: "_id",
+						as: "plan",
+					},
+				},
+				{
+					$unwind: {
+						path: "$plan",
+						preserveNullAndEmptyArrays: true,
+					},
+				},
+				{ $sort: { "plan.price": -1 } }, // Sort by plan price, not amount
+				{
+					$project: {
+						planId: "$_id",
+						count: 1,
+						totalAmount: 1,
+						planName: "$plan.name",
+						planPrice: "$plan.price",
+						planType: "$plan.type",
+					},
+				},
+			],
+		});
+		return subscriptions;
+	}
+
+	// Free plan usage (your existing method)
+	async freePlanUsage() {
+		const freePlanUsersCount = await this.prisma.user.count({
+			where: {
+				OR: [
+					{ activeSubscriptionId: null },
+					{ activeSubscriptionId: { isSet: false } },
+				],
+			},
+		});
+
+		const freePlan = await this.prisma.subscriptionPlan.findFirst({
+			where: { type: "free" },
+		});
+
+		return {
+			count: freePlanUsersCount,
+			plan: freePlan,
+		};
+	}
+
+	// Total revenue by period
+	async revenueByPeriod(period: "daily" | "weekly" | "monthly" | "yearly") {
+		const groupBy = {
+			daily: { $dayOfYear: "$createdAt" },
+			weekly: { $week: "$createdAt" },
+			monthly: { $month: "$createdAt" },
+			yearly: { $year: "$createdAt" },
+		}[period];
+
+		const revenue = await this.prisma.userSubscription.aggregateRaw({
+			pipeline: [
+				{
+					$match: { status: { $in: ["active", "completed", "charged"] } }, // Only paid subscriptions
+				},
+				{
+					$group: {
+						_id: { period: groupBy, year: { $year: "$createdAt" } },
+						totalRevenue: { $sum: "$amount" },
+						subscriptionCount: { $sum: 1 },
+					},
+				},
+				{ $sort: { "_id.year": 1, "_id.period": 1 } },
+			],
+		});
+
+		if (revenue.length) {
+			return revenue.map((item: any) => ({
+				period: `${item._id.year}-${item._id.period}`,
+				totalRevenue: item.totalRevenue,
+				subscriptionCount: item.subscriptionCount,
+			}));
+		}
+
+		return [];
+	}
+
+	// Subscription status distribution
+	async statusDistribution() {
+		const statusCounts = await this.prisma.userSubscription.aggregateRaw({
+			pipeline: [
+				{ $group: { _id: "$status", count: { $sum: 1 } } },
+				{ $sort: { count: -1 } },
+			],
+		});
+		return statusCounts;
+	}
+
+	// Total sales summary
+	async salesSummary() {
+		const totalRevenue = await this.prisma.userSubscription.aggregate({
+			_sum: { amount: true },
+			where: { status: { in: ["active", "completed", "charged"] } },
+		});
+
+		const totalSubscriptions = await this.prisma.userSubscription.count({
+			where: { status: { in: ["active", "completed", "charged"] } },
+		});
+
+		const activeUsers = await this.prisma.user.count({
+			where: { activeSubscriptionId: { not: null } },
+		});
+
+		return {
+			totalRevenue: totalRevenue._sum.amount || 0,
+			totalSubscriptions,
+			activeUsers,
+		};
+	}
 }

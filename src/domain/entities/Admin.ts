@@ -15,7 +15,6 @@ export interface AdminProps {
   image?: string | null;
 }
 
-@injectable()
 export class Admin {
   private _id?: string;
   private _email: Email;

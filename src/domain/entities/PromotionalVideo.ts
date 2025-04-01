@@ -20,7 +20,6 @@ export interface PromotionalVideoProps {
   updatedAt?: Date;
 }
 
-@injectable()
 export class PromotionalVideo {
   private _id?: string;
   private _category: PromotionalVideoCategory;

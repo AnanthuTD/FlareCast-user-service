@@ -11,6 +11,7 @@ import { inject, injectable } from "inversify";
 import { IGetWorkspaceLimitUseCase } from "@/app/use-cases/subscription/IGetWorkspaceLimitUseCase";
 import { GetWorkspaceLimitDTO } from "@/domain/dtos/subscription/GetWorkspaceLimitDTO";
 import { GetWorkspaceLimitErrorType } from "@/domain/enums/Subscription/GetWorkspaceLimitErrorType";
+import { ResponseMessage } from "@/domain/enums/Messages";
 
 /**
  * Controller for fetching the workspace limit for a user.
@@ -42,17 +43,17 @@ export class GetWorkspaceLimitController implements IController {
           case GetWorkspaceLimitErrorType.MissingUserId:
             error = this.httpErrors.error_400();
             return new HttpResponse(error.statusCode, {
-              message: "User ID is required",
+              message: errorType,
             });
           case GetWorkspaceLimitErrorType.NoActiveSubscription:
             error = this.httpErrors.error_403();
             return new HttpResponse(error.statusCode, {
-              message: `User ${userId} does not have an active subscription plan`,
+              message: errorType,
             });
           default:
             error = this.httpErrors.error_500();
             return new HttpResponse(error.statusCode, {
-              message: "Internal server error",
+              message: ResponseMessage.INTERNAL_SERVER_ERROR,
             });
         }
       }
@@ -64,7 +65,7 @@ export class GetWorkspaceLimitController implements IController {
       logger.error("Error getting workspace limit:", err);
       error = this.httpErrors.error_500();
       return new HttpResponse(error.statusCode, {
-        message: "Internal server error",
+        message: ResponseMessage.INTERNAL_SERVER_ERROR,
       });
     }
   }

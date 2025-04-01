@@ -43,8 +43,8 @@ export class GetUserProfileUseCase implements IGetUserProfileUseCase {
 			}
 
 			// Fetch active subscription
-			const activeSubscription =
-				await this.userSubscriptionRepository.getActiveSubscription(dto.userId);
+			const activePlan =
+				await this.userSubscriptionRepository.getActivePlan(dto.userId);
 
 			// Prepare the response
 			const userProfile: UserProfileDTO = {
@@ -53,7 +53,7 @@ export class GetUserProfileUseCase implements IGetUserProfileUseCase {
 				firstName: user.firstName,
 				lastName: user.lastName ?? "",
 				image: user.image ?? "",
-				plan: activeSubscription ? { planId: activeSubscription.planId } : null,
+				plan: activePlan ?? null,
 			};
 
 			const response: GetUserProfileResponseDTO = {

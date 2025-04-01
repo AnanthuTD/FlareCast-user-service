@@ -37,7 +37,6 @@ export interface SubscriptionProps {
   updatedAt?: Date;
 }
 
-@injectable()
 export class Subscription {
   private _id?: string;
   private _userId: string;

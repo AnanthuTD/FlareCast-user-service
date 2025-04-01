@@ -12,6 +12,7 @@ import { inject, injectable } from "inversify";
 import { IGetMemberLimitUseCase } from "@/app/use-cases/subscription/IGetMemberLimitUseCase";
 import { GetMemberLimitDTO } from "@/domain/dtos/subscription/GetMemberLimitDTO";
 import { GetMemberLimitErrorType } from "@/domain/enums/Subscription/GetMemberLimitErrorType";
+import { ResponseMessage } from "@/domain/enums/Messages";
 
 /**
  * Controller for fetching the member limit for a user.
@@ -43,17 +44,17 @@ export class GetMemberLimitController implements IController {
           case GetMemberLimitErrorType.MissingUserId:
             error = this.httpErrors.error_400();
             return new HttpResponse(error.statusCode, {
-              message: "User ID is required",
+              message: errorType,
             });
           case GetMemberLimitErrorType.NoActiveSubscription:
             error = this.httpErrors.error_403();
             return new HttpResponse(error.statusCode, {
-              message: `User ${userId} does not have an active subscription plan`,
+              message: errorType,
             });
           default:
             error = this.httpErrors.error_500();
             return new HttpResponse(error.statusCode, {
-              message: "Internal server error",
+              message: ResponseMessage.INTERNAL_SERVER_ERROR,
             });
         }
       }
@@ -65,7 +66,7 @@ export class GetMemberLimitController implements IController {
       logger.error("Error getting member limit:", err);
       error = this.httpErrors.error_500();
       return new HttpResponse(error.statusCode, {
-        message: "Internal server error",
+        message: ResponseMessage.INTERNAL_SERVER_ERROR,
       });
     }
   }

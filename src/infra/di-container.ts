@@ -159,6 +159,15 @@ import { AdminLogoutUseCase } from "@/app/use-cases/admin/implementation/AdminLo
 import { AdminLogoutController } from "@/presentation/http/controllers/admin/Logout";
 import { GetPlansUseCase as GetAdminPlansUseCase } from "@/app/use-cases/admin/subscriptionPlan/implementation/GetPlansUseCase";
 import { GetAdminPlansController } from "@/presentation/http/controllers/admin/subscriptionPlan/GetPlansController";
+import { IGetPaginatedPaymentsUseCase } from "@/app/use-cases/admin/monetization/IGetPaginatedPaymentsUseCase";
+import { GetPaginatedPaymentsUseCase } from "@/app/use-cases/admin/monetization/implementation/GetPaginatedPaymentsUseCase";
+import { GetPaginatedPaymentsController } from "@/presentation/http/controllers/admin/monetization/GetPaginatedPaymentsController";
+import { GetSubscriptionStatusController } from "@/presentation/http/controllers/admin/monetization/GetSubscriptionStatusController";
+import { SalesSummaryController } from "@/presentation/http/controllers/reports/SalesSummaryController";
+import { PlanGroupController } from "@/presentation/http/controllers/reports/PlanGroupController";
+import { FreePlanUsageController } from "@/presentation/http/controllers/reports/FreePlanUsageController";
+import { RevenueByPeriodController } from "@/presentation/http/controllers/reports/RevenueByPeriodController";
+import { StatusDistributionController } from "@/presentation/http/controllers/reports/StatusDistributionController";
 
 // Define TOKENS as Symbols (unchanged from your original setup)
 
@@ -390,96 +399,113 @@ export function setupDIContainer() {
 		.to(EmailService)
 		.inSingletonScope();
 
-		container
-  .bind<IGetPlansUseCase>(TOKENS.GetAdminPlansUseCase)
-  .to(GetAdminPlansUseCase)
-  .inSingletonScope();
+	container
+		.bind<IGetPlansUseCase>(TOKENS.GetAdminPlansUseCase)
+		.to(GetAdminPlansUseCase)
+		.inSingletonScope();
 
-container
-  .bind<ICreatePlanUseCase>(TOKENS.CreatePlanUseCase)
-  .to(CreatePlanUseCase)
-  .inSingletonScope();
+	container
+		.bind<ICreatePlanUseCase>(TOKENS.CreatePlanUseCase)
+		.to(CreatePlanUseCase)
+		.inSingletonScope();
 
-container
-  .bind<IDeletePlanUseCase>(TOKENS.DeletePlanUseCase)
-  .to(DeletePlanUseCase)
-  .inSingletonScope();
+	container
+		.bind<IDeletePlanUseCase>(TOKENS.DeletePlanUseCase)
+		.to(DeletePlanUseCase)
+		.inSingletonScope();
 
-container
-  .bind<ITogglePlanActiveUseCase>(TOKENS.TogglePlanActiveUseCase)
-  .to(TogglePlanActiveUseCase)
-  .inSingletonScope();
+	container
+		.bind<ITogglePlanActiveUseCase>(TOKENS.TogglePlanActiveUseCase)
+		.to(TogglePlanActiveUseCase)
+		.inSingletonScope();
 
-container
-  .bind<IController>(TOKENS.GetAdminPlansController)
-  .to(GetAdminPlansController)
-  .inSingletonScope();
+	container
+		.bind<IController>(TOKENS.GetAdminPlansController)
+		.to(GetAdminPlansController)
+		.inSingletonScope();
 
-container
-  .bind<IController>(TOKENS.CreatePlanController)
-  .to(CreatePlanController)
-  .inSingletonScope();
+	container
+		.bind<IController>(TOKENS.CreatePlanController)
+		.to(CreatePlanController)
+		.inSingletonScope();
 
-container
-  .bind<IController>(TOKENS.DeletePlanController)
-  .to(DeletePlanController)
-  .inSingletonScope();
+	container
+		.bind<IController>(TOKENS.DeletePlanController)
+		.to(DeletePlanController)
+		.inSingletonScope();
 
-container
-  .bind<IController>(TOKENS.TogglePlanActiveController)
-  .to(TogglePlanActiveController)
-  .inSingletonScope();
+	container
+		.bind<IController>(TOKENS.TogglePlanActiveController)
+		.to(TogglePlanActiveController)
+		.inSingletonScope();
 
-container
-  .bind<IUserSubscriptionRepository>(TOKENS.UserSubscriptionRepository)
-  .to(UserSubscriptionRepository)
-  .inSingletonScope();
+	container
+		.bind<IUserSubscriptionRepository>(TOKENS.UserSubscriptionRepository)
+		.to(UserSubscriptionRepository)
+		.inSingletonScope();
 
-	container.bind<IController>(TOKENS.AuthenticateAdminController).to(
-		AuthenticateAdminController
-	).inSingletonScope()
-	container.bind<IController>(TOKENS.AdminRefreshTokenController).to(
-		AdminRefreshTokenController
-	).inSingletonScope()
-	container.bind<IController>(TOKENS.AdminGoogleSignInController).to(
-		AdminGoogleSignInController
-	).inSingletonScope()
+	container
+		.bind<IController>(TOKENS.AuthenticateAdminController)
+		.to(AuthenticateAdminController)
+		.inSingletonScope();
+	container
+		.bind<IController>(TOKENS.AdminRefreshTokenController)
+		.to(AdminRefreshTokenController)
+		.inSingletonScope();
+	container
+		.bind<IController>(TOKENS.AdminGoogleSignInController)
+		.to(AdminGoogleSignInController)
+		.inSingletonScope();
 
-	container.bind(TOKENS.AuthenticateAdminCase).to(
-		AuthenticateAdminUseCase
-	).inSingletonScope()
-	container.bind<IRefreshTokenUseCase>(TOKENS.AdminRefreshTokenUseCase).to(
-		AdminRefreshTokenUseCase
-	).inSingletonScope()
-	container.bind<IGoogleSignInUseCase>(TOKENS.AdminGoogleSignInUseCase).to(
-		AdminGoogleSigninUseCase
-	).inSingletonScope()
-	container.bind<IUserLogoutUseCase>(TOKENS.AdminLogoutUseCase).to(
-		AdminLogoutUseCase
-	).inSingletonScope()
-	container.bind<IController>(TOKENS.AdminLogoutController).to(
-		AdminLogoutController
-	).inSingletonScope()
+	container
+		.bind(TOKENS.AuthenticateAdminCase)
+		.to(AuthenticateAdminUseCase)
+		.inSingletonScope();
+	container
+		.bind<IRefreshTokenUseCase>(TOKENS.AdminRefreshTokenUseCase)
+		.to(AdminRefreshTokenUseCase)
+		.inSingletonScope();
+	container
+		.bind<IGoogleSignInUseCase>(TOKENS.AdminGoogleSignInUseCase)
+		.to(AdminGoogleSigninUseCase)
+		.inSingletonScope();
+	container
+		.bind<IUserLogoutUseCase>(TOKENS.AdminLogoutUseCase)
+		.to(AdminLogoutUseCase)
+		.inSingletonScope();
+	container
+		.bind<IController>(TOKENS.AdminLogoutController)
+		.to(AdminLogoutController)
+		.inSingletonScope();
 
-	
 	// Repositories
 	container
-	.bind<IPromotionalVideoRepository>(TOKENS.PromotionalVideoRepository)
+		.bind<IPromotionalVideoRepository>(TOKENS.PromotionalVideoRepository)
 		.to(PromotionalVideoRepository)
 		.inSingletonScope();
-		container.bind(TOKENS.UserRepository).to(UserRepository).inSingletonScope();
-		container
+	container.bind(TOKENS.UserRepository).to(UserRepository).inSingletonScope();
+	container
 		.bind(TOKENS.RefreshTokenRepository)
 		.to(RefreshTokenRepository)
 		.inSingletonScope();
-		container
+	container
 		.bind<ISubscriptionRepository>(TOKENS.SubscriptionRepository)
 		.to(SubscriptionRepository)
 		.inSingletonScope();
-		container
-			.bind<IPaymentGateway>(TOKENS.PaymentGateway)
-			.to(RazorpayRepository)
-			.inSingletonScope();
+	container
+		.bind<IPaymentGateway>(TOKENS.PaymentGateway)
+		.to(RazorpayRepository)
+		.inSingletonScope();
+
+	container
+		.bind<IGetPaginatedPaymentsUseCase>(TOKENS.GetPaginatedPaymentsUseCase)
+		.to(GetPaginatedPaymentsUseCase)
+		.inSingletonScope();
+
+	container
+		.bind<IController>(TOKENS.GetPaginatedPaymentsController)
+		.to(GetPaginatedPaymentsController)
+		.inSingletonScope();
 
 	// Infrastructure/Providers
 	container
@@ -642,6 +668,16 @@ container
 		.bind(TOKENS.ElectronPostLoginController)
 		.to(ElectronPostLoginController)
 		.inSingletonScope();
+
+	container
+		.bind(TOKENS.GetSubscriptionStatusController)
+		.to(GetSubscriptionStatusController);
+
+container.bind<IController>(TOKENS.SalesSummaryController).to(SalesSummaryController);
+container.bind<IController>(TOKENS.PlanGroupController).to(PlanGroupController);
+container.bind<IController>(TOKENS.FreePlanUsageController).to(FreePlanUsageController);
+container.bind<IController>(TOKENS.RevenueByPeriodController).to(RevenueByPeriodController);
+container.bind<IController>(TOKENS.StatusDistributionController).to(StatusDistributionController);
 
 	console.log("Container setup complete");
 

@@ -11,6 +11,7 @@ import { inject, injectable } from "inversify";
 import { ICanSubscribeUseCase } from "@/app/use-cases/subscription/ICanSubscribeUseCase";
 import { CanSubscribeDTO } from "@/domain/dtos/subscription/CanSubscribeDTO";
 import { CanSubscribeErrorType } from "@/domain/enums/Subscription/CanSubscribeErrorType";
+import { ResponseMessage } from "@/domain/enums/Messages";
 
 /**
  * Controller for checking if a user can subscribe.
@@ -29,11 +30,6 @@ export class CanSubscribeController implements IController {
     let response: ResponseDTO;
 
     try {
-      // Validate user authentication
-      if (!httpRequest.user || !httpRequest.user.id) {
-        error = this.httpErrors.error_401();
-        return new HttpResponse(error.statusCode, { message: "Unauthorized" });
-      }
 
       // Create DTO and call the use case
       const dto: CanSubscribeDTO = { userId: httpRequest.user.id };
@@ -45,7 +41,7 @@ export class CanSubscribeController implements IController {
         switch (errorType) {
           case CanSubscribeErrorType.MissingUserId:
             error = this.httpErrors.error_401();
-            return new HttpResponse(error.statusCode, { message: "Unauthorized" });
+            return new HttpResponse(error.statusCode, { message: ResponseMessage.UNAUTHORIZED });
           case CanSubscribeErrorType.CannotSubscribe:
             error = this.httpErrors.error_400();
             return new HttpResponse(error.statusCode, {
@@ -55,7 +51,7 @@ export class CanSubscribeController implements IController {
           default:
             error = this.httpErrors.error_500();
             return new HttpResponse(error.statusCode, {
-              message: "Internal server error",
+              message: ResponseMessage.INTERNAL_SERVER_ERROR,
             });
         }
       }
@@ -67,7 +63,7 @@ export class CanSubscribeController implements IController {
       logger.error("Error checking subscription eligibility:", err);
       error = this.httpErrors.error_500();
       return new HttpResponse(error.statusCode, {
-        message: "Internal server error",
+        message: ResponseMessage.INTERNAL_SERVER_ERROR,
       });
     }
   }

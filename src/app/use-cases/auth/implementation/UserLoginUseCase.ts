@@ -26,7 +26,7 @@ export class UserLoginUseCase implements IUserLoginUseCase {
     @inject(TOKENS.VerifyUserEmailUseCase)
     private readonly verifyUserEmailUseCase: IVerifyUserEmailUseCase,
     @inject(TOKENS.GetActiveSubscriptionUseCase)
-    private readonly getActiveSubscriptionUseCase: IGetActiveSubscriptionUseCase,
+    private readonly getActivePlanUseCase: IGetActiveSubscriptionUseCase,
     @inject(TOKENS.PublishUserVerifiedEventUseCase)
     private readonly publishUserVerifiedEventUseCase: IPublishUserVerifiedEventUseCase
   ) {}
@@ -60,7 +60,7 @@ export class UserLoginUseCase implements IUserLoginUseCase {
         }
 
         // Fetch the active subscription plan
-        const subscriptionResult = await this.getActiveSubscriptionUseCase.execute(user.id);
+        const subscriptionResult = await this.getActivePlanUseCase.execute(user.id);
         if (!subscriptionResult.success) {
           return subscriptionResult;
         }

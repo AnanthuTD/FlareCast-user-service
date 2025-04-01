@@ -31,7 +31,7 @@ export class UploadVideoPermissionsUseCase implements IUploadVideoPermissionsUse
       }
 
       // Check for an active subscription plan
-      const activePlan = await this.userSubscriptionRepository.getActiveSubscription(dto.userId);
+      const activePlan = await this.userSubscriptionRepository.getActivePlan(dto.userId);
       if (!activePlan) {
         logger.debug(`No active subscription plan for user ${dto.userId}`);
         return {

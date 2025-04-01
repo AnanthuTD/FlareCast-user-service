@@ -11,6 +11,7 @@ import { inject, injectable } from "inversify";
 import { ICancelSubscriptionUseCase } from "@/app/use-cases/subscription/ICancelSubscriptionUseCase";
 import { CancelSubscriptionDTO } from "@/domain/dtos/subscription/CancelSubscriptionDTO";
 import { CancelSubscriptionErrorType } from "@/domain/enums/Subscription/CancelSubscriptionErrorType";
+import { ResponseMessage } from "@/domain/enums/Messages";
 
 /**
  * Controller for canceling a user subscription.
@@ -29,11 +30,6 @@ export class CancelSubscriptionController implements IController {
 		let response: ResponseDTO;
 
 		try {
-			// Validate user authentication
-			if (!httpRequest.user || !httpRequest.user.id) {
-				error = this.httpErrors.error_401();
-				return new HttpResponse(error.statusCode, { message: "Unauthorized" });
-			}
 
 			// Create DTO and call the use case
 			const dto: CancelSubscriptionDTO = { userId: httpRequest.user.id };
@@ -45,22 +41,22 @@ export class CancelSubscriptionController implements IController {
 					case CancelSubscriptionErrorType.MissingUserId:
 						error = this.httpErrors.error_401();
 						return new HttpResponse(error.statusCode, {
-							message: "Unauthorized",
+							message: ResponseMessage.UNAUTHORIZED,
 						});
 					case CancelSubscriptionErrorType.UserNotFound:
 						error = this.httpErrors.error_404();
 						return new HttpResponse(error.statusCode, {
-							message: "User not found",
+							message: ResponseMessage.USER_NOT_FOUND,
 						});
 					case CancelSubscriptionErrorType.FailedToCancelSubscription:
 						error = this.httpErrors.error_500();
 						return new HttpResponse(error.statusCode, {
-							message: "Failed to cancel subscription",
+							message: ResponseMessage.CANCEL_SUBSCRIPTION_FAILED,
 						});
 					default:
 						error = this.httpErrors.error_500();
 						return new HttpResponse(error.statusCode, {
-							message: "Internal server error",
+							message: ResponseMessage.INTERNAL_SERVER_ERROR,
 						});
 				}
 			}
@@ -72,7 +68,7 @@ export class CancelSubscriptionController implements IController {
 			logger.error("Error canceling subscription:", err);
 			error = this.httpErrors.error_500();
 			return new HttpResponse(error.statusCode, {
-				message: "Internal server error",
+				message: ResponseMessage.INTERNAL_SERVER_ERROR,
 			});
 		}
 	}

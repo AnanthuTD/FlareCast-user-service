@@ -11,6 +11,7 @@ import { inject, injectable } from "inversify";
 import { IGetSubscriptionsUseCase } from "@/app/use-cases/subscription/IGetSubscriptionsUseCase";
 import { GetSubscriptionsDTO } from "@/domain/dtos/subscription/GetSubscriptionsDTO";
 import { GetSubscriptionsErrorType } from "@/domain/enums/Subscription/GetSubscriptionsErrorType";
+import { ResponseMessage } from "@/domain/enums/Messages";
 
 /**
  * Controller for fetching user subscriptions.
@@ -29,11 +30,6 @@ export class GetSubscriptionsController implements IController {
     let response: ResponseDTO;
 
     try {
-      // Validate user authentication
-      if (!httpRequest.user || !httpRequest.user.id) {
-        error = this.httpErrors.error_401();
-        return new HttpResponse(error.statusCode, { message: "Unauthorized" });
-      }
 
       // Create DTO and call the use case
       const dto: GetSubscriptionsDTO = { userId: httpRequest.user.id };
@@ -44,13 +40,13 @@ export class GetSubscriptionsController implements IController {
         switch (errorType) {
           case GetSubscriptionsErrorType.MissingUserId:
             error = this.httpErrors.error_401();
-            return new HttpResponse(error.statusCode, { message: "Unauthorized" });
+            return new HttpResponse(error.statusCode, { message: errorType });
           case GetSubscriptionsErrorType.FailedToFetchSubscriptions:
             error = this.httpErrors.error_500();
-            return new HttpResponse(error.statusCode, { message: "Internal server error" });
+            return new HttpResponse(error.statusCode, { message: errorType });
           default:
             error = this.httpErrors.error_500();
-            return new HttpResponse(error.statusCode, { message: "Internal server error" });
+            return new HttpResponse(error.statusCode, { message: ResponseMessage.INTERNAL_SERVER_ERROR });
         }
       }
 
@@ -60,7 +56,7 @@ export class GetSubscriptionsController implements IController {
     } catch (err: any) {
       logger.error("Error fetching subscriptions:", err);
       error = this.httpErrors.error_500();
-      return new HttpResponse(error.statusCode, { message: "Internal server error" });
+      return new HttpResponse(error.statusCode, { message: ResponseMessage.INTERNAL_SERVER_ERROR });
     }
   }
 }

@@ -14,7 +14,7 @@ export class GetActiveSubscriptionUseCase implements IGetActiveSubscriptionUseCa
 
   async execute(userId: string): Promise<ResponseDTO> {
     try {
-      const activePlan = await this.userSubscriptionRepository.getActiveSubscription(userId);
+      const activePlan = await this.userSubscriptionRepository.getActivePlan(userId);
       return {
         success: true,
         data: { plan: activePlan },

@@ -18,7 +18,6 @@ export interface IRefreshTokenEntity {
  *
  * @class
  */
-@injectable()
 export class RefreshTokenEntity {
   private _expires_in: number
   private _user_id: string

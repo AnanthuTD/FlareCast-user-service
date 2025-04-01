@@ -40,7 +40,7 @@ export class VerifiedUserHandler implements IEventHandler {
 			}
 
 			const activePlan =
-				await this.usersSubscriptionRepository.getActiveSubscription(
+				await this.usersSubscriptionRepository.getActivePlan(
 					data.userId
 				);
 

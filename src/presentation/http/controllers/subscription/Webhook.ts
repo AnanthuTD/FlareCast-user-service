@@ -11,6 +11,7 @@ import { inject, injectable } from "inversify";
 import { IHandleSubscriptionWebhookUseCase } from "@/app/use-cases/subscription/IHandleSubscriptionWebhookUseCase";
 import { HandleSubscriptionWebhookDTO } from "@/domain/dtos/subscription/HandleSubscriptionWebhookDTO";
 import { HandleSubscriptionWebhookErrorType } from "@/domain/enums/Subscription/HandleSubscriptionWebhookErrorType";
+import { ResponseMessage } from "@/domain/enums/Messages";
 
 /**
  * Controller for handling Razorpay subscription webhooks.
@@ -49,12 +50,12 @@ export class HandleSubscriptionWebhookController implements IController {
           case HandleSubscriptionWebhookErrorType.InvalidSignature:
             error = this.httpErrors.error_400();
             return new HttpResponse(error.statusCode, {
-              message: "Invalid webhook signature",
+              message: errorType,
             });
           case HandleSubscriptionWebhookErrorType.InvalidEvent:
             error = this.httpErrors.error_400();
             return new HttpResponse(error.statusCode, {
-              message: "Invalid webhook event",
+              message: errorType,
             });
           case HandleSubscriptionWebhookErrorType.EventNotRelevant:
             response = { success: true, data: { message: "Event ignored" } };
@@ -63,7 +64,7 @@ export class HandleSubscriptionWebhookController implements IController {
           default:
             error = this.httpErrors.error_500();
             return new HttpResponse(error.statusCode, {
-              message: "Internal server error",
+              message: ResponseMessage.INTERNAL_SERVER_ERROR,
             });
         }
       }
@@ -75,7 +76,7 @@ export class HandleSubscriptionWebhookController implements IController {
       logger.error("Webhook error:", err);
       error = this.httpErrors.error_500();
       return new HttpResponse(error.statusCode, {
-        message: "Internal server error",
+        message: ResponseMessage.INTERNAL_SERVER_ERROR,
       });
     }
   }

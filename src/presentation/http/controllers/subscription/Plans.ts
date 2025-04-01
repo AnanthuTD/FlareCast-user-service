@@ -11,6 +11,7 @@ import { inject, injectable } from "inversify";
 import { IGetPlansUseCase } from "@/app/use-cases/subscription/IGetPlansUseCase";
 import { GetPlansDTO } from "@/domain/dtos/subscription/GetPlansDTO";
 import { GetPlansErrorType } from "@/domain/enums/Subscription/GetPlansErrorType";
+import { ResponseMessage } from "@/domain/enums/Messages";
 
 /**
  * Controller for fetching available subscription plans.
@@ -42,12 +43,12 @@ export class GetPlansController implements IController {
           case GetPlansErrorType.NoPlansFound:
             error = this.httpErrors.error_404();
             return new HttpResponse(error.statusCode, {
-              message: "No subscription plans found",
+              message: errorType,
             });
           default:
             error = this.httpErrors.error_500();
             return new HttpResponse(error.statusCode, {
-              message: "Internal server error",
+              message: ResponseMessage.INTERNAL_SERVER_ERROR,
             });
         }
       }
@@ -59,7 +60,7 @@ export class GetPlansController implements IController {
       logger.error("Error fetching subscription plans:", err);
       error = this.httpErrors.error_500();
       return new HttpResponse(error.statusCode, {
-        message: "Internal server error",
+        message: ResponseMessage.INTERNAL_SERVER_ERROR,
       });
     }
   }

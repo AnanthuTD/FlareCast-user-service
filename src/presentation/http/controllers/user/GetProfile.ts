@@ -11,6 +11,7 @@ import { inject, injectable } from "inversify";
 import { IGetUserProfileUseCase } from "@/app/use-cases/user/IGetUserProfileUseCase";
 import { GetUserProfileDTO } from "@/domain/dtos/user/GetUserProfileDTO";
 import { GetUserProfileErrorType } from "@/domain/enums/user/GetUserProfileErrorType";
+import { ResponseMessage } from "@/domain/enums/Messages";
 
 /**
  * Controller for fetching user profile information.
@@ -29,12 +30,6 @@ export class GetUserProfileController implements IController {
     let response: ResponseDTO;
 
     try {
-      // Ensure user is authenticated
-      if (!httpRequest.user || !httpRequest.user.id) {
-        error = this.httpErrors.error_401();
-        return new HttpResponse(error.statusCode, { message: "Unauthorized" });
-      }
-
       // Create DTO and call the use case
       const dto: GetUserProfileDTO = { userId: httpRequest.user.id };
       response = await this.getUserProfileUseCase.execute(dto);
@@ -44,14 +39,14 @@ export class GetUserProfileController implements IController {
         switch (errorType) {
           case GetUserProfileErrorType.MissingUserId:
             error = this.httpErrors.error_401();
-            return new HttpResponse(error.statusCode, { message: "Unauthorized" });
+            return new HttpResponse(error.statusCode, { message: ResponseMessage.UNAUTHORIZED });
           case GetUserProfileErrorType.UserNotFound:
             error = this.httpErrors.error_404();
-            return new HttpResponse(error.statusCode, { message: "User not found" });
+            return new HttpResponse(error.statusCode, { message: ResponseMessage.USER_NOT_FOUND });
           default:
             error = this.httpErrors.error_500();
             return new HttpResponse(error.statusCode, {
-              message: "Internal server error",
+              message: ResponseMessage.INTERNAL_SERVER_ERROR,
             });
         }
       }
@@ -63,7 +58,7 @@ export class GetUserProfileController implements IController {
       logger.error("Failed to fetch user profile:", err);
       error = this.httpErrors.error_500();
       return new HttpResponse(error.statusCode, {
-        message: err.message || "Internal server error",
+        message: err.message || ResponseMessage.INTERNAL_SERVER_ERROR,
       });
     }
   }
