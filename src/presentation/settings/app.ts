@@ -29,7 +29,7 @@ const corsOptions = {
 		origin: string | undefined,
 		callback: (err: Error | null, allow?: boolean) => void
 	) => {
-		if (env.isDevelopment) {
+		/* if (env.isDevelopment) {
 			// Allow all origins in non-production environments
 			return callback(null, true);
 		}
@@ -41,7 +41,7 @@ const corsOptions = {
 			const msg =
 				"The CORS policy for this site does not allow access from the specified Origin.";
 			return callback(new Error(msg), false); // Reject the request
-		}
+		} */
 
 		callback(null, true);
 	},
