@@ -69,6 +69,11 @@ export class VerifyPaymentUseCase
 				};
 			}
 
+			console.log(
+				"🙂 Subscription info: ",
+				JSON.stringify(subscription, null, 2)
+			);
+
 			// Extract subscription details
 			const subscriptionId = subscription.id;
 			const status = subscription.status;
