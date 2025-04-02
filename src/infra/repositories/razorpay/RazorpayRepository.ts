@@ -56,7 +56,7 @@ export class RazorpayRepository implements IPaymentGateway {
 		razorpaySignature,
 	}: PaymentVerificationProps): boolean {
 		try {
-			const generatedSignature = `${razorpayOrderId}|${razorpayPaymentId}`;
+			const generatedSignature = `${razorpayPaymentId}|${razorpayOrderId}`;
 			const expectedSignature = crypto
 				.createHmac("sha256", env.RAZORPAY_SECRET)
 				.update(generatedSignature)
