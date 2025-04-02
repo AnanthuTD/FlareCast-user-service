@@ -11,8 +11,8 @@ export const setAuthCookies = (
 	if (accessToken) {
 		res.cookie("accessToken", accessToken, {
 			httpOnly: false,
-			secure: env.NODE_ENV === "production",
-			sameSite: "none",
+			secure: env.isProd,
+			sameSite: env.isProd ? "none" : "strict",
 			maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
 		});
 	}
@@ -20,8 +20,8 @@ export const setAuthCookies = (
 	if (refreshToken) {
 		res.cookie("refreshToken", refreshToken, {
 			httpOnly: true,
-			secure: env.NODE_ENV === "production",
-			sameSite: "none",
+			secure: env.isProd,
+			sameSite: env.isProd ? "none" : "strict",
 			maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
 		});
 	}
