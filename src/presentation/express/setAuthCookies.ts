@@ -13,7 +13,7 @@ export const setAuthCookies = (
 			httpOnly: false,
 			secure: env.NODE_ENV === "production",
 			sameSite: "none",
-			maxAge: 15 * 60 * 1000, // 15 minutes
+			maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
 		});
 	}
 
