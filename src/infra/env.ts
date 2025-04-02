@@ -1,9 +1,10 @@
-import { cleanEnv, str, port, url, host } from "envalid";
+import { cleanEnv, str, port, url, host, bool } from "envalid";
 
 const env = cleanEnv(process.env, {
 	NODE_ENV: str({
 		choices: ["development", "test", "production", "staging"],
 	}),
+	isProduction: bool({ default: process.env.NODE_ENV === "production" }),
 	PORT: port(),
 	DATABASE_URL: url(),
 
