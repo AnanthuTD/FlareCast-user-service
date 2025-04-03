@@ -6,4 +6,6 @@ export enum TOPICS {
 	VIDEO_REMOVED_EVENT = "video.removed",
 
 	VIDEO_SUMMARY_TITLE_EVENT = "video.summary.title",
+
+	USER_SUBSCRIPTION_UPDATED = 'user.subscription.updated',
 }

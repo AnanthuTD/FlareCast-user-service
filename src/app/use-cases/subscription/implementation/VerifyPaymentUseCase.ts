@@ -1,7 +1,5 @@
-// backend/src/app/use-cases/subscription/implementation/VerifyPaymentUseCase.ts
 import { injectable, inject } from "inversify";
 import { TOKENS } from "@/app/tokens";
-import { IPaymentGateway } from "@/app/repositories/IPaymentGateway.ts";
 import { IUserSubscriptionRepository } from "@/app/repositories/IUserSubscriptionRepository";
 import { ResponseDTO } from "@/domain/dtos/Response";
 import { IUseCase } from "@/app/use-cases/IUseCase";
@@ -9,6 +7,8 @@ import { VerifyPaymentDTO } from "@/domain/dtos/subscription/VerifyPaymentDTO";
 import { VerifyPaymentResponseDTO } from "@/domain/dtos/subscription/VerifyPaymentResponseDTO";
 import { VerifyPaymentErrorType } from "@/domain/enums/Subscription/VerifyPaymentErrorType";
 import { logger } from "@/infra/logger";
+import { IEventService } from "@/app/services/IEventService";
+import { IPaymentGateway } from "@/app/repositories/IPaymentGateway";
 
 @injectable()
 export class VerifyPaymentUseCase
@@ -18,7 +18,8 @@ export class VerifyPaymentUseCase
 		@inject(TOKENS.PaymentGateway)
 		private readonly paymentGateway: IPaymentGateway,
 		@inject(TOKENS.UserSubscriptionRepository)
-		private readonly subscriptionRepository: IUserSubscriptionRepository
+		private readonly subscriptionRepository: IUserSubscriptionRepository,
+		@inject(TOKENS.EventService) private readonly eventService: IEventService
 	) {}
 
 	async execute(
@@ -79,20 +80,20 @@ export class VerifyPaymentUseCase
 			const status = subscription.status;
 			const startDate = subscription.start_at
 				? new Date(subscription.start_at * 1000)
-				: null;
+				: new Date();
 			const endDate = subscription.end_at
 				? new Date(subscription.end_at * 1000)
-				: null;
+				: undefined;
 			const chargeAt = subscription.charge_at
 				? new Date(subscription.charge_at * 1000)
 				: null;
 			const paidCount = subscription.paid_count || 0;
 			const currentStart = subscription.current_start
 				? new Date(subscription.current_start * 1000)
-				: null;
+				: new Date();
 			const currentEnd = subscription.current_end
 				? new Date(subscription.current_end * 1000)
-				: null;
+				: undefined;
 			const updatedAt = new Date(); // Use current time as the update timestamp
 
 			// Update the subscription in the database
@@ -100,7 +101,7 @@ export class VerifyPaymentUseCase
 				await this.subscriptionRepository.updateUserSubscription(
 					subscriptionId,
 					{
-						status,
+						status: 'active',
 						updatedAt,
 						startDate,
 						endDate,
@@ -129,6 +130,11 @@ export class VerifyPaymentUseCase
 			};
 
 			logger.info(`Payment ${dto.razorpayPaymentId} verified successfully`);
+
+			this.eventService.publishSubscriptionUpdateEvent({
+				userId: updatedSubscription.userId,
+			});
+
 			return {
 				success: true,
 				data: response,
