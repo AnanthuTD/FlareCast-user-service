@@ -18,71 +18,62 @@ import { UserLoginErrorType } from "@/domain/enums/Authenticate/UserLoginErrorTy
  */
 @injectable()
 export class UserLoginController implements IController {
-  constructor(
-    @inject(TOKENS.UserLoginUseCase)
-    private readonly userLoginUseCase: IUserLoginUseCase,
-    @inject(TOKENS.HttpErrors) private readonly httpErrors: IHttpErrors,
-    @inject(TOKENS.HttpSuccess) private readonly httpSuccess: IHttpSuccess
-  ) {}
+	constructor(
+		@inject(TOKENS.UserLoginUseCase)
+		private readonly userLoginUseCase: IUserLoginUseCase,
+		@inject(TOKENS.HttpErrors) private readonly httpErrors: IHttpErrors,
+		@inject(TOKENS.HttpSuccess) private readonly httpSuccess: IHttpSuccess
+	) {}
 
-  async handle(httpRequest: IHttpRequest): Promise<IHttpResponse> {
-    let error;
-    let response: ResponseDTO;
+	async handle(httpRequest: IHttpRequest): Promise<IHttpResponse> {
+		let error;
+		let response: ResponseDTO;
 
-    // Validate the user from the request
-    const user = httpRequest.user;
-    if (!user || !user.id) {
-      error = this.httpErrors.error_400();
-      return new HttpResponse(error.statusCode, {
-        message: "Invalid credentials",
-      });
-    }
+		try {
+			// Create DTO and call the use case
+			const dto: UserLoginDTO = httpRequest.body;
+			response = await this.userLoginUseCase.execute(dto);
 
-    try {
-      // Create DTO and call the use case
-      const dto: UserLoginDTO = { userId: user.id };
-      response = await this.userLoginUseCase.execute(dto);
+			if (!response.success) {
+				const errorType = response.data.error as string;
+				switch (errorType) {
+					case UserLoginErrorType.UserNotFound:
+						error = this.httpErrors.error_404();
+						return new HttpResponse(error.statusCode, {
+							message: "User not found",
+						});
+					case UserLoginErrorType.UserBanned:
+						error = this.httpErrors.error_403();
+						return new HttpResponse(error.statusCode, {
+							message: "User is banned",
+						});
+					case UserLoginErrorType.UserNotVerified:
+						error = this.httpErrors.error_401();
+						return new HttpResponse(error.statusCode, {
+							message: "User not verified",
+						});
+					case UserLoginErrorType.FailedToVerifyUser:
+						error = this.httpErrors.error_500();
+						return new HttpResponse(error.statusCode, {
+							message: "Failed to verify user status",
+						});
+					default:
+						error = this.httpErrors.error_500();
+						return new HttpResponse(error.statusCode, {
+							message: "Internal server error",
+						});
+				}
+			}
 
-      if (!response.success) {
-        const errorType = response.data.error as string;
-        switch (errorType) {
-          case UserLoginErrorType.UserNotFound:
-            error = this.httpErrors.error_404();
-            return new HttpResponse(error.statusCode, {
-              message: "User not found",
-            });
-          case UserLoginErrorType.UserBanned:
-            error = this.httpErrors.error_403();
-            return new HttpResponse(error.statusCode, {
-              message: "User is banned",
-            });
-          case UserLoginErrorType.UserNotVerified:
-            error = this.httpErrors.error_401();
-            return new HttpResponse(error.statusCode, {
-              message: "User not verified",
-            });
-          case UserLoginErrorType.FailedToVerifyUser:
-            error = this.httpErrors.error_500();
-            return new HttpResponse(error.statusCode, {
-              message: "Failed to verify user status",
-            });
-          default:
-            error = this.httpErrors.error_500();
-            return new HttpResponse(error.statusCode, {
-              message: "Internal server error",
-            });
-        }
-      }
-
-      // Return the response
-      const success = this.httpSuccess.success_200(response.data);
-      return new HttpResponse(success.statusCode, success.body);
-    } catch (err: any) {
-      logger.error("Error during user login:", err);
-      error = this.httpErrors.error_500();
-      return new HttpResponse(error.statusCode, {
-        message: "Internal server error",
-      });
-    }
-  }
+			// Return the response
+			const success = this.httpSuccess.success_200(response.data);
+			return new HttpResponse(success.statusCode, success.body);
+		} catch (err: any) {
+			logger.error("Error during user login:", err);
+			error = this.httpErrors.error_500();
+			return new HttpResponse(error.statusCode, {
+				message: "Internal server error",
+			});
+		}
+	}
 }

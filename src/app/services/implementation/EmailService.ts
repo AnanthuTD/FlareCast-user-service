@@ -16,6 +16,7 @@ export class EmailService implements IEmailService {
         `${env.EMAIL_SERVICE_URL}/api/isVerified/${userId}`,
         { timeout: 2000 } // 2-second timeout per request
       );
+      console.log(data);
       return data.verified;
     };
 

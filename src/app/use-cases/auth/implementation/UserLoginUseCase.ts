@@ -13,105 +13,126 @@ import { IGetActiveSubscriptionUseCase } from "@/app/use-cases/user/IGetActiveSu
 import { IPublishUserVerifiedEventUseCase } from "../IPublishUserVerifiedEventUseCase";
 import { logger } from "@/infra/logger";
 import { User } from "@/domain/entities/User";
+import { IPasswordHasher } from "@/app/providers/IPasswordHasher";
 
 @injectable()
 export class UserLoginUseCase implements IUserLoginUseCase {
-  constructor(
-    @inject(TOKENS.UserRepository)
-    private readonly usersRepository: IUsersRepository,
-    @inject(TOKENS.GenerateRefreshTokenProvider)
-    private readonly refreshTokenGenerator: IGenerateRefreshTokenProvider,
-    @inject(TOKENS.GenerateAccessTokenProvider)
-    private readonly accessTokenGenerator: IGenerateAccessTokenProvider,
-    @inject(TOKENS.VerifyUserEmailUseCase)
-    private readonly verifyUserEmailUseCase: IVerifyUserEmailUseCase,
-    @inject(TOKENS.GetActiveSubscriptionUseCase)
-    private readonly getActivePlanUseCase: IGetActiveSubscriptionUseCase,
-    @inject(TOKENS.PublishUserVerifiedEventUseCase)
-    private readonly publishUserVerifiedEventUseCase: IPublishUserVerifiedEventUseCase
-  ) {}
+	constructor(
+		@inject(TOKENS.UserRepository)
+		private readonly usersRepository: IUsersRepository,
+		@inject(TOKENS.GenerateRefreshTokenProvider)
+		private readonly refreshTokenGenerator: IGenerateRefreshTokenProvider,
+		@inject(TOKENS.GenerateAccessTokenProvider)
+		private readonly accessTokenGenerator: IGenerateAccessTokenProvider,
+		@inject(TOKENS.VerifyUserEmailUseCase)
+		private readonly verifyUserEmailUseCase: IVerifyUserEmailUseCase,
+		@inject(TOKENS.GetActiveSubscriptionUseCase)
+		private readonly getActivePlanUseCase: IGetActiveSubscriptionUseCase,
+		@inject(TOKENS.PublishUserVerifiedEventUseCase)
+		private readonly publishUserVerifiedEventUseCase: IPublishUserVerifiedEventUseCase,
+		@inject(TOKENS.PasswordHasher)
+		private readonly passwordHasher: IPasswordHasher
+	) {}
 
-  async execute(dto: UserLoginDTO): Promise<ResponseDTO> {
-    try {
-      // Fetch the user by ID
-      const user = await this.usersRepository.findById(dto.userId);
-      if (!user || !user.id) {
-        logger.debug(`User with ID ${dto.userId} not found`);
-        return {
-          success: false,
-          data: { error: UserLoginErrorType.UserNotFound },
-        };
-      }
+	async execute(dto: UserLoginDTO): Promise<ResponseDTO> {
+		try {
+			// dto will contain email and password
+			// Fetch the user by ID
+			const user = await this.usersRepository.findByEmail(dto.email);
+			if (!user || !user.id) {
+				logger.debug(`User with ID ${dto.userId} not found`);
+				return {
+					success: false,
+					data: { error: UserLoginErrorType.UserNotFound },
+				};
+			}
 
-      // Check if the user is banned
-      if (user.isBanned) {
-        logger.debug("User is banned:", user.id);
-        return {
-          success: false,
-          data: { error: UserLoginErrorType.UserBanned },
-        };
-      }
+			if (
+				!user.hashedPassword ||
+				!(await this.passwordHasher.comparePasswords(
+					dto.password,
+					user.hashedPassword
+				))
+			) {
+				return {
+					success: false,
+					data: { error: UserLoginErrorType.InvalidCredentials },
+				};
+			}
 
-      // Check if the user needs to be verified
-      if (!user.isVerified) {
-        const verificationResult = await this.verifyUserEmailUseCase.execute(user.id);
-        if (!verificationResult.success) {
-          return verificationResult;
-        }
+			if (user.isBanned) {
+				// Check if the user is banned
+				logger.debug("User is banned:", user.id);
+				return {
+					success: false,
+					data: { error: UserLoginErrorType.UserBanned },
+				};
+			}
 
-        // Fetch the active subscription plan
-        const subscriptionResult = await this.getActivePlanUseCase.execute(user.id);
-        if (!subscriptionResult.success) {
-          return subscriptionResult;
-        }
+			// Check if the user needs to be verified
+			if (!user.isVerified) {
+				const verificationResult = await this.verifyUserEmailUseCase.execute(
+					user.id
+				);
+				if (!verificationResult.success) {
+					return verificationResult;
+				}
 
-        // Publish user verified event
-        const eventResult = await this.publishUserVerifiedEventUseCase.execute({
-          userId: user.id,
-          email: user.email.address,
-          firstName: user.firstName,
-          lastName: user.lastName ?? "",
-          image: user.image ?? "",
-          plan: subscriptionResult.data.plan,
-        });
-        if (!eventResult.success) {
-          return eventResult;
-        }
-      }
+				// Fetch the active subscription plan
+				const subscriptionResult = await this.getActivePlanUseCase.execute(
+					user.id
+				);
+				if (!subscriptionResult.success) {
+					return subscriptionResult;
+				}
 
-      // Generate access token
-      const accessToken = await this.accessTokenGenerator.generateToken({
-        id: user.id,
-      });
+				// Publish user verified event
+				const eventResult = await this.publishUserVerifiedEventUseCase.execute({
+					userId: user.id,
+					email: user.email.address,
+					firstName: user.firstName,
+					lastName: user.lastName ?? "",
+					image: user.image ?? "",
+					plan: subscriptionResult.data.plan,
+				});
+				if (!eventResult.success) {
+					return eventResult;
+				}
+			}
 
-      // Generate refresh token
-      const refreshToken = await this.refreshTokenGenerator.generateToken({
-        id: user.id,
-      });
+			// Generate access token
+			const accessToken = await this.accessTokenGenerator.generateToken({
+				id: user.id,
+			});
 
-      // Prepare the user response
-      const userResponse: UserLoginResponseDTO = {
-        accessToken,
-        refreshToken,
-        user: {
-          id: user.id,
-          email: user.email.address,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          image: user.image,
-        },
-      };
+			// Generate refresh token
+			const refreshToken = await this.refreshTokenGenerator.generateToken({
+				id: user.id,
+			});
 
-      return {
-        success: true,
-        data: userResponse,
-      };
-    } catch (err: any) {
-      logger.error("Error during user login:", err);
-      return {
-        success: false,
-        data: { error: err.message },
-      };
-    }
-  }
+			// Prepare the user response
+			const userResponse: UserLoginResponseDTO = {
+				accessToken,
+				refreshToken,
+				user: {
+					id: user.id,
+					email: user.email.address,
+					firstName: user.firstName,
+					lastName: user.lastName,
+					image: user.image,
+				},
+			};
+
+			return {
+				success: true,
+				data: userResponse,
+			};
+		} catch (err: any) {
+			logger.error("Error during user login:", err);
+			return {
+				success: false,
+				data: { error: err.message },
+			};
+		}
+	}
 }
