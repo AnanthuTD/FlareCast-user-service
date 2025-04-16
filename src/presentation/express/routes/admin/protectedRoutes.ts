@@ -1,15 +1,12 @@
 import { Router, Request, Response } from "express";
-import subscriptionRoutes from "./subscriptionRoutes";
 import container from "@/infra/di-container";
 import { IController } from "@/presentation/http/controllers/IController";
 import { TOKENS } from "@/app/tokens";
 import { expressAdapter } from "@/presentation/adapters/express";
 import promotionalRoutes from "./promotionalVideoRoutes";
-import { authenticateAdminMiddleware } from "../../middlewares/authAdminMiddleware";
 import reportRoutes from "./reportRoutes";
 
 const adminProtectedRoute = Router();
-adminProtectedRoute.use(authenticateAdminMiddleware);
 
 const getAdminProfileController = container.get<IController>(
 	TOKENS.GetAdminProfileController
@@ -63,7 +60,6 @@ adminProtectedRoute.get(
 	}
 );
 
-adminProtectedRoute.use("/subscription-plans", subscriptionRoutes);
 adminProtectedRoute.use("/promotional-videos", promotionalRoutes);
 adminProtectedRoute.use('/sales', reportRoutes)
 

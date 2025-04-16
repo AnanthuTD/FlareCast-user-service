@@ -1,3 +1,3 @@
 export interface GetPlansDTO {
-  userId?: string;
+  userId: string;
 }

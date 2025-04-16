@@ -140,13 +140,22 @@ export const TOKENS = {
 
 	GetPaginatedPaymentsUseCase: Symbol.for("GetPaginatedPaymentsUseCase"),
 	GetPaginatedPaymentsController: Symbol.for("GetPaginatedPaymentsController"),
-	GetSubscriptionStatusController: Symbol.for("GetSubscriptionStatusController"),
+	GetSubscriptionStatusController: Symbol.for(
+		"GetSubscriptionStatusController"
+	),
 
-	SubscriptionService: Symbol.for('SubscriptionService'),
-  SalesSummaryController: Symbol.for('SalesSummaryController'),
-  PlanGroupController: Symbol.for('PlanGroupController'),
-  FreePlanUsageController: Symbol.for('FreePlanUsageController'),
-  RevenueByPeriodController: Symbol.for('RevenueByPeriodController'),
-  StatusDistributionController: Symbol.for('StatusDistributionController'),
-	GetSubscriptionByRazorpayId: Symbol.for('GetSubscriptionByRazorpayId'),
+	SubscriptionService: Symbol.for("SubscriptionService"),
+	SalesSummaryController: Symbol.for("SalesSummaryController"),
+	PlanGroupController: Symbol.for("PlanGroupController"),
+	FreePlanUsageController: Symbol.for("FreePlanUsageController"),
+	RevenueByPeriodController: Symbol.for("RevenueByPeriodController"),
+	StatusDistributionController: Symbol.for("StatusDistributionController"),
+	GetSubscriptionByRazorpayId: Symbol.for("GetSubscriptionByRazorpayId"),
+
+	GetUserPlansWithSubscriptionUseCase: Symbol.for(
+		"GetUserPlansWithSubscriptionUseCase"
+	),
+	GetUserPlansWithSubscriptionController: Symbol.for(
+		"GetUserPlansWithSubscriptionController"
+	),
 };

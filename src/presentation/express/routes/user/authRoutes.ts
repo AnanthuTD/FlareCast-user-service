@@ -59,7 +59,7 @@ authRoutes.post("/google-sign-in", async (req: Request, res: Response) => {
 /**
  * Endpoint to refresh access token (requires authentication).
  */
-authRoutes.get("/refresh-token", async (req: Request, res: Response) => {
+authRoutes.post("/refresh-token", async (req: Request, res: Response) => {
 	const adapter = await expressAdapter(req, refreshTokenController);
 	setAuthCookies(res, adapter.body.accessToken, adapter.body.refreshToken);
 	res.status(adapter.statusCode).json(adapter.body);

@@ -31,7 +31,7 @@ import { CancelSubscriptionController } from "@/presentation/http/controllers/su
 import { CreateSubscribeController } from "@/presentation/http/controllers/subscription/Create";
 import { CanSubscribeController } from "@/presentation/http/controllers/subscription/CanSubscribe";
 import { GetSubscriptionsController } from "@/presentation/http/controllers/subscription/History";
-import { GetPlansController } from "@/presentation/http/controllers/subscription/Plans";
+import { GetUserPlansWithSubscriptionController } from "@/presentation/http/controllers/subscription/GetUserPlansWithSubscription";
 import { GetMemberLimitController } from "@/presentation/http/controllers/subscription/MembersLimit";
 import { HandleSubscriptionWebhookController } from "@/presentation/http/controllers/subscription/Webhook";
 import { GetWorkspaceLimitController } from "@/presentation/http/controllers/subscription/WorkspaceLimit";
@@ -82,7 +82,12 @@ import { GetSubscriptionsUseCase } from "@/app/use-cases/subscription/implementa
 import { IGetMemberLimitUseCase } from "@/app/use-cases/subscription/IGetMemberLimitUseCase";
 import { GetMemberLimitUseCase } from "@/app/use-cases/subscription/implementation/GetMemberLimitUseCase";
 import { IGetPlansUseCase } from "@/app/use-cases/subscription/IGetPlansUseCase";
-import { GetPlansUseCase } from "@/app/use-cases/subscription/implementation/GetPlansUseCase";
+import {
+	GetUserPlansWithSubscriptionUseCase,
+} from "@/app/use-cases/subscription/implementation/GetUserPlansWithSubscriptionUseCase";
+import {
+	GetPlansUseCase,
+} from "@/app/use-cases/subscription/implementation/GetPlansUseCase";
 import { IHandleSubscriptionWebhookUseCase } from "@/app/use-cases/subscription/IHandleSubscriptionWebhookUseCase";
 import { HandleSubscriptionWebhookUseCase } from "@/app/use-cases/subscription/implementation/HandleSubscriptionWebhookUseCase";
 import { IGetWorkspaceLimitUseCase } from "@/app/use-cases/subscription/IGetWorkspaceLimitUseCase";
@@ -169,6 +174,8 @@ import { FreePlanUsageController } from "@/presentation/http/controllers/reports
 import { RevenueByPeriodController } from "@/presentation/http/controllers/reports/RevenueByPeriodController";
 import { StatusDistributionController } from "@/presentation/http/controllers/reports/StatusDistributionController";
 import { GetSubscriptionByRazorpayId } from "@/presentation/http/controllers/subscription/GetSubscriptionByRazorpayId";
+import { IGetUserPlansWithSubscriptionUseCase } from "@/app/use-cases/subscription/IGetUserPlansWithSubscriptionUseCase";
+import { GetPlansController } from "@/presentation/http/controllers/subscription/GetPlans";
 
 // Define TOKENS as Symbols (unchanged from your original setup)
 
@@ -674,12 +681,31 @@ export function setupDIContainer() {
 		.bind(TOKENS.GetSubscriptionStatusController)
 		.to(GetSubscriptionStatusController);
 
-container.bind<IController>(TOKENS.SalesSummaryController).to(SalesSummaryController);
-container.bind<IController>(TOKENS.PlanGroupController).to(PlanGroupController);
-container.bind<IController>(TOKENS.FreePlanUsageController).to(FreePlanUsageController);
-container.bind<IController>(TOKENS.RevenueByPeriodController).to(RevenueByPeriodController);
-container.bind<IController>(TOKENS.StatusDistributionController).to(StatusDistributionController);
-container.bind<IController>(TOKENS.GetSubscriptionByRazorpayId).to(GetSubscriptionByRazorpayId);
+	container
+		.bind<IController>(TOKENS.SalesSummaryController)
+		.to(SalesSummaryController);
+	container
+		.bind<IController>(TOKENS.PlanGroupController)
+		.to(PlanGroupController);
+	container
+		.bind<IController>(TOKENS.FreePlanUsageController)
+		.to(FreePlanUsageController);
+	container
+		.bind<IController>(TOKENS.RevenueByPeriodController)
+		.to(RevenueByPeriodController);
+	container
+		.bind<IController>(TOKENS.StatusDistributionController)
+		.to(StatusDistributionController);
+	container
+		.bind<IController>(TOKENS.GetSubscriptionByRazorpayId)
+		.to(GetSubscriptionByRazorpayId);
+
+	container
+		.bind<IGetUserPlansWithSubscriptionUseCase>(TOKENS.GetUserPlansWithSubscriptionUseCase)
+		.to(GetUserPlansWithSubscriptionUseCase);
+	container
+		.bind<IController>(TOKENS.GetUserPlansWithSubscriptionController)
+		.to(GetUserPlansWithSubscriptionController);
 
 	console.log("Container setup complete");
 

@@ -8,19 +8,19 @@ import { ResponseDTO } from "@/domain/dtos/Response";
 import { logger } from "@/infra/logger";
 import { TOKENS } from "@/app/tokens";
 import { inject, injectable } from "inversify";
-import { IGetPlansUseCase } from "@/app/use-cases/subscription/IGetPlansUseCase";
-import { GetPlansDTO } from "@/domain/dtos/subscription/GetPlansDTO";
 import { GetPlansErrorType } from "@/domain/enums/Subscription/GetPlansErrorType";
 import { ResponseMessage } from "@/domain/enums/Messages";
+import { IGetUserPlansWithSubscriptionUseCase } from "@/app/use-cases/subscription/IGetUserPlansWithSubscriptionUseCase";
+import { GetPlansDTO } from "@/domain/dtos/subscription/GetPlansDTO";
 
 /**
  * Controller for fetching available subscription plans.
  */
 @injectable()
-export class GetPlansController implements IController {
+export class GetUserPlansWithSubscriptionController implements IController {
   constructor(
     @inject(TOKENS.GetPlansUseCase)
-    private readonly getPlansUseCase: IGetPlansUseCase,
+    private readonly getPlansUseCase: IGetUserPlansWithSubscriptionUseCase,
     @inject(TOKENS.HttpErrors) private readonly httpErrors: IHttpErrors,
     @inject(TOKENS.HttpSuccess) private readonly httpSuccess: IHttpSuccess
   ) {}

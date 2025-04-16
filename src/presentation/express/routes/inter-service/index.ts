@@ -1,5 +1,4 @@
 import { Request, Response, Router } from "express";
-import {  UploadVideoPermissionsController } from "@/presentation/http/controllers/service/VideoUploadPermission";
 import { expressAdapter } from "@/presentation/adapters/express";
 import container from "@/infra/di-container";
 import { TOKENS } from "@/app/tokens";
