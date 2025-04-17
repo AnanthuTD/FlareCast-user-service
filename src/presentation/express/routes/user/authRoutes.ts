@@ -2,7 +2,6 @@ import express, { Request, Response } from "express";
 import { expressAdapter } from "@/presentation/adapters/express";
 import { TOKENS } from "@/app/tokens";
 import container from "@/infra/di-container";
-import env from "@/infra/env";
 import { setAuthCookies } from "../../setAuthCookies";
 import { IController } from "@/presentation/http/controllers/IController";
 

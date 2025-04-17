@@ -7,7 +7,6 @@ export const setAuthCookies = (
 	accessToken?: string,
 	refreshToken?: string
 ) => {
-	console.log("🐥 isProduction: ", env.NODE_ENV, env.isProduction, env.isProd)
 	if (accessToken) {
 		res.cookie("accessToken", accessToken, {
 			httpOnly: false,
