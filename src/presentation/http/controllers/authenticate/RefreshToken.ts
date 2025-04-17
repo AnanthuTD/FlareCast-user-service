@@ -12,76 +12,107 @@ import { IRefreshTokenUseCase } from "@/app/use-cases/auth/IRefreshTokenUseCase"
 import { RefreshTokenDTO } from "@/domain/dtos/authenticate/RefreshTokenDTO";
 import { RefreshTokenErrorType } from "@/domain/enums/Authenticate/RefreshTokenErrorType";
 
+// Define expected request body structure
+interface RefreshTokenRequestBody {
+	refreshToken?: string;
+}
+
 /**
  * Controller for handling refresh token requests.
  */
 @injectable()
 export class RefreshTokenController implements IController {
-  constructor(
-    @inject(TOKENS.RefreshTokenUseCase)
-    private readonly refreshTokenUseCase: IRefreshTokenUseCase,
-    @inject(TOKENS.HttpErrors) private readonly httpErrors: IHttpErrors,
-    @inject(TOKENS.HttpSuccess) private readonly httpSuccess: IHttpSuccess
-  ) {}
+	constructor(
+		@inject(TOKENS.RefreshTokenUseCase)
+		private readonly refreshTokenUseCase: IRefreshTokenUseCase,
+		@inject(TOKENS.HttpErrors) private readonly httpErrors: IHttpErrors,
+		@inject(TOKENS.HttpSuccess) private readonly httpSuccess: IHttpSuccess
+	) {}
 
-  async handle(httpRequest: IHttpRequest): Promise<IHttpResponse> {
-    let error;
-    let response: ResponseDTO;
+	async handle(httpRequest: IHttpRequest): Promise<IHttpResponse> {
+		try {
+			// Extract tokens
+			const cookieAccessToken = httpRequest.cookies?.accessToken;
+			const authHeader = (httpRequest.headers as { authorization })?.authorization;
+			const bearerAccessToken = authHeader?.startsWith("Bearer ")
+				? authHeader.split(" ")[1]
+				: null;
+			const cookieRefreshToken = httpRequest.cookies?.refreshToken;
+			const body = httpRequest.body as RefreshTokenRequestBody;
+			const bodyRefreshToken = body?.refreshToken;
 
-    // Extract tokens from cookies
-    const accessToken = httpRequest.cookies?.accessToken;
-    const refreshToken = httpRequest.cookies?.refreshToken;
+			// Prioritize token sources (e.g., body > cookie for refresh token)
+			const refreshToken = bodyRefreshToken || cookieRefreshToken;
+			const accessToken = bearerAccessToken || cookieAccessToken;
 
-    try {
-      // Create DTO and call the use case
-      const dto: RefreshTokenDTO = { accessToken, refreshToken };
-      response = await this.refreshTokenUseCase.execute(dto);
+			// Validate input
+			if (!refreshToken) {
+				const error = this.httpErrors.error_401();
+				return new HttpResponse(error.statusCode, {
+					message: "Unauthorized: No refresh token provided",
+				});
+			}
 
-      if (!response.success) {
-        const errorType = response.data.error as string;
-        switch (errorType) {
-          case RefreshTokenErrorType.MissingRefreshToken:
-            error = this.httpErrors.error_401();
-            return new HttpResponse(error.statusCode, {
-              message: "Unauthorized: No refresh token",
-            });
-          case RefreshTokenErrorType.InvalidRefreshToken:
-            error = this.httpErrors.error_401();
-            return new HttpResponse(error.statusCode, {
-              message: "Unauthorized: Invalid refresh token",
-            });
-          case RefreshTokenErrorType.RefreshTokenBlacklisted:
-            error = this.httpErrors.error_401();
-            return new HttpResponse(error.statusCode, {
-              message: "Unauthorized: Refresh token is blacklisted",
-            });
-          case RefreshTokenErrorType.UserNotFound:
-            error = this.httpErrors.error_401();
-            return new HttpResponse(error.statusCode, {
-              message: "Unauthorized: User not found",
-            });
-          case RefreshTokenErrorType.UserBanned:
-            error = this.httpErrors.error_403();
-            return new HttpResponse(error.statusCode, {
-              message: "Forbidden: User is banned",
-            });
-          default:
-            error = this.httpErrors.error_500();
-            return new HttpResponse(error.statusCode, {
-              message: "Internal server error",
-            });
-        }
-      }
+			// Create DTO and call the use case
+			const dto: RefreshTokenDTO = { accessToken, refreshToken };
+			const response = await this.refreshTokenUseCase.execute(dto);
 
-      // Return the response
-      const success = this.httpSuccess.success_200(response.data);
-      return new HttpResponse(success.statusCode, success.body);
-    } catch (err: any) {
-      logger.error("Error during refresh token handling:", err);
-      error = this.httpErrors.error_500();
-      return new HttpResponse(error.statusCode, {
-        message: "Internal server error",
-      });
-    }
-  }
+			if (!response.success) {
+				const errorType = response.data?.error as
+					| RefreshTokenErrorType
+					| undefined;
+				return this.handleError(errorType);
+			}
+
+			// Return success response
+			const success = this.httpSuccess.success_200(response.data);
+			return new HttpResponse(success.statusCode, success.body);
+		} catch (err: any) {
+			logger.error("Error during refresh token handling", {
+				error: err.message,
+				stack: err.stack,
+			});
+			const error = this.httpErrors.error_500();
+			return new HttpResponse(error.statusCode, {
+				message: "Internal server error",
+			});
+		}
+	}
+
+	private handleError(errorType?: RefreshTokenErrorType): IHttpResponse {
+		const errorMap: Record<
+			RefreshTokenErrorType,
+			{ status: number; message: string }
+		> = {
+			[RefreshTokenErrorType.MissingRefreshToken]: {
+				status: this.httpErrors.error_401().statusCode,
+				message: "Unauthorized: No refresh token",
+			},
+			[RefreshTokenErrorType.InvalidRefreshToken]: {
+				status: this.httpErrors.error_401().statusCode,
+				message: "Unauthorized: Invalid refresh token",
+			},
+			[RefreshTokenErrorType.RefreshTokenBlacklisted]: {
+				status: this.httpErrors.error_401().statusCode,
+				message: "Unauthorized: Token is invalid",
+			},
+			[RefreshTokenErrorType.UserNotFound]: {
+				status: this.httpErrors.error_401().statusCode,
+				message: "Unauthorized: User not found",
+			},
+			[RefreshTokenErrorType.UserBanned]: {
+				status: this.httpErrors.error_403().statusCode,
+				message: "Forbidden: User is banned",
+			},
+		};
+
+		const errorDetails = errorMap[errorType!] || {
+			status: this.httpErrors.error_500().statusCode,
+			message: "Internal server error",
+		};
+
+		return new HttpResponse(errorDetails.status, {
+			message: errorDetails.message,
+		});
+	}
 }
