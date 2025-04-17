@@ -46,6 +46,7 @@ export class RefreshTokenUseCase implements IRefreshTokenUseCase {
           logger.debug("Access token is still valid");
           const response: RefreshTokenResponseDTO = {
             accessToken: dto.accessToken,
+            refreshToken: dto.refreshToken,
             message: "Access token is still valid",
           };
           return {
