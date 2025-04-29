@@ -6,36 +6,51 @@ import { logger } from "@/infra/logger";
 import { IGetPromotionalVideosUseCase } from "../IGetPromotionalVideosUseCase";
 import { GetPromotionalVideosResponseDTO } from "@/domain/dtos/admin/promotionalVideo/GetPromotionalVideosResponseDTO";
 import { GetPromotionalVideosErrorType } from "@/domain/enums/Admin/PromotionalVideo/GetPromotionalVideosErrorType";
+import { GetPromotionalVideoDTO } from "@/domain/dtos/admin/promotionalVideo/GetPromotionalVideoDTO";
 
 @injectable()
-export class GetPromotionalVideosUseCase implements IGetPromotionalVideosUseCase {
-  constructor(
-    @inject(TOKENS.PromotionalVideoRepository)
-    private readonly promotionalVideoRepository: IPromotionalVideoRepository
-  ) {}
+export class GetPromotionalVideosUseCase
+	implements IGetPromotionalVideosUseCase
+{
+	constructor(
+		@inject(TOKENS.PromotionalVideoRepository)
+		private readonly promotionalVideoRepository: IPromotionalVideoRepository
+	) {}
 
-  async execute(): Promise<ResponseDTO & { data: GetPromotionalVideosResponseDTO | { error: string } }> {
-    try {
-      const videos = await this.promotionalVideoRepository.findActiveVideos();
+	async execute(
+		dto: GetPromotionalVideoDTO
+	): Promise<
+		ResponseDTO & { data: GetPromotionalVideosResponseDTO | { error: string } }
+	> {
+		try {
+			const { limit, skip } = dto;
 
-      const response: GetPromotionalVideosResponseDTO = {
-        videos,
-      };
+			const videos = await this.promotionalVideoRepository.findVideos({
+				skip,
+				limit,
+			});
 
-      logger.info(`Fetched ${videos.length} active promotional videos`);
-      return {
-        success: true,
-        data: response,
-      };
-    } catch (err: any) {
-      logger.error("Error fetching promotional videos:", {
-        message: err.message,
-        stack: err.stack,
-      });
-      return {
-        success: false,
-        data: { error: GetPromotionalVideosErrorType.InternalError },
-      };
-    }
-  }
+			const totalVideos = await this.promotionalVideoRepository.count();
+
+			const response: GetPromotionalVideosResponseDTO = {
+				videos,
+				total: totalVideos,
+			};
+
+			logger.info(`Fetched ${videos.length} active promotional videos`);
+			return {
+				success: true,
+				data: response,
+			};
+		} catch (err: any) {
+			logger.error("Error fetching promotional videos:", {
+				message: err.message,
+				stack: err.stack,
+			});
+			return {
+				success: false,
+				data: { error: GetPromotionalVideosErrorType.InternalError },
+			};
+		}
+	}
 }

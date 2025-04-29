@@ -72,7 +72,13 @@ export class PromotionalVideoRepository implements IPromotionalVideoRepository {
 		}
 	}
 
-	async findActiveVideos(): Promise<
+	async findVideos({
+		limit,
+		skip = 0,
+	}: {
+		limit?: number;
+		skip?: number;
+	}): Promise<
 		Array<{
 			id: string;
 			category: string;
@@ -90,13 +96,9 @@ export class PromotionalVideoRepository implements IPromotionalVideoRepository {
 	> {
 		try {
 			const videos = await this.prisma.promotionalVideo.findMany({
-				where: {
-					AND: [
-						{ OR: [{ endDate: { gte: new Date() } }, { endDate: null }] },
-						{ OR: [{ startDate: { lte: new Date() } }, { startDate: null }] },
-					],
-				},
 				orderBy: { priority: "asc" },
+				...(limit ? { take: limit } : {}),
+				skip,
 			});
 			return videos;
 		} catch (err: any) {
@@ -196,6 +198,15 @@ export class PromotionalVideoRepository implements IPromotionalVideoRepository {
 				stack: err.stack,
 			});
 			throw err;
+		}
+	}
+
+	async count(): Promise<number> {
+		try {
+			return this.prisma.promotionalVideo.count();
+		} catch (error) {
+			logger.error("Error on getting promotional video count: ", error);
+			return 0;
 		}
 	}
 }

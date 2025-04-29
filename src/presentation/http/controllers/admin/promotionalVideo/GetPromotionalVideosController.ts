@@ -14,41 +14,55 @@ import { GetPromotionalVideosErrorType } from "@/domain/enums/Admin/PromotionalV
 
 @injectable()
 export class GetPromotionalVideosController implements IController {
-  constructor(
-    @inject(TOKENS.GetPromotionalVideosUseCase)
-    private readonly getPromotionalVideosUseCase: IGetPromotionalVideosUseCase,
-    @inject(TOKENS.HttpErrors) private readonly httpErrors: IHttpErrors,
-    @inject(TOKENS.HttpSuccess) private readonly httpSuccess: IHttpSuccess
-  ) {}
+	constructor(
+		@inject(TOKENS.GetPromotionalVideosUseCase)
+		private readonly getPromotionalVideosUseCase: IGetPromotionalVideosUseCase,
+		@inject(TOKENS.HttpErrors) private readonly httpErrors: IHttpErrors,
+		@inject(TOKENS.HttpSuccess) private readonly httpSuccess: IHttpSuccess
+	) {}
 
-  async handle(httpRequest: IHttpRequest): Promise<IHttpResponse> {
-    let error;
-    let response: ResponseDTO & { data: GetPromotionalVideosResponseDTO | { error: string } };
+	async handle(httpRequest: IHttpRequest): Promise<IHttpResponse> {
+		let error;
+		let response: ResponseDTO & {
+			data: GetPromotionalVideosResponseDTO | { error: string };
+		};
 
-    try {
-      response = await this.getPromotionalVideosUseCase.execute();
+		try {
+			const { limit, skip } = httpRequest.query as {
+				skip?: string;
+				limit?: string;
+			};
 
-      if (!response.success) {
-        const errorType = response.data.error as string;
-        switch (errorType) {
-          case GetPromotionalVideosErrorType.InternalError:
-            error = this.httpErrors.error_500();
-            return new HttpResponse(error.statusCode, { error: "Internal server error" });
-          default:
-            error = this.httpErrors.error_500();
-            return new HttpResponse(error.statusCode, { error: "Internal server error" });
-        }
-      }
+			response = await this.getPromotionalVideosUseCase.execute({
+				limit: limit ? parseInt(limit) : undefined,
+				skip: skip ? parseInt(skip) : 0,
+			});
 
-      const success = this.httpSuccess.success_200(response.data);
-      return new HttpResponse(success.statusCode, success.body);
-    } catch (err: any) {
-      logger.error("Error in GetPromotionalVideosController:", {
-        message: err.message,
-        stack: err.stack,
-      });
-      error = this.httpErrors.error_500();
-      return new HttpResponse(error.statusCode, { error: err.message });
-    }
-  }
+			if (!response.success) {
+				const errorType = response.data.error as string;
+				switch (errorType) {
+					case GetPromotionalVideosErrorType.InternalError:
+						error = this.httpErrors.error_500();
+						return new HttpResponse(error.statusCode, {
+							error: "Internal server error",
+						});
+					default:
+						error = this.httpErrors.error_500();
+						return new HttpResponse(error.statusCode, {
+							error: "Internal server error",
+						});
+				}
+			}
+
+			const success = this.httpSuccess.success_200(response.data);
+			return new HttpResponse(success.statusCode, success.body);
+		} catch (err: any) {
+			logger.error("Error in GetPromotionalVideosController:", {
+				message: err.message,
+				stack: err.stack,
+			});
+			error = this.httpErrors.error_500();
+			return new HttpResponse(error.statusCode, { error: err.message });
+		}
+	}
 }
