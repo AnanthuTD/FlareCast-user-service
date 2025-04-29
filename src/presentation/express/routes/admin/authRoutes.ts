@@ -29,7 +29,7 @@ adminAuthRouter.post("/google-sign-in", async (req: Request, res: Response) => {
 	setAuthCookies(res, adapter.body.accessToken, adapter.body.refreshToken);
 	res.status(adapter.statusCode).json(adapter.body);
 });
-adminAuthRouter.get("/refresh-token", async (req: Request, res: Response) => {
+adminAuthRouter.post("/refresh-token", async (req: Request, res: Response) => {
 	const adapter = await expressAdapter(req, adminRefreshTokenController);
 	setAuthCookies(res, adapter.body.accessToken, adapter.body.refreshToken);
 	res.status(adapter.statusCode).json(adapter.body);
