@@ -14,41 +14,63 @@ import { GetPlansErrorType } from "@/domain/enums/Admin/SubscriptionPlan/GetPlan
 
 @injectable()
 export class GetAdminPlansController implements IController {
-  constructor(
-    @inject(TOKENS.GetAdminPlansUseCase)
-    private readonly getPlansUseCase: IGetPlansUseCase,
-    @inject(TOKENS.HttpErrors) private readonly httpErrors: IHttpErrors,
-    @inject(TOKENS.HttpSuccess) private readonly httpSuccess: IHttpSuccess
-  ) {}
+	constructor(
+		@inject(TOKENS.GetAdminPlansUseCase)
+		private readonly getPlansUseCase: IGetPlansUseCase,
+		@inject(TOKENS.HttpErrors) private readonly httpErrors: IHttpErrors,
+		@inject(TOKENS.HttpSuccess) private readonly httpSuccess: IHttpSuccess
+	) {}
 
-  async handle(httpRequest: IHttpRequest): Promise<IHttpResponse> {
-    let error;
-    let response: ResponseDTO & { data: GetPlansResponseDTO | { error: string } };
+	async handle(httpRequest: IHttpRequest): Promise<IHttpResponse> {
+		let error;
+		let response: ResponseDTO & {
+			data: GetPlansResponseDTO | { error: string };
+		};
 
-    try {
-      response = await this.getPlansUseCase.execute();
+		try {
+			const {
+				limit,
+				skip,
+				status = "active",
+			} = httpRequest.query as {
+				skip?: string;
+				limit?: string;
+				status?: "active" | "inactive" | "all";
+			};
 
-      if (!response.success) {
-        const errorType = response.data.error as string;
-        switch (errorType) {
-          case GetPlansErrorType.InternalError:
-            error = this.httpErrors.error_500();
-            return new HttpResponse(error.statusCode, { error: "Failed to fetch subscription plans" });
-          default:
-            error = this.httpErrors.error_500();
-            return new HttpResponse(error.statusCode, { error: "Internal server error" });
-        }
-      }
+			response = await this.getPlansUseCase.execute({
+				limit: limit ? parseInt(limit) : undefined,
+				skip: skip ? parseInt(skip) : 0,
+				status,
+			});
 
-      const success = this.httpSuccess.success_200(response.data.plans);
-      return new HttpResponse(success.statusCode, success.body);
-    } catch (err: any) {
-      logger.error("Error in GetPlansController:", {
-        message: err.message,
-        stack: err.stack,
-      });
-      error = this.httpErrors.error_500();
-      return new HttpResponse(error.statusCode, { error: "Failed to fetch subscription plans" });
-    }
-  }
+			if (!response.success) {
+				const errorType = response.data.error as string;
+				switch (errorType) {
+					case GetPlansErrorType.InternalError:
+						error = this.httpErrors.error_500();
+						return new HttpResponse(error.statusCode, {
+							error: "Failed to fetch subscription plans",
+						});
+					default:
+						error = this.httpErrors.error_500();
+						return new HttpResponse(error.statusCode, {
+							error: "Internal server error",
+						});
+				}
+			}
+
+			const success = this.httpSuccess.success_200(response.data);
+			return new HttpResponse(success.statusCode, success.body);
+		} catch (err: any) {
+			logger.error("Error in GetPlansController:", {
+				message: err.message,
+				stack: err.stack,
+			});
+			error = this.httpErrors.error_500();
+			return new HttpResponse(error.statusCode, {
+				error: "Failed to fetch subscription plans",
+			});
+		}
+	}
 }

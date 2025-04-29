@@ -40,10 +40,23 @@ export class SubscriptionRepository implements ISubscriptionRepository {
 		}
 	}
 
-	async findAll(): Promise<Array<SubscriptionPlan>> {
+	async findAll({
+		skip = 0,
+		limit,
+		isActive = true,
+	}: {
+		skip?: number;
+		limit?: number;
+		isActive?: boolean;
+	}): Promise<Array<SubscriptionPlan>> {
 		try {
 			const plans = await this.prisma.subscriptionPlan.findMany({
+				where: {
+					...(isActive !== null ? { isActive } : {}),
+				},
 				orderBy: { createdAt: "desc" },
+				...(limit ? { take: limit } : {}),
+				skip,
 			});
 			return plans;
 		} catch (err: any) {
@@ -121,6 +134,18 @@ export class SubscriptionRepository implements ISubscriptionRepository {
 				stack: err.stack,
 			});
 			throw err;
+		}
+	}
+
+	async count(query: { isActive: boolean }): Promise<number> {
+		try {
+			return this.prisma.subscriptionPlan.count({
+				where: {
+					...(query.isActive !== null ? { isActive: query.isActive } : {}),
+				},
+			});
+		} catch (error) {
+			return 0;
 		}
 	}
 }
