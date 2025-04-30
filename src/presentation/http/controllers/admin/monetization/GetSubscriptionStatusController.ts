@@ -29,7 +29,7 @@ export class GetSubscriptionStatusController implements IController {
     try {
       const status = await this.userSubscriptionRepository.getStatus();
 
-      const success = this.httpSuccess.success_200(status);
+      const success = this.httpSuccess.ok(status);
       return new HttpResponse(success.statusCode, success.body);
     } catch (err: any) {
       logger.error(
@@ -39,7 +39,7 @@ export class GetSubscriptionStatusController implements IController {
           stack: err.stack,
         }
       );
-      error = this.httpErrors.error_500();
+      error = this.httpErrors.internalServerError();
       return new HttpResponse(error.statusCode, { error: err.message });
     }
   }

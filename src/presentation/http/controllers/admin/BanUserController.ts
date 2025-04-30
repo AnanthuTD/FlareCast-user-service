@@ -42,22 +42,22 @@ export class BanUserController implements IController {
         const errorType = response.data.error as string;
         switch (errorType) {
           case BanUserErrorType.InvalidInput:
-            error = this.httpErrors.error_400();
+            error = this.httpErrors.badRequest();
             return new HttpResponse(error.statusCode, {
               message: "Invalid input: userId and isBanned (boolean) are required",
             });
           case BanUserErrorType.UserNotFound:
-            error = this.httpErrors.error_404();
+            error = this.httpErrors.notFound();
             return new HttpResponse(error.statusCode, {
               message: "User not found",
             });
           case BanUserErrorType.InternalError:
-            error = this.httpErrors.error_500();
+            error = this.httpErrors.internalServerError();
             return new HttpResponse(error.statusCode, {
               message: "Internal server error",
             });
           default:
-            error = this.httpErrors.error_500();
+            error = this.httpErrors.internalServerError();
             return new HttpResponse(error.statusCode, {
               message: "Internal server error",
             });
@@ -65,14 +65,14 @@ export class BanUserController implements IController {
       }
 
       // Return the response
-      const success = this.httpSuccess.success_200(response.data);
+      const success = this.httpSuccess.ok(response.data);
       return new HttpResponse(success.statusCode, success.body);
     } catch (err: any) {
       logger.error(`Error in BanUserController for user ${httpRequest.params?.id}:`, {
         message: err.message,
         stack: err.stack,
       });
-      error = this.httpErrors.error_500();
+      error = this.httpErrors.internalServerError();
       return new HttpResponse(error.statusCode, {
         message: "Internal server error",
       });

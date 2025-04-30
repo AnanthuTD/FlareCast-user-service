@@ -9,39 +9,39 @@ import { injectable } from "inversify";
 
 @injectable()
 export class HttpErrors implements IHttpErrors {
-  error_400(): IHttpResponse {
+  badRequest(): IHttpResponse {
     return { statusCode: 400, body: { message: "Bad Request" } };
   }
 
-  error_401(): IHttpResponse {
+  unauthorized(): IHttpResponse {
     return { statusCode: 401, body: { message: "Unauthorized" } };
   }
 
-  error_403(): IHttpResponse {
+  forbidden(): IHttpResponse {
     return { statusCode: 403, body: { message: "Forbidden" } };
   }
 
-  error_404(): IHttpResponse {
+  notFound(): IHttpResponse {
     return { statusCode: 404, body: { message: "Not Found" } };
   }
 
-  error_409(): IHttpResponse {
+  conflict(): IHttpResponse {
     return { statusCode: 409, body: { message: "Conflict" } };
   }
 
-  error_422(): IHttpResponse {
+  unprocessableEntity(): IHttpResponse {
     return { statusCode: 422, body: { message: "Unprocessable Entity" } };
   }
 
-  error_429(): IHttpResponse {
+  tooManyRequests(): IHttpResponse {
     return { statusCode: 429, body: { message: "Too Many Requests" } };
   }
 
-  error_500(): IHttpResponse {
+  internalServerError(): IHttpResponse {
     return { statusCode: 500, body: { message: "Internal Server Error" } };
   }
 
-  error_503(): IHttpResponse {
+  serviceUnavailable(): IHttpResponse {
     return { statusCode: 503, body: { message: "Service Unavailable" } };
   }
 }

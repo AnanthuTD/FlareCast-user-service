@@ -45,32 +45,32 @@ export class ElectronPostLoginController implements IController {
 				const errorType = response.data.error as string;
 				switch (errorType) {
 					case ElectronPostLoginErrorType.MissingRefreshToken:
-						error = this.httpErrors.error_401();
+						error = this.httpErrors.unauthorized();
 						return new HttpResponse(error.statusCode, {
 							message: "Unauthorized: Refresh token not found",
 						});
 					case ElectronPostLoginErrorType.InvalidRefreshToken:
-						error = this.httpErrors.error_401();
+						error = this.httpErrors.unauthorized();
 						return new HttpResponse(error.statusCode, {
 							message: "Unauthorized: Invalid refresh token",
 						});
 					case ElectronPostLoginErrorType.RefreshTokenBlacklisted:
-						error = this.httpErrors.error_401();
+						error = this.httpErrors.unauthorized();
 						return new HttpResponse(error.statusCode, {
 							message: "Unauthorized: Refresh token blacklisted",
 						});
 					case ElectronPostLoginErrorType.UserNotFound:
-						error = this.httpErrors.error_401();
+						error = this.httpErrors.unauthorized();
 						return new HttpResponse(error.statusCode, {
 							message: "Unauthorized: User not found",
 						});
 					case ElectronPostLoginErrorType.UserBanned:
-						error = this.httpErrors.error_403();
+						error = this.httpErrors.forbidden();
 						return new HttpResponse(error.statusCode, {
 							message: "Forbidden: User is banned",
 						});
 					default:
-						error = this.httpErrors.error_500();
+						error = this.httpErrors.internalServerError();
 						return new HttpResponse(error.statusCode, {
 							message: "Internal server error",
 						});
@@ -78,11 +78,11 @@ export class ElectronPostLoginController implements IController {
 			}
 
 			// Return the response
-			const success = this.httpSuccess.success_200(response.data);
+			const success = this.httpSuccess.ok(response.data);
 			return new HttpResponse(success.statusCode, success.body);
 		} catch (err: any) {
 			logger.error("Error during Electron post-login token refresh:", err);
-			error = this.httpErrors.error_500();
+			error = this.httpErrors.internalServerError();
 			return new HttpResponse(error.statusCode, {
 				message: "Internal server error",
 			});

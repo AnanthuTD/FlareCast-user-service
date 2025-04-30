@@ -32,7 +32,7 @@ export class UpdateProfileController implements IController {
 		try {
 			// Ensure user is authenticated
 			if (!httpRequest.user || !httpRequest.user.id) {
-				error = this.httpErrors.error_401();
+				error = this.httpErrors.unauthorized();
 				return new HttpResponse(error.statusCode, { message: "Unauthorized" });
 			}
 
@@ -58,27 +58,27 @@ export class UpdateProfileController implements IController {
 				const errorType = response.data.error as string;
 				switch (errorType) {
 					case UpdateProfileErrorType.MissingUserId:
-						error = this.httpErrors.error_401();
+						error = this.httpErrors.unauthorized();
 						return new HttpResponse(error.statusCode, {
 							message: ResponseMessage.UNAUTHORIZED,
 						});
 					case UpdateProfileErrorType.UserNotFound:
-						error = this.httpErrors.error_404();
+						error = this.httpErrors.notFound();
 						return new HttpResponse(error.statusCode, {
 							message: ResponseMessage.USER_NOT_FOUND,
 						});
 					case UpdateProfileErrorType.FailedToUploadImage:
-						error = this.httpErrors.error_500();
+						error = this.httpErrors.internalServerError();
 						return new HttpResponse(error.statusCode, {
 							message: ResponseMessage.FAILED_TO_UPLOAD_IMAGE,
 						});
 					case UpdateProfileErrorType.FailedToUpdateProfile:
-						error = this.httpErrors.error_500();
+						error = this.httpErrors.internalServerError();
 						return new HttpResponse(error.statusCode, {
 							message: ResponseMessage.FAILED_TO_UPDATE_PROFILE,
 						});
 					default:
-						error = this.httpErrors.error_500();
+						error = this.httpErrors.internalServerError();
 						return new HttpResponse(error.statusCode, {
 							message: ResponseMessage.INTERNAL_SERVER_ERROR,
 						});
@@ -86,14 +86,14 @@ export class UpdateProfileController implements IController {
 			}
 
 			// Return the response
-			const success = this.httpSuccess.success_200(response.data);
+			const success = this.httpSuccess.ok(response.data);
 			return new HttpResponse(success.statusCode, success.body);
 		} catch (err: any) {
 			logger.error(
 				`Failed to update profile for user ${httpRequest.user?.id}:`,
 				err
 			);
-			error = this.httpErrors.error_500();
+			error = this.httpErrors.internalServerError();
 			return new HttpResponse(error.statusCode, {
 				message: ResponseMessage.INTERNAL_SERVER_ERROR,
 			});

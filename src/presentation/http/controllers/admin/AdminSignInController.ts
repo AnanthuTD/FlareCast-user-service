@@ -43,22 +43,22 @@ export class AdminSignInController implements IController {
         const errorType = response.data.error as string;
         switch (errorType) {
           case AdminSignInErrorType.MissingCredentials:
-            error = this.httpErrors.error_400();
+            error = this.httpErrors.badRequest();
             return new HttpResponse(error.statusCode, {
               message: "Email and password are required",
             });
           case AdminSignInErrorType.InvalidCredentials:
-            error = this.httpErrors.error_401();
+            error = this.httpErrors.unauthorized();
             return new HttpResponse(error.statusCode, {
               message: "Invalid credentials",
             });
           case AdminSignInErrorType.InternalError:
-            error = this.httpErrors.error_500();
+            error = this.httpErrors.internalServerError();
             return new HttpResponse(error.statusCode, {
               message: "Internal server error",
             });
           default:
-            error = this.httpErrors.error_500();
+            error = this.httpErrors.internalServerError();
             return new HttpResponse(error.statusCode, {
               message: "Internal server error",
             });
@@ -66,14 +66,14 @@ export class AdminSignInController implements IController {
       }
 
       // Return the response
-      const success = this.httpSuccess.success_200(response.data);
+      const success = this.httpSuccess.ok(response.data);
       return new HttpResponse(success.statusCode, success.body);
     } catch (err: any) {
       logger.error("Error in AdminSignInController:", {
         message: err.message,
         stack: err.stack,
       });
-      error = this.httpErrors.error_500();
+      error = this.httpErrors.internalServerError();
       return new HttpResponse(error.statusCode, {
         message: "Internal server error",
       });

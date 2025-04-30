@@ -41,27 +41,27 @@ export class AdminRefreshTokenController implements IController {
         const errorType = response.data.error as string;
         switch (errorType) {
           case RefreshTokenErrorType.MissingRefreshToken:
-            error = this.httpErrors.error_401();
+            error = this.httpErrors.unauthorized();
             return new HttpResponse(error.statusCode, {
               message: "Unauthorized: No refresh token",
             });
           case RefreshTokenErrorType.InvalidRefreshToken:
-            error = this.httpErrors.error_401();
+            error = this.httpErrors.unauthorized();
             return new HttpResponse(error.statusCode, {
               message: "Unauthorized: Invalid refresh token",
             });
           case RefreshTokenErrorType.RefreshTokenBlacklisted:
-            error = this.httpErrors.error_401();
+            error = this.httpErrors.unauthorized();
             return new HttpResponse(error.statusCode, {
               message: "Unauthorized: Refresh token is blacklisted",
             });
           case RefreshTokenErrorType.AdminNotFound:
-            error = this.httpErrors.error_401();
+            error = this.httpErrors.unauthorized();
             return new HttpResponse(error.statusCode, {
               message: "Unauthorized: Admin not found",
             });
           default:
-            error = this.httpErrors.error_500();
+            error = this.httpErrors.internalServerError();
             return new HttpResponse(error.statusCode, {
               message: "Internal server error",
             });
@@ -69,11 +69,11 @@ export class AdminRefreshTokenController implements IController {
       }
 
       // Return the response
-      const success = this.httpSuccess.success_200(response.data);
+      const success = this.httpSuccess.ok(response.data);
       return new HttpResponse(success.statusCode, success.body);
     } catch (err: any) {
       logger.error("Error during refresh token handling:", err);
-      error = this.httpErrors.error_500();
+      error = this.httpErrors.internalServerError();
       return new HttpResponse(error.statusCode, {
         message: "Internal server error",
       });

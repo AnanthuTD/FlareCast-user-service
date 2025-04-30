@@ -39,23 +39,23 @@ export class GetSubscriptionsController implements IController {
         const errorType = response.data.error as string;
         switch (errorType) {
           case GetSubscriptionsErrorType.MissingUserId:
-            error = this.httpErrors.error_401();
+            error = this.httpErrors.unauthorized();
             return new HttpResponse(error.statusCode, { message: errorType });
           case GetSubscriptionsErrorType.FailedToFetchSubscriptions:
-            error = this.httpErrors.error_500();
+            error = this.httpErrors.internalServerError();
             return new HttpResponse(error.statusCode, { message: errorType });
           default:
-            error = this.httpErrors.error_500();
+            error = this.httpErrors.internalServerError();
             return new HttpResponse(error.statusCode, { message: ResponseMessage.INTERNAL_SERVER_ERROR });
         }
       }
 
       // Return the response
-      const success = this.httpSuccess.success_200(response.data);
+      const success = this.httpSuccess.ok(response.data);
       return new HttpResponse(success.statusCode, success.body);
     } catch (err: any) {
       logger.error("Error fetching subscriptions:", err);
-      error = this.httpErrors.error_500();
+      error = this.httpErrors.internalServerError();
       return new HttpResponse(error.statusCode, { message: ResponseMessage.INTERNAL_SERVER_ERROR });
     }
   }

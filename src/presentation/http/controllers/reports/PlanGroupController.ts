@@ -34,14 +34,14 @@ export class PlanGroupController implements IController {
 
     try {
       const planGroup = await this.subscriptionService.groupByPlan();
-      response = this.httpSuccess.success_200(planGroup);
+      response = this.httpSuccess.ok(planGroup);
       return new HttpResponse(response.statusCode, response.body);
     } catch (err: any) {
       logger.error(`Error in PlanGroupController:`, {
         message: err.message,
         stack: err.stack,
       });
-      error = this.httpErrors.error_500();
+      error = this.httpErrors.internalServerError();
       return new HttpResponse(error.statusCode, { error: err.message });
     }
   }

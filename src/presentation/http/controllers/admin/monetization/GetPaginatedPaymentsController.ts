@@ -46,14 +46,14 @@ export class GetPaginatedPaymentsController implements IController {
 				const errorType = response.data.error as string;
 				switch (errorType) {
 					default:
-						error = this.httpErrors.error_500();
+						error = this.httpErrors.internalServerError();
 						return new HttpResponse(error.statusCode, {
 							error: "Internal server error",
 						});
 				}
 			}
 
-			const success = this.httpSuccess.success_200(response.data);
+			const success = this.httpSuccess.ok(response.data);
 			return new HttpResponse(success.statusCode, success.body);
 		} catch (err: any) {
 			logger.error(
@@ -63,7 +63,7 @@ export class GetPaginatedPaymentsController implements IController {
 					stack: err.stack,
 				}
 			);
-			error = this.httpErrors.error_500();
+			error = this.httpErrors.internalServerError();
 			return new HttpResponse(error.statusCode, { error: err.message });
 		}
 	}

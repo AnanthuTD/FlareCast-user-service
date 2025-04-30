@@ -30,7 +30,7 @@ export class GoogleSignInController implements IController {
 
 		// Validate the request body
 		if (!httpRequest.body || !httpRequest.body.code) {
-			error = this.httpErrors.error_400();
+			error = this.httpErrors.badRequest();
 			return new HttpResponse(error.statusCode, {
 				message: "Authorization code is required",
 			});
@@ -47,22 +47,22 @@ export class GoogleSignInController implements IController {
 				const errorType = response.data.error as string;
 				switch (errorType) {
 					case GoogleSignInErrorType.InvalidAuthorizationCode:
-						error = this.httpErrors.error_400();
+						error = this.httpErrors.badRequest();
 						return new HttpResponse(error.statusCode, {
 							message: "Failed to authenticate with Google",
 						});
 					case GoogleSignInErrorType.FailedToFetchAdminInfo:
-						error = this.httpErrors.error_400();
+						error = this.httpErrors.badRequest();
 						return new HttpResponse(error.statusCode, {
 							message: "Failed to fetch user information from Google",
 						});
 					case GoogleSignInErrorType.UserBanned:
-						error = this.httpErrors.error_403();
+						error = this.httpErrors.forbidden();
 						return new HttpResponse(error.statusCode, {
 							message: "Forbidden: User is banned",
 						});
 					default:
-						error = this.httpErrors.error_500();
+						error = this.httpErrors.internalServerError();
 						return new HttpResponse(error.statusCode, {
 							message: "Internal server error",
 						});
@@ -70,12 +70,12 @@ export class GoogleSignInController implements IController {
 			}
 
 			// Return the response
-			const success = this.httpSuccess.success_200(response.data);
+			const success = this.httpSuccess.ok(response.data);
 			return new HttpResponse(success.statusCode, success.body);
 		} catch (err: any) {
 			console.log(err)
 			logger.error("Error during Google sign-in:");
-			error = this.httpErrors.error_500();
+			error = this.httpErrors.internalServerError();
 			return new HttpResponse(error.statusCode, {
 				message: "Internal server error",
 			});

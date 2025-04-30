@@ -34,7 +34,7 @@ export class AdminGoogleSignInController implements IController {
 
 		// Validate the request body
 		if (!httpRequest.body || !httpRequest.body.code) {
-			error = this.httpErrors.error_400();
+			error = this.httpErrors.badRequest();
 			return new HttpResponse(error.statusCode, {
 				message: "Authorization code is required",
 			});
@@ -51,22 +51,22 @@ export class AdminGoogleSignInController implements IController {
 				const errorType = response.data.error as string;
 				switch (errorType) {
 					case GoogleSignInErrorType.InvalidAuthorizationCode:
-						error = this.httpErrors.error_400();
+						error = this.httpErrors.badRequest();
 						return new HttpResponse(error.statusCode, {
 							message: "Failed to authenticate with Google",
 						});
 					case GoogleSignInErrorType.FailedToFetchAdminInfo:
-						error = this.httpErrors.error_400();
+						error = this.httpErrors.badRequest();
 						return new HttpResponse(error.statusCode, {
 							message: "Failed to fetch admin information from Google",
 						});
 					case GoogleSignInErrorType.ADMIN_NOT_FOUND:
-						error = this.httpErrors.error_401();
+						error = this.httpErrors.unauthorized();
 						return new HttpResponse(error.statusCode, {
 							message: "Forbidden: Admin is banned",
 						});
 					default:
-						error = this.httpErrors.error_500();
+						error = this.httpErrors.internalServerError();
 						return new HttpResponse(error.statusCode, {
 							message: "Internal server error",
 						});
@@ -74,13 +74,13 @@ export class AdminGoogleSignInController implements IController {
 			}
 
 			// Return the response
-			const success = this.httpSuccess.success_200(response.data);
+			const success = this.httpSuccess.ok(response.data);
 
 			return new HttpResponse(success.statusCode, success.body);
 		} catch (err: any) {
 			console.log(err)
 			logger.error("Error during Google sign-in:");
-			error = this.httpErrors.error_500();
+			error = this.httpErrors.internalServerError();
 			return new HttpResponse(error.statusCode, {
 				message: "Internal server error",
 			});

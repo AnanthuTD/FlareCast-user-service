@@ -39,28 +39,28 @@ export class UploadVideoPermissionController implements IController {
         const errorType = errorData.error as string;
         switch (errorType) {
           case CheckUploadVideoPermissionErrorType.MissingUserId:
-            error = this.httpErrors.error_401();
+            error = this.httpErrors.unauthorized();
             return new HttpResponse(error.statusCode, { message: ResponseMessage.UNAUTHORIZED });
           case CheckUploadVideoPermissionErrorType.NoActiveSubscription:
-            error = this.httpErrors.error_403();
+            error = this.httpErrors.forbidden();
             return new HttpResponse(error.statusCode, {
               message: ResponseMessage.NO_ACTIVE_SUBSCRIPTION,
             });
           case CheckUploadVideoPermissionErrorType.VideoLimitExceeded:
-            error = this.httpErrors.error_403();
+            error = this.httpErrors.forbidden();
             return new HttpResponse(error.statusCode, errorData.details);
           default:
-            error = this.httpErrors.error_500();
+            error = this.httpErrors.internalServerError();
             return new HttpResponse(error.statusCode, { message: ResponseMessage.INTERNAL_SERVER_ERROR });
         }
       }
 
       // Return the response
-      const success = this.httpSuccess.success_200(response.data);
+      const success = this.httpSuccess.ok(response.data);
       return new HttpResponse(success.statusCode, success.body);
     } catch (err: any) {
       logger.error("Error checking user upload video permission:", err);
-      error = this.httpErrors.error_500();
+      error = this.httpErrors.internalServerError();
       return new HttpResponse(error.statusCode, { message: ResponseMessage.INTERNAL_SERVER_ERROR });
     }
   }

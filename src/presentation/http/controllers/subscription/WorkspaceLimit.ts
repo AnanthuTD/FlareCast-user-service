@@ -41,17 +41,17 @@ export class GetWorkspaceLimitController implements IController {
         const errorType = response.data.error as string;
         switch (errorType) {
           case GetWorkspaceLimitErrorType.MissingUserId:
-            error = this.httpErrors.error_400();
+            error = this.httpErrors.badRequest();
             return new HttpResponse(error.statusCode, {
               message: errorType,
             });
           case GetWorkspaceLimitErrorType.NoActiveSubscription:
-            error = this.httpErrors.error_403();
+            error = this.httpErrors.forbidden();
             return new HttpResponse(error.statusCode, {
               message: errorType,
             });
           default:
-            error = this.httpErrors.error_500();
+            error = this.httpErrors.internalServerError();
             return new HttpResponse(error.statusCode, {
               message: ResponseMessage.INTERNAL_SERVER_ERROR,
             });
@@ -59,11 +59,11 @@ export class GetWorkspaceLimitController implements IController {
       }
 
       // Return the response
-      const success = this.httpSuccess.success_200(response.data);
+      const success = this.httpSuccess.ok(response.data);
       return new HttpResponse(success.statusCode, success.body);
     } catch (err: any) {
       logger.error("Error getting workspace limit:", err);
-      error = this.httpErrors.error_500();
+      error = this.httpErrors.internalServerError();
       return new HttpResponse(error.statusCode, {
         message: ResponseMessage.INTERNAL_SERVER_ERROR,
       });

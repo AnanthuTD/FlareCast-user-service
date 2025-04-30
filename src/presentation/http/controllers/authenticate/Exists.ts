@@ -31,7 +31,7 @@ export class UserExistController implements IController {
     // Extract and validate the email from the query
     const email = httpRequest.query?.email as string;
     if (!email) {
-      error = this.httpErrors.error_400();
+      error = this.httpErrors.badRequest();
       return new HttpResponse(error.statusCode, {
         message: "Email is required",
       });
@@ -45,23 +45,23 @@ export class UserExistController implements IController {
       if (!response.success) {
         const errorType = response.data.error as string;
         if (errorType === UserExistErrorType.InvalidEmail) {
-          error = this.httpErrors.error_400();
+          error = this.httpErrors.badRequest();
           return new HttpResponse(error.statusCode, {
             message: "Invalid email format",
           });
         }
-        error = this.httpErrors.error_500();
+        error = this.httpErrors.internalServerError();
         return new HttpResponse(error.statusCode, {
           message: "Internal server error",
         });
       }
 
       // Return the response
-      const success = this.httpSuccess.success_200(response.data);
+      const success = this.httpSuccess.ok(response.data);
       return new HttpResponse(success.statusCode, success.body);
     } catch (err: any) {
       logger.error("Error checking if user exists:", err);
-      error = this.httpErrors.error_500();
+      error = this.httpErrors.internalServerError();
       return new HttpResponse(error.statusCode, {
         message: "Internal server error",
       });

@@ -48,26 +48,26 @@ export class GetAdminPlansController implements IController {
 				const errorType = response.data.error as string;
 				switch (errorType) {
 					case GetPlansErrorType.InternalError:
-						error = this.httpErrors.error_500();
+						error = this.httpErrors.internalServerError();
 						return new HttpResponse(error.statusCode, {
 							error: "Failed to fetch subscription plans",
 						});
 					default:
-						error = this.httpErrors.error_500();
+						error = this.httpErrors.internalServerError();
 						return new HttpResponse(error.statusCode, {
 							error: "Internal server error",
 						});
 				}
 			}
 
-			const success = this.httpSuccess.success_200(response.data);
+			const success = this.httpSuccess.ok(response.data);
 			return new HttpResponse(success.statusCode, success.body);
 		} catch (err: any) {
 			logger.error("Error in GetPlansController:", {
 				message: err.message,
 				stack: err.stack,
 			});
-			error = this.httpErrors.error_500();
+			error = this.httpErrors.internalServerError();
 			return new HttpResponse(error.statusCode, {
 				error: "Failed to fetch subscription plans",
 			});

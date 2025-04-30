@@ -70,41 +70,41 @@ export class UploadPromotionalVideoController implements IController {
 				const errorType = response.data.error as string;
 				switch (errorType) {
 					case UploadPromotionalVideoErrorType.MissingRequiredFields:
-						error = this.httpErrors.error_400();
+						error = this.httpErrors.badRequest();
 						return new HttpResponse(error.statusCode, {
 							error: "videoId and s3Key are required",
 						});
 					case UploadPromotionalVideoErrorType.InvalidCategory:
-						error = this.httpErrors.error_400();
+						error = this.httpErrors.badRequest();
 						return new HttpResponse(error.statusCode, {
 							error: "Invalid category",
 						});
 					case UploadPromotionalVideoErrorType.InvalidPriority:
-						error = this.httpErrors.error_400();
+						error = this.httpErrors.badRequest();
 						return new HttpResponse(error.statusCode, {
 							error: "Priority must be a number",
 						});
 					case UploadPromotionalVideoErrorType.InternalError:
-						error = this.httpErrors.error_500();
+						error = this.httpErrors.internalServerError();
 						return new HttpResponse(error.statusCode, {
 							error: "Internal server error",
 						});
 					default:
-						error = this.httpErrors.error_500();
+						error = this.httpErrors.internalServerError();
 						return new HttpResponse(error.statusCode, {
 							error: "Internal server error",
 						});
 				}
 			}
 
-			const success = this.httpSuccess.success_201(response.data);
+			const success = this.httpSuccess.created(response.data);
 			return new HttpResponse(success.statusCode, success.body);
 		} catch (err: any) {
 			logger.error("Error in UploadPromotionalVideoController:", {
 				message: err.message,
 				stack: err.stack,
 			});
-			error = this.httpErrors.error_500();
+			error = this.httpErrors.internalServerError();
 			return new HttpResponse(error.statusCode, { error: err.message });
 		}
 	}

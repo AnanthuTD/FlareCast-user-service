@@ -30,14 +30,14 @@ export class StatusDistributionController implements IController {
 
     try {
       const statusDist = await this.subscriptionService.statusDistribution();
-      response = this.httpSuccess.success_200(statusDist);
+      response = this.httpSuccess.ok(statusDist);
       return new HttpResponse(response.statusCode, response.body);
     } catch (err: any) {
       logger.error(`Error in StatusDistributionController:`, {
         message: err.message,
         stack: err.stack,
       });
-      error = this.httpErrors.error_500();
+      error = this.httpErrors.internalServerError();
       return new HttpResponse(error.statusCode, { error: err.message });
     }
   }

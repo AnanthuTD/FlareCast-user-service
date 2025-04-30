@@ -76,35 +76,35 @@ export class CreatePlanController implements IController {
         const errorType = response.data.error as string;
         switch (errorType) {
           case CreatePlanErrorType.MissingName:
-            error = this.httpErrors.error_400();
+            error = this.httpErrors.badRequest();
             return new HttpResponse(error.statusCode, { error: "Plan name is required" });
           case CreatePlanErrorType.MissingPaidPlanFields:
-            error = this.httpErrors.error_400();
+            error = this.httpErrors.badRequest();
             return new HttpResponse(error.statusCode, { error: "Price, interval, and period are required for paid plans" });
           case CreatePlanErrorType.InvalidPeriod:
-            error = this.httpErrors.error_400();
+            error = this.httpErrors.badRequest();
             return new HttpResponse(error.statusCode, { error: "Invalid period" });
           case CreatePlanErrorType.ActiveFreePlanExists:
-            error = this.httpErrors.error_400();
+            error = this.httpErrors.badRequest();
             return new HttpResponse(error.statusCode, { error: "Another active free plan exists" });
           case CreatePlanErrorType.RazorpayError:
           case CreatePlanErrorType.InternalError:
-            error = this.httpErrors.error_500();
+            error = this.httpErrors.internalServerError();
             return new HttpResponse(error.statusCode, { error: "Failed to create subscription plan" });
           default:
-            error = this.httpErrors.error_500();
+            error = this.httpErrors.internalServerError();
             return new HttpResponse(error.statusCode, { error: "Internal server error" });
         }
       }
 
-      const success = this.httpSuccess.success_201(response.data.plan);
+      const success = this.httpSuccess.created(response.data.plan);
       return new HttpResponse(success.statusCode, success.body);
     } catch (err: any) {
       logger.error("Error in CreatePlanController:", {
         message: err.message,
         stack: err.stack,
       });
-      error = this.httpErrors.error_500();
+      error = this.httpErrors.internalServerError();
       return new HttpResponse(error.statusCode, { error: "Failed to create subscription plan" });
     }
   }

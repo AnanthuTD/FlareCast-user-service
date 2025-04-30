@@ -36,11 +36,11 @@ export class GetSubscriptionByRazorpayId implements IController {
 			);
 
 			// Return the response
-			const success = this.httpSuccess.success_200(data);
+			const success = this.httpSuccess.ok(data);
 			return new HttpResponse(success.statusCode, success.body);
 		} catch (err: any) {
 			logger.error("Error verifying payment:", err);
-			error = this.httpErrors.error_500();
+			error = this.httpErrors.internalServerError();
 			return new HttpResponse(error.statusCode, {
 				message: ResponseMessage.INTERNAL_SERVER_ERROR,
 			});

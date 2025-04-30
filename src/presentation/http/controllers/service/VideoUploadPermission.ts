@@ -41,17 +41,17 @@ export class UploadVideoPermissionsController implements IController {
         const errorType = errorData.error as string;
         switch (errorType) {
           case UploadVideoPermissionsErrorType.MissingUserId:
-            error = this.httpErrors.error_400();
+            error = this.httpErrors.badRequest();
             return new HttpResponse(error.statusCode, {
               message: "User ID is required",
             });
           case UploadVideoPermissionsErrorType.NoActiveSubscription:
-            error = this.httpErrors.error_403();
+            error = this.httpErrors.forbidden();
             return new HttpResponse(error.statusCode, {
               message: "You don't have an active subscription plan",
             });
           case UploadVideoPermissionsErrorType.MaxVideoLimitReached:
-            error = this.httpErrors.error_403();
+            error = this.httpErrors.forbidden();
             return new HttpResponse(error.statusCode, {
               message: "You've reached your maximum video upload limit",
               permission: "denied",
@@ -59,7 +59,7 @@ export class UploadVideoPermissionsController implements IController {
               totalVideoUploaded: errorData.totalVideoUploaded,
             });
           default:
-            error = this.httpErrors.error_500();
+            error = this.httpErrors.internalServerError();
             return new HttpResponse(error.statusCode, {
               message: "Internal server error",
             });
@@ -67,11 +67,11 @@ export class UploadVideoPermissionsController implements IController {
       }
 
       // Return the response
-      const success = this.httpSuccess.success_200(response.data);
+      const success = this.httpSuccess.ok(response.data);
       return new HttpResponse(success.statusCode, success.body);
     } catch (err: any) {
       logger.error("Error checking service upload video permissions:", err);
-      error = this.httpErrors.error_500();
+      error = this.httpErrors.internalServerError();
       return new HttpResponse(error.statusCode, {
         message: "Internal server error",
       });

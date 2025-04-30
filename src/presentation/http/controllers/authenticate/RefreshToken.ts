@@ -47,7 +47,7 @@ export class RefreshTokenController implements IController {
 
 			// Validate input
 			if (!refreshToken) {
-				const error = this.httpErrors.error_401();
+				const error = this.httpErrors.unauthorized();
 				return new HttpResponse(error.statusCode, {
 					message: "Unauthorized: No refresh token provided",
 				});
@@ -65,14 +65,14 @@ export class RefreshTokenController implements IController {
 			}
 
 			// Return success response
-			const success = this.httpSuccess.success_200(response.data);
+			const success = this.httpSuccess.ok(response.data);
 			return new HttpResponse(success.statusCode, success.body);
 		} catch (err: any) {
 			logger.error("Error during refresh token handling", {
 				error: err.message,
 				stack: err.stack,
 			});
-			const error = this.httpErrors.error_500();
+			const error = this.httpErrors.internalServerError();
 			return new HttpResponse(error.statusCode, {
 				message: "Internal server error",
 			});
@@ -85,29 +85,29 @@ export class RefreshTokenController implements IController {
 			{ status: number; message: string }
 		> = {
 			[RefreshTokenErrorType.MissingRefreshToken]: {
-				status: this.httpErrors.error_401().statusCode,
+				status: this.httpErrors.unauthorized().statusCode,
 				message: "Unauthorized: No refresh token",
 			},
 			[RefreshTokenErrorType.InvalidRefreshToken]: {
-				status: this.httpErrors.error_401().statusCode,
+				status: this.httpErrors.unauthorized().statusCode,
 				message: "Unauthorized: Invalid refresh token",
 			},
 			[RefreshTokenErrorType.RefreshTokenBlacklisted]: {
-				status: this.httpErrors.error_401().statusCode,
+				status: this.httpErrors.unauthorized().statusCode,
 				message: "Unauthorized: Token is invalid",
 			},
 			[RefreshTokenErrorType.UserNotFound]: {
-				status: this.httpErrors.error_401().statusCode,
+				status: this.httpErrors.unauthorized().statusCode,
 				message: "Unauthorized: User not found",
 			},
 			[RefreshTokenErrorType.UserBanned]: {
-				status: this.httpErrors.error_403().statusCode,
+				status: this.httpErrors.forbidden().statusCode,
 				message: "Forbidden: User is banned",
 			},
 		};
 
 		const errorDetails = errorMap[errorType!] || {
-			status: this.httpErrors.error_500().statusCode,
+			status: this.httpErrors.internalServerError().statusCode,
 			message: "Internal server error",
 		};
 

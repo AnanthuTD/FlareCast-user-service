@@ -38,27 +38,27 @@ export class UserLoginController implements IController {
 				const errorType = response.data.error as string;
 				switch (errorType) {
 					case UserLoginErrorType.UserNotFound:
-						error = this.httpErrors.error_404();
+						error = this.httpErrors.notFound();
 						return new HttpResponse(error.statusCode, {
 							message: "User not found",
 						});
 					case UserLoginErrorType.UserBanned:
-						error = this.httpErrors.error_403();
+						error = this.httpErrors.forbidden();
 						return new HttpResponse(error.statusCode, {
 							message: "User is banned",
 						});
 					case UserLoginErrorType.UserNotVerified:
-						error = this.httpErrors.error_401();
+						error = this.httpErrors.unauthorized();
 						return new HttpResponse(error.statusCode, {
 							message: "User not verified",
 						});
 					case UserLoginErrorType.FailedToVerifyUser:
-						error = this.httpErrors.error_500();
+						error = this.httpErrors.internalServerError();
 						return new HttpResponse(error.statusCode, {
 							message: "Failed to verify user status",
 						});
 					default:
-						error = this.httpErrors.error_500();
+						error = this.httpErrors.internalServerError();
 						return new HttpResponse(error.statusCode, {
 							message: "Internal server error",
 						});
@@ -66,11 +66,11 @@ export class UserLoginController implements IController {
 			}
 
 			// Return the response
-			const success = this.httpSuccess.success_200(response.data);
+			const success = this.httpSuccess.ok(response.data);
 			return new HttpResponse(success.statusCode, success.body);
 		} catch (err: any) {
 			logger.error("Error during user login:", err);
-			error = this.httpErrors.error_500();
+			error = this.httpErrors.internalServerError();
 			return new HttpResponse(error.statusCode, {
 				message: "Internal server error",
 			});

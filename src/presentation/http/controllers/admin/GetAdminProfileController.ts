@@ -39,32 +39,32 @@ export class GetAdminProfileController implements IController {
         const errorType = response.data.error as string;
         switch (errorType) {
           case GetAdminProfileErrorType.MissingUserId:
-            error = this.httpErrors.error_401();
+            error = this.httpErrors.unauthorized();
             return new HttpResponse(error.statusCode, { message: "Unauthorized" });
           case GetAdminProfileErrorType.NotAdmin:
-            error = this.httpErrors.error_401();
+            error = this.httpErrors.unauthorized();
             return new HttpResponse(error.statusCode, { message: "Admin access required" });
           case GetAdminProfileErrorType.AdminNotFound:
-            error = this.httpErrors.error_401();
+            error = this.httpErrors.unauthorized();
             return new HttpResponse(error.statusCode, { message: "Admin not found" });
           case GetAdminProfileErrorType.InternalError:
-            error = this.httpErrors.error_500();
+            error = this.httpErrors.internalServerError();
             return new HttpResponse(error.statusCode, { message: "Internal server error" });
           default:
-            error = this.httpErrors.error_500();
+            error = this.httpErrors.internalServerError();
             return new HttpResponse(error.statusCode, { message: "Internal server error" });
         }
       }
 
       // Return the response
-      const success = this.httpSuccess.success_200(response.data);
+      const success = this.httpSuccess.ok(response.data);
       return new HttpResponse(success.statusCode, success.body);
     } catch (err: any) {
       logger.error(`Error in GetAdminProfileController for user ${httpRequest.user?.id}:`, {
         message: err.message,
         stack: err.stack,
       });
-      error = this.httpErrors.error_500();
+      error = this.httpErrors.internalServerError();
       return new HttpResponse(error.statusCode, { message: "Internal server error" });
     }
   }

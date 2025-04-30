@@ -31,7 +31,7 @@ export class AuthenticateAdminController implements IController {
 			const accessToken = httpRequest.cookies?.accessToken;
 
 			if (!accessToken) {
-				error = this.httpErrors.error_401();
+				error = this.httpErrors.unauthorized();
 				return new HttpResponse(error.statusCode, {
 					message: "Access token not found in cookies",
 				});
@@ -45,17 +45,17 @@ export class AuthenticateAdminController implements IController {
 				const errorType = response.data.error as AuthenticateAdminErrorType;
 				switch (errorType) {
 					case AuthenticateAdminErrorType.AdminNotFound:
-						error = this.httpErrors.error_401();
+						error = this.httpErrors.unauthorized();
 						return new HttpResponse(error.statusCode, {
 							message: "Admin not found",
 						});
 					case AuthenticateAdminErrorType.InvalidToken:
-						error = this.httpErrors.error_401();
+						error = this.httpErrors.unauthorized();
 						return new HttpResponse(error.statusCode, {
 							message: "Invalid or expired token",
 						});
 					default:
-						error = this.httpErrors.error_500();
+						error = this.httpErrors.internalServerError();
 						return new HttpResponse(error.statusCode, {
 							message: "Internal server error",
 						});
@@ -65,11 +65,11 @@ export class AuthenticateAdminController implements IController {
 			logger.debug("In auth controller");
 
 			// Return the authenticated user data
-			const success = this.httpSuccess.success_200(response.data);
+			const success = this.httpSuccess.ok(response.data);
 			return new HttpResponse(success.statusCode, success.body);
 		} catch (err: any) {
 			logger.error("Authentication failed:", err);
-			error = this.httpErrors.error_500();
+			error = this.httpErrors.internalServerError();
 			return new HttpResponse(error.statusCode, {
 				message: "Internal server error",
 			});

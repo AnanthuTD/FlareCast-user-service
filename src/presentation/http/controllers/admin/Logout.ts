@@ -39,23 +39,23 @@ export class AdminLogoutController implements IController {
       if (!response.success) {
         const errorType = response.data.error as string;
         if (errorType === UserLogoutErrorType.InvalidRefreshToken) {
-          error = this.httpErrors.error_400();
+          error = this.httpErrors.badRequest();
           return new HttpResponse(error.statusCode, {
             message: "Invalid refresh token",
           });
         }
-        error = this.httpErrors.error_500();
+        error = this.httpErrors.internalServerError();
         return new HttpResponse(error.statusCode, {
           message: "Internal server error",
         });
       }
 
       // Return the response
-      const success = this.httpSuccess.success_200(response.data);
+      const success = this.httpSuccess.ok(response.data);
       return new HttpResponse(success.statusCode, success.body);
     } catch (err: any) {
       logger.error("Error during user logout:", err);
-      error = this.httpErrors.error_500();
+      error = this.httpErrors.internalServerError();
       return new HttpResponse(error.statusCode, {
         message: "Internal server error",
       });

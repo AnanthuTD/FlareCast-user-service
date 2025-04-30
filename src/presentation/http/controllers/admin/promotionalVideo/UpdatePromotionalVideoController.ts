@@ -67,25 +67,25 @@ export class UpdatePromotionalVideoController implements IController {
         const errorType = response.data.error as string;
         switch (errorType) {
           case UpdatePromotionalVideoErrorType.VideoNotFound:
-            error = this.httpErrors.error_404();
+            error = this.httpErrors.notFound();
             return new HttpResponse(error.statusCode, { error: "Promotional video not found" });
           case UpdatePromotionalVideoErrorType.InternalError:
-            error = this.httpErrors.error_500();
+            error = this.httpErrors.internalServerError();
             return new HttpResponse(error.statusCode, { error: "Internal server error" });
           default:
-            error = this.httpErrors.error_500();
+            error = this.httpErrors.internalServerError();
             return new HttpResponse(error.statusCode, { error: "Internal server error" });
         }
       }
 
-      const success = this.httpSuccess.success_200(response.data);
+      const success = this.httpSuccess.ok(response.data);
       return new HttpResponse(success.statusCode, success.body);
     } catch (err: any) {
       logger.error(`Error in UpdatePromotionalVideoController for id ${httpRequest.params?.id}:`, {
         message: err.message,
         stack: err.stack,
       });
-      error = this.httpErrors.error_500();
+      error = this.httpErrors.internalServerError();
       return new HttpResponse(error.statusCode, { error: err.message });
     }
   }

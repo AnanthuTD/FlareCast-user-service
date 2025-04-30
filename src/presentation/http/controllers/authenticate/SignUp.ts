@@ -47,28 +47,28 @@ export class SignUpController implements IController {
 				const errorType = response.data.error as string;
 				switch (errorType) {
 					case SignUpErrorType.MissingRequiredFields:
-						error = this.httpErrors.error_400();
+						error = this.httpErrors.badRequest();
 						return new HttpResponse(error.statusCode, {
 							message:
 								"Email, password, first name, and last name are required",
 						});
 					case SignUpErrorType.UserAlreadyExists:
-						error = this.httpErrors.error_400();
+						error = this.httpErrors.badRequest();
 						return new HttpResponse(error.statusCode, {
 							message: "User already exists",
 						});
 					case SignUpErrorType.FailedToCreateUser:
-						error = this.httpErrors.error_500();
+						error = this.httpErrors.internalServerError();
 						return new HttpResponse(error.statusCode, {
 							message: "Failed to create user",
 						});
 					case SignUpErrorType.FailedToPublishEvent:
-						error = this.httpErrors.error_500();
+						error = this.httpErrors.internalServerError();
 						return new HttpResponse(error.statusCode, {
 							message: "Failed to publish user created event",
 						});
 					default:
-						error = this.httpErrors.error_500();
+						error = this.httpErrors.internalServerError();
 						return new HttpResponse(error.statusCode, {
 							message: "Internal server error",
 						});
@@ -76,11 +76,11 @@ export class SignUpController implements IController {
 			}
 
 			// Return the response
-			const success = this.httpSuccess.success_201(response.data);
+			const success = this.httpSuccess.created(response.data);
 			return new HttpResponse(success.statusCode, success.body);
 		} catch (err: any) {
 			logger.error("Error during user sign-up:", err);
-			error = this.httpErrors.error_500();
+			error = this.httpErrors.internalServerError();
 			return new HttpResponse(error.statusCode, {
 				message: "Internal server error",
 			});

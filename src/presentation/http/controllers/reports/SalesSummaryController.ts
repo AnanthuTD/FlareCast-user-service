@@ -31,14 +31,14 @@ export class SalesSummaryController implements IController {
 
     try {
       const summary = await this.subscriptionService.salesSummary();
-      response = this.httpSuccess.success_200(summary);
+      response = this.httpSuccess.ok(summary);
       return new HttpResponse(response.statusCode, response.body);
     } catch (err: any) {
       logger.error(`Error in SalesSummaryController:`, {
         message: err.message,
         stack: err.stack,
       });
-      error = this.httpErrors.error_500();
+      error = this.httpErrors.internalServerError();
       return new HttpResponse(error.statusCode, { error: err.message });
     }
   }

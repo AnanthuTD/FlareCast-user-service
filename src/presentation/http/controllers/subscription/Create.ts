@@ -46,46 +46,46 @@ export class CreateSubscribeController implements IController {
         const errorType = errorData.error as string;
         switch (errorType) {
           case CreateSubscribeErrorType.MissingUserId:
-            error = this.httpErrors.error_401();
+            error = this.httpErrors.unauthorized();
             return new HttpResponse(error.statusCode, { message: ResponseMessage.UNAUTHORIZED });
           case CreateSubscribeErrorType.MissingPlanId:
-            error = this.httpErrors.error_400();
+            error = this.httpErrors.badRequest();
             return new HttpResponse(error.statusCode, {
               message: ResponseMessage.PLAN_ID_REQUIRED,
             });
           case CreateSubscribeErrorType.CannotSubscribe:
-            error = this.httpErrors.error_400();
+            error = this.httpErrors.badRequest();
             return new HttpResponse(error.statusCode, {
               message: errorData.message,
               canSubscribe: errorData.canSubscribe,
             });
           case CreateSubscribeErrorType.ActiveSubscriptionExists:
-            error = this.httpErrors.error_400();
+            error = this.httpErrors.badRequest();
             return new HttpResponse(error.statusCode, {
               message: ResponseMessage.USER_ALREADY_SUBSCRIBED,
             });
           case CreateSubscribeErrorType.SubscriptionPlanNotFound:
-            error = this.httpErrors.error_404();
+            error = this.httpErrors.notFound();
             return new HttpResponse(error.statusCode, {
               message: ResponseMessage.SubscriptionPlanNotFound,
             });
           case CreateSubscribeErrorType.UserNotFound:
-            error = this.httpErrors.error_404();
+            error = this.httpErrors.notFound();
             return new HttpResponse(error.statusCode, {
               message: ResponseMessage.USER_NOT_FOUND,
             });
           case CreateSubscribeErrorType.FailedToCreateRazorpaySubscription:
-            error = this.httpErrors.error_500();
+            error = this.httpErrors.internalServerError();
             return new HttpResponse(error.statusCode, {
               message: ResponseMessage.FailedToCreateSubscription,
             });
           case CreateSubscribeErrorType.FailedToCreateUserSubscription:
-            error = this.httpErrors.error_500();
+            error = this.httpErrors.internalServerError();
             return new HttpResponse(error.statusCode, {
               message: errorType,
             });
           default:
-            error = this.httpErrors.error_500();
+            error = this.httpErrors.internalServerError();
             return new HttpResponse(error.statusCode, {
               message: errorType,
             });
@@ -93,11 +93,11 @@ export class CreateSubscribeController implements IController {
       }
 
       // Return the response
-      const success = this.httpSuccess.success_201(response.data);
+      const success = this.httpSuccess.created(response.data);
       return new HttpResponse(success.statusCode, success.body);
     } catch (err: any) {
       logger.error("Error creating subscription:", err);
-      error = this.httpErrors.error_500();
+      error = this.httpErrors.internalServerError();
       return new HttpResponse(error.statusCode, {
         message: ResponseMessage.INTERNAL_SERVER_ERROR,
       });

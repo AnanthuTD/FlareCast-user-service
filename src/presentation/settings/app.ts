@@ -66,7 +66,7 @@ app.get("/", (req: Request, res: Response) => {
 // Catch-all route for handling unknown endpoints
 app.use((req: Request, res: Response) => {
 	const httpErrors = container.get(TOKENS.HttpErrors) as IHttpErrors;
-	const error = httpErrors.error_404();
+	const error = httpErrors.notFound();
 	res.status(error.statusCode).json({ message: "API not found" });
 });
 
@@ -74,7 +74,7 @@ app.use((req: Request, res: Response) => {
 app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
 	logger.error(err.stack);
 	const httpErrors = container.get(TOKENS.HttpErrors) as IHttpErrors;
-	const error = httpErrors.error_500();
+	const error = httpErrors.internalServerError();
 	res.status(error.statusCode).json({ message: "Something went wrong!" });
 });
 

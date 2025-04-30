@@ -30,14 +30,14 @@ export class FreePlanUsageController implements IController {
 
     try {
       const freePlan = await this.subscriptionService.freePlanUsage();
-      response = this.httpSuccess.success_200(freePlan);
+      response = this.httpSuccess.ok(freePlan);
       return new HttpResponse(response.statusCode, response.body);
     } catch (err: any) {
       logger.error(`Error in FreePlanUsageController:`, {
         message: err.message,
         stack: err.stack,
       });
-      error = this.httpErrors.error_500();
+      error = this.httpErrors.internalServerError();
       return new HttpResponse(error.statusCode, { error: err.message });
     }
   }

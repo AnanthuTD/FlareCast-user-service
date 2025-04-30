@@ -32,18 +32,18 @@ export class RevenueByPeriodController implements IController {
     try {
       const period = (httpRequest.query.period as 'daily' | 'weekly' | 'monthly' | 'yearly') || 'monthly';
       if (!['daily', 'weekly', 'monthly', 'yearly'].includes(period)) {
-        error = this.httpErrors.error_400('Invalid period parameter');
+        error = this.httpErrors.badRequest('Invalid period parameter');
         return new HttpResponse(error.statusCode, { error: 'Invalid period parameter' });
       }
       const revenue = await this.subscriptionService.revenueByPeriod(period);
-      response = this.httpSuccess.success_200(revenue);
+      response = this.httpSuccess.ok(revenue);
       return new HttpResponse(response.statusCode, response.body);
     } catch (err: any) {
       logger.error(`Error in RevenueByPeriodController:`, {
         message: err.message,
         stack: err.stack,
       });
-      error = this.httpErrors.error_500();
+      error = this.httpErrors.internalServerError();
       return new HttpResponse(error.statusCode, { error: err.message });
     }
   }

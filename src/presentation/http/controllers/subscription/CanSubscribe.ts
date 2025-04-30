@@ -40,16 +40,16 @@ export class CanSubscribeController implements IController {
         const errorType = errorData.error as string;
         switch (errorType) {
           case CanSubscribeErrorType.MissingUserId:
-            error = this.httpErrors.error_401();
+            error = this.httpErrors.unauthorized();
             return new HttpResponse(error.statusCode, { message: ResponseMessage.UNAUTHORIZED });
           case CanSubscribeErrorType.CannotSubscribe:
-            error = this.httpErrors.error_400();
+            error = this.httpErrors.badRequest();
             return new HttpResponse(error.statusCode, {
               message: errorData.message,
               canSubscribe: errorData.canSubscribe,
             });
           default:
-            error = this.httpErrors.error_500();
+            error = this.httpErrors.internalServerError();
             return new HttpResponse(error.statusCode, {
               message: ResponseMessage.INTERNAL_SERVER_ERROR,
             });
@@ -57,11 +57,11 @@ export class CanSubscribeController implements IController {
       }
 
       // Return the response
-      const success = this.httpSuccess.success_200(response.data);
+      const success = this.httpSuccess.ok(response.data);
       return new HttpResponse(success.statusCode, success.body);
     } catch (err: any) {
       logger.error("Error checking subscription eligibility:", err);
-      error = this.httpErrors.error_500();
+      error = this.httpErrors.internalServerError();
       return new HttpResponse(error.statusCode, {
         message: ResponseMessage.INTERNAL_SERVER_ERROR,
       });

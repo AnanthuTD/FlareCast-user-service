@@ -48,21 +48,21 @@ export class HandleSubscriptionWebhookController implements IController {
         const errorType = errorData.error as string;
         switch (errorType) {
           case HandleSubscriptionWebhookErrorType.InvalidSignature:
-            error = this.httpErrors.error_400();
+            error = this.httpErrors.badRequest();
             return new HttpResponse(error.statusCode, {
               message: errorType,
             });
           case HandleSubscriptionWebhookErrorType.InvalidEvent:
-            error = this.httpErrors.error_400();
+            error = this.httpErrors.badRequest();
             return new HttpResponse(error.statusCode, {
               message: errorType,
             });
           case HandleSubscriptionWebhookErrorType.EventNotRelevant:
             response = { success: true, data: { message: "Event ignored" } };
-            const successIgnored = this.httpSuccess.success_200(response.data);
+            const successIgnored = this.httpSuccess.ok(response.data);
             return new HttpResponse(successIgnored.statusCode, successIgnored.body);
           default:
-            error = this.httpErrors.error_500();
+            error = this.httpErrors.internalServerError();
             return new HttpResponse(error.statusCode, {
               message: ResponseMessage.INTERNAL_SERVER_ERROR,
             });
@@ -70,11 +70,11 @@ export class HandleSubscriptionWebhookController implements IController {
       }
 
       // Return the response
-      const success = this.httpSuccess.success_200(response.data);
+      const success = this.httpSuccess.ok(response.data);
       return new HttpResponse(success.statusCode, success.body);
     } catch (err: any) {
       logger.error("Webhook error:", err);
-      error = this.httpErrors.error_500();
+      error = this.httpErrors.internalServerError();
       return new HttpResponse(error.statusCode, {
         message: ResponseMessage.INTERNAL_SERVER_ERROR,
       });

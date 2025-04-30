@@ -32,7 +32,7 @@ export class AuthenticateUserController implements IController {
 			const accessToken = httpRequest.cookies?.accessToken;
 
 			if (!accessToken) {
-				error = this.httpErrors.error_401();
+				error = this.httpErrors.unauthorized();
 				return new HttpResponse(error.statusCode, {
 					message: "Access token not found in cookies",
 				});
@@ -46,22 +46,22 @@ export class AuthenticateUserController implements IController {
 				const errorType = response.data.error as AuthenticateUserErrorType;
 				switch (errorType) {
 					case AuthenticateUserErrorType.UserNotFound:
-						error = this.httpErrors.error_401();
+						error = this.httpErrors.unauthorized();
 						return new HttpResponse(error.statusCode, {
 							message: "User not found",
 						});
 					case AuthenticateUserErrorType.UserBanned:
-						error = this.httpErrors.error_403();
+						error = this.httpErrors.forbidden();
 						return new HttpResponse(error.statusCode, {
 							message: "User is banned",
 						});
 					case AuthenticateUserErrorType.InvalidToken:
-						error = this.httpErrors.error_401();
+						error = this.httpErrors.unauthorized();
 						return new HttpResponse(error.statusCode, {
 							message: "Invalid or expired token",
 						});
 					default:
-						error = this.httpErrors.error_500();
+						error = this.httpErrors.internalServerError();
 						return new HttpResponse(error.statusCode, {
 							message: "Internal server error",
 						});
@@ -69,11 +69,11 @@ export class AuthenticateUserController implements IController {
 			}
 
 			// Return the authenticated user data
-			const success = this.httpSuccess.success_200(response.data);
+			const success = this.httpSuccess.ok(response.data);
 			return new HttpResponse(success.statusCode, success.body);
 		} catch (err: any) {
 			logger.error("Authentication failed:", err);
-			error = this.httpErrors.error_500();
+			error = this.httpErrors.internalServerError();
 			return new HttpResponse(error.statusCode, {
 				message: "Internal server error",
 			});

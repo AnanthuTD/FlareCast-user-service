@@ -41,12 +41,12 @@ export class GetUserPlansWithSubscriptionController implements IController {
         const errorType = response.data.error as string;
         switch (errorType) {
           case GetPlansErrorType.NoPlansFound:
-            error = this.httpErrors.error_404();
+            error = this.httpErrors.notFound();
             return new HttpResponse(error.statusCode, {
               message: errorType,
             });
           default:
-            error = this.httpErrors.error_500();
+            error = this.httpErrors.internalServerError();
             return new HttpResponse(error.statusCode, {
               message: ResponseMessage.INTERNAL_SERVER_ERROR,
             });
@@ -54,11 +54,11 @@ export class GetUserPlansWithSubscriptionController implements IController {
       }
 
       // Return the response
-      const success = this.httpSuccess.success_200(response.data);
+      const success = this.httpSuccess.ok(response.data);
       return new HttpResponse(success.statusCode, success.body);
     } catch (err: any) {
       logger.error("Error fetching subscription plans:", err);
-      error = this.httpErrors.error_500();
+      error = this.httpErrors.internalServerError();
       return new HttpResponse(error.statusCode, {
         message: ResponseMessage.INTERNAL_SERVER_ERROR,
       });

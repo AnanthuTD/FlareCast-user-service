@@ -8,53 +8,53 @@ export interface IHttpErrors {
    * Creates an HTTP response with status code 400 (Bad Request).
    * @returns An HTTP response with status code 400.
    */
-  error_400(): IHttpResponse;
+  badRequest(): IHttpResponse;
 
   /**
    * Creates an HTTP response with status code 401 (Unauthorized).
    * @returns An HTTP response with status code 401.
    */
-  error_401(): IHttpResponse;
+  unauthorized(): IHttpResponse;
 
   /**
    * Creates an HTTP response with status code 403 (Forbidden).
    * @returns An HTTP response with status code 403.
    */
-  error_403(): IHttpResponse;
+  forbidden(): IHttpResponse;
 
   /**
    * Creates an HTTP response with status code 404 (Not Found).
    * @returns An HTTP response with status code 404.
    */
-  error_404(): IHttpResponse;
+  notFound(): IHttpResponse;
 
   /**
    * Creates an HTTP response with status code 409 (Conflict).
    * @returns An HTTP response with status code 409.
    */
-  error_409(): IHttpResponse;
+  conflict(): IHttpResponse;
 
   /**
    * Creates an HTTP response with status code 422 (Unprocessable Entity).
    * @returns An HTTP response with status code 422.
    */
-  error_422(): IHttpResponse;
+  unprocessableEntity(): IHttpResponse;
 
   /**
    * Creates an HTTP response with status code 429 (Too Many Requests).
    * @returns An HTTP response with status code 429.
    */
-  error_429(): IHttpResponse;
+  tooManyRequests(): IHttpResponse;
 
   /**
    * Creates an HTTP response with status code 500 (Internal Server Error).
    * @returns An HTTP response with status code 500.
    */
-  error_500(): IHttpResponse;
+  internalServerError(): IHttpResponse;
 
   /**
    * Creates an HTTP response with status code 503 (Service Unavailable).
    * @returns An HTTP response with status code 503.
    */
-  error_503(): IHttpResponse;
+  serviceUnavailable(): IHttpResponse;
 }
