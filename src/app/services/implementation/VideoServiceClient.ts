@@ -33,7 +33,7 @@ export class VideoServiceClient implements IVideoServiceClient {
     };
 
     this.videoServiceBreaker = new CircuitBreaker(callVideoService, {
-      timeout: 2000,
+      timeout: 100000,
       errorThresholdPercentage: 50,
       resetTimeout: 30000,
     });
