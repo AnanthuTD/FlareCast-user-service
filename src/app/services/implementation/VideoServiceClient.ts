@@ -23,7 +23,7 @@ export class VideoServiceClient implements IVideoServiceClient {
         const { data } = await axios.post(
           `${env.VIDEO_SERVICE}/api/interservice/promotional-video`,
           body,
-          { timeout: 2000 }
+          { timeout: 20000 }
         );
         return data;
       } catch (error) {
