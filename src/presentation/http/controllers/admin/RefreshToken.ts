@@ -12,71 +12,94 @@ import { IRefreshTokenUseCase } from "@/app/use-cases/auth/IRefreshTokenUseCase"
 import { RefreshTokenDTO } from "@/domain/dtos/authenticate/RefreshTokenDTO";
 import { RefreshTokenErrorType } from "@/domain/enums/Admin/Authentication/RefreshTokenErrorType";
 
+interface RefreshTokenRequestBody {
+	refreshToken?: string;
+}
+
 /**
  * Controller for handling refresh token requests.
  */
 @injectable()
 export class AdminRefreshTokenController implements IController {
-  constructor(
-    @inject(TOKENS.AdminRefreshTokenUseCase)
-    private readonly refreshTokenUseCase: IRefreshTokenUseCase,
-    @inject(TOKENS.HttpErrors) private readonly httpErrors: IHttpErrors,
-    @inject(TOKENS.HttpSuccess) private readonly httpSuccess: IHttpSuccess
-  ) {}
+	constructor(
+		@inject(TOKENS.AdminRefreshTokenUseCase)
+		private readonly refreshTokenUseCase: IRefreshTokenUseCase,
+		@inject(TOKENS.HttpErrors) private readonly httpErrors: IHttpErrors,
+		@inject(TOKENS.HttpSuccess) private readonly httpSuccess: IHttpSuccess
+	) {}
 
-  async handle(httpRequest: IHttpRequest): Promise<IHttpResponse> {
-    let error;
-    let response: ResponseDTO;
+	async handle(httpRequest: IHttpRequest): Promise<IHttpResponse> {
+		let error;
+		let response: ResponseDTO;
 
-    // Extract tokens from cookies
-    const accessToken = httpRequest.cookies?.accessToken;
-    const refreshToken = httpRequest.cookies?.refreshToken;
+		// Extract tokens
+		const cookieAccessToken = httpRequest.cookies?.accessToken;
+		const authHeader = (httpRequest.headers as { authorization })
+			?.authorization;
+		const bearerAccessToken = authHeader?.startsWith("Bearer ")
+			? authHeader.split(" ")[1]
+			: null;
+		const cookieRefreshToken = httpRequest.cookies?.refreshToken;
+		const body = httpRequest.body as RefreshTokenRequestBody;
+		const bodyRefreshToken = body?.refreshToken;
 
-    try {
-      // Create DTO and call the use case
-      const dto: RefreshTokenDTO = { accessToken, refreshToken };
-      response = await this.refreshTokenUseCase.execute(dto);
+		// Prioritize token sources (e.g., body > cookie for refresh token)
+		const refreshToken = bodyRefreshToken || cookieRefreshToken;
+		const accessToken = bearerAccessToken || cookieAccessToken;
 
-      if (!response.success) {
-        const errorType = response.data.error as string;
-        switch (errorType) {
-          case RefreshTokenErrorType.MissingRefreshToken:
-            error = this.httpErrors.unauthorized();
-            return new HttpResponse(error.statusCode, {
-              message: "Unauthorized: No refresh token",
-            });
-          case RefreshTokenErrorType.InvalidRefreshToken:
-            error = this.httpErrors.unauthorized();
-            return new HttpResponse(error.statusCode, {
-              message: "Unauthorized: Invalid refresh token",
-            });
-          case RefreshTokenErrorType.RefreshTokenBlacklisted:
-            error = this.httpErrors.unauthorized();
-            return new HttpResponse(error.statusCode, {
-              message: "Unauthorized: Refresh token is blacklisted",
-            });
-          case RefreshTokenErrorType.AdminNotFound:
-            error = this.httpErrors.unauthorized();
-            return new HttpResponse(error.statusCode, {
-              message: "Unauthorized: Admin not found",
-            });
-          default:
-            error = this.httpErrors.internalServerError();
-            return new HttpResponse(error.statusCode, {
-              message: "Internal server error",
-            });
-        }
-      }
+		// Validate input
+		if (!refreshToken) {
+			const error = this.httpErrors.unauthorized();
+			return new HttpResponse(error.statusCode, {
+				message: "Unauthorized: No refresh token provided",
+			});
+		}
 
-      // Return the response
-      const success = this.httpSuccess.ok(response.data);
-      return new HttpResponse(success.statusCode, success.body);
-    } catch (err: any) {
-      logger.error("Error during refresh token handling:", err);
-      error = this.httpErrors.internalServerError();
-      return new HttpResponse(error.statusCode, {
-        message: "Internal server error",
-      });
-    }
-  }
+		try {
+			// Create DTO and call the use case
+			const dto: RefreshTokenDTO = { accessToken, refreshToken };
+			response = await this.refreshTokenUseCase.execute(dto);
+
+			if (!response.success) {
+				const errorType = response.data.error as string;
+				switch (errorType) {
+					case RefreshTokenErrorType.MissingRefreshToken:
+						error = this.httpErrors.unauthorized();
+						return new HttpResponse(error.statusCode, {
+							message: "Unauthorized: No refresh token",
+						});
+					case RefreshTokenErrorType.InvalidRefreshToken:
+						error = this.httpErrors.unauthorized();
+						return new HttpResponse(error.statusCode, {
+							message: "Unauthorized: Invalid refresh token",
+						});
+					case RefreshTokenErrorType.RefreshTokenBlacklisted:
+						error = this.httpErrors.unauthorized();
+						return new HttpResponse(error.statusCode, {
+							message: "Unauthorized: Refresh token is blacklisted",
+						});
+					case RefreshTokenErrorType.AdminNotFound:
+						error = this.httpErrors.unauthorized();
+						return new HttpResponse(error.statusCode, {
+							message: "Unauthorized: Admin not found",
+						});
+					default:
+						error = this.httpErrors.internalServerError();
+						return new HttpResponse(error.statusCode, {
+							message: "Internal server error",
+						});
+				}
+			}
+
+			// Return the response
+			const success = this.httpSuccess.ok(response.data);
+			return new HttpResponse(success.statusCode, success.body);
+		} catch (err: any) {
+			logger.error("Error during refresh token handling:", err);
+			error = this.httpErrors.internalServerError();
+			return new HttpResponse(error.statusCode, {
+				message: "Internal server error",
+			});
+		}
+	}
 }

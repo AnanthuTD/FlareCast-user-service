@@ -4,7 +4,6 @@ import { IHttpResponse } from "@/presentation/http/helpers/IHttpResponse";
 import { IHttpSuccess } from "@/presentation/http/helpers/IHttpSuccess";
 import { HttpResponse } from "@/presentation/http/helpers/implementations/HttpResponse";
 import { IController } from "@/presentation/http/controllers/IController";
-import { ResponseDTO } from "@/domain/dtos/Response";
 import { logger } from "@/infra/logger";
 import { TOKENS } from "@/app/tokens";
 import { inject, injectable } from "inversify";
@@ -12,7 +11,6 @@ import { IRefreshTokenUseCase } from "@/app/use-cases/auth/IRefreshTokenUseCase"
 import { RefreshTokenDTO } from "@/domain/dtos/authenticate/RefreshTokenDTO";
 import { RefreshTokenErrorType } from "@/domain/enums/Authenticate/RefreshTokenErrorType";
 
-// Define expected request body structure
 interface RefreshTokenRequestBody {
 	refreshToken?: string;
 }
