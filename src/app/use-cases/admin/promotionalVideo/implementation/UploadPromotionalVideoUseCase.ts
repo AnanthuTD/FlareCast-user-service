@@ -32,7 +32,7 @@ export class UploadPromotionalVideoUseCase implements IUploadPromotionalVideoUse
       }
 
       // Validate category
-      const validCategories = ["PROMOTIONAL", "NEW_FEATURE"];
+      const validCategories = ["PROMOTIONAL", "GET_STARTED"];
       if (!dto.category || !validCategories.includes(dto.category.toUpperCase())) {
         logger.debug(`Invalid category: ${dto.category}`);
         return {
