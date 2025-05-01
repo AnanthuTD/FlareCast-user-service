@@ -12,6 +12,7 @@ import { IUpdatePromotionalVideoUseCase } from "@/app/use-cases/admin/promotiona
 import { UpdatePromotionalVideoResponseDTO } from "@/domain/dtos/admin/promotionalVideo/UpdatePromotionalVideoResponseDTO";
 import { UpdatePromotionalVideoDTO } from "@/domain/dtos/admin/promotionalVideo/UpdatePromotionalVideoDTO";
 import { UpdatePromotionalVideoErrorType } from "@/domain/enums/Admin/PromotionalVideo/UpdatePromotionalVideoErrorType";
+import axios from "axios";
 
 @injectable()
 export class UpdatePromotionalVideoController implements IController {

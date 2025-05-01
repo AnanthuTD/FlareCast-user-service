@@ -7,47 +7,59 @@ import { IDeletePromotionalVideoUseCase } from "../IDeletePromotionalVideoUseCas
 import { DeletePromotionalVideoDTO } from "@/domain/dtos/admin/promotionalVideo/DeletePromotionalVideoDTO";
 import { DeletePromotionalVideoResponseDTO } from "@/domain/dtos/admin/promotionalVideo/DeletePromotionalVideoResponseDTO";
 import { DeletePromotionalVideoErrorType } from "@/domain/enums/Admin/PromotionalVideo/DeletePromotionalVideoErrorType";
+import axios from "axios";
+import env from "@/infra/env";
 
 @injectable()
-export class DeletePromotionalVideoUseCase implements IDeletePromotionalVideoUseCase {
-  constructor(
-    @inject(TOKENS.PromotionalVideoRepository)
-    private readonly promotionalVideoRepository: IPromotionalVideoRepository
-  ) {}
+export class DeletePromotionalVideoUseCase
+	implements IDeletePromotionalVideoUseCase
+{
+	constructor(
+		@inject(TOKENS.PromotionalVideoRepository)
+		private readonly promotionalVideoRepository: IPromotionalVideoRepository
+	) {}
 
-  async execute(
-    dto: DeletePromotionalVideoDTO
-  ): Promise<ResponseDTO & { data: DeletePromotionalVideoResponseDTO | { error: string } }> {
-    try {
-      const video = await this.promotionalVideoRepository.findById(dto.id);
-      if (!video) {
-        logger.debug(`Promotional video ${dto.id} not found`);
-        return {
-          success: false,
-          data: { error: DeletePromotionalVideoErrorType.VideoNotFound },
-        };
-      }
+	async execute(dto: DeletePromotionalVideoDTO): Promise<
+		ResponseDTO & {
+			data: DeletePromotionalVideoResponseDTO | { error: string };
+		}
+	> {
+		try {
+			const video = await this.promotionalVideoRepository.findById(dto.id);
+			if (!video) {
+				logger.debug(`Promotional video ${dto.id} not found`);
+				return {
+					success: false,
+					data: { error: DeletePromotionalVideoErrorType.VideoNotFound },
+				};
+			}
 
-      await this.promotionalVideoRepository.delete(dto.id);
+			await this.promotionalVideoRepository.delete(dto.id);
 
-      const response: DeletePromotionalVideoResponseDTO = {
-        message: "Promotional video deleted",
-      };
+			axios
+				.delete(`${env.VIDEO_SERVICE}/api/interservice/video/${video.videoId}`)
+				.catch((e) =>
+					console.error("Failed to remove video from video service!")
+				);
 
-      logger.info(`Promotional video ${dto.id} deleted`);
-      return {
-        success: true,
-        data: response,
-      };
-    } catch (err: any) {
-      logger.error(`Error deleting promotional video ${dto.id}:`, {
-        message: err.message,
-        stack: err.stack,
-      });
-      return {
-        success: false,
-        data: { error: DeletePromotionalVideoErrorType.InternalError },
-      };
-    }
-  }
+			const response: DeletePromotionalVideoResponseDTO = {
+				message: "Promotional video deleted",
+			};
+
+			logger.info(`Promotional video ${dto.id} deleted`);
+			return {
+				success: true,
+				data: response,
+			};
+		} catch (err: any) {
+			logger.error(`Error deleting promotional video ${dto.id}:`, {
+				message: err.message,
+				stack: err.stack,
+			});
+			return {
+				success: false,
+				data: { error: DeletePromotionalVideoErrorType.InternalError },
+			};
+		}
+	}
 }
