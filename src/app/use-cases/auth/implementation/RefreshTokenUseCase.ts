@@ -108,11 +108,13 @@ export class RefreshTokenUseCase implements IRefreshTokenUseCase {
       // Generate new access token
       const newAccessToken = await this.accessTokenGenerator.generateToken({
         id: user.id,
+        role: 'user'
       });
 
       // Generate new refresh token
       const newRefreshToken = await this.refreshTokenGenerator.generateToken({
         id: user.id,
+        role: 'user'
       });
 
       // Prepare the response

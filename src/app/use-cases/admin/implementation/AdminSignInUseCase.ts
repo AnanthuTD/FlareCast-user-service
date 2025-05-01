@@ -73,7 +73,7 @@ export class AdminSignInUseCase implements IAdminSignInUseCase {
 			}
 
 			// Generate tokens
-			const userPayload = { id: admin.id, type: "admin" };
+			const userPayload = { id: admin.id, role: "admin" };
 			const accessToken = this.accessTokenGenerator.generateToken(userPayload);
 			const refreshToken = this.refreshTokenGenerator.generateToken(userPayload);
 

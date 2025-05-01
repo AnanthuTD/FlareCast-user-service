@@ -100,15 +100,17 @@ export class UserLoginUseCase implements IUserLoginUseCase {
 				}
 			}
 
+			const userPayload = { id: user.id, role: "user" };
+
 			// Generate access token
-			const accessToken = await this.accessTokenGenerator.generateToken({
-				id: user.id,
-			});
+			const accessToken = await this.accessTokenGenerator.generateToken(
+				userPayload
+			);
 
 			// Generate refresh token
-			const refreshToken = await this.refreshTokenGenerator.generateToken({
-				id: user.id,
-			});
+			const refreshToken = await this.refreshTokenGenerator.generateToken(
+				userPayload
+			);
 
 			// Prepare the user response
 			const userResponse: UserLoginResponseDTO = {

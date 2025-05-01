@@ -91,11 +91,13 @@ export class ElectronPostLoginUseCase implements IElectronPostLoginUseCase {
       // Generate new access token
       const accessToken = await this.accessTokenGenerator.generateToken({
         id: user.id,
+        role: 'user'
       });
 
       // Generate new refresh token (token rotation)
       const newRefreshToken = await this.refreshTokenGenerator.generateToken({
         id: user.id,
+        role: 'user'
       });
 
       // Prepare the response

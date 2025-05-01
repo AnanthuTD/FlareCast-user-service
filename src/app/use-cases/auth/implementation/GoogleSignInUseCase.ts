@@ -69,8 +69,9 @@ export class GoogleSignInUseCase implements IGoogleSignInUseCase {
 					isVerified: true,
 				});
 
-				const activePlan =
-					await this.userSubscriptionRepository.getActivePlan(user.id!);
+				const activePlan = await this.userSubscriptionRepository.getActivePlan(
+					user.id!
+				);
 
 				// Publish user verified event
 				await this.eventService.publishUserVerifiedEvent({
@@ -92,15 +93,20 @@ export class GoogleSignInUseCase implements IGoogleSignInUseCase {
 				};
 			}
 
-			// Generate access token
-			const accessToken = await this.accessTokenGenerator.generateToken({
+			const userPayload = {
 				id: user.id!,
-			});
+				role: "user",
+			};
+
+			// Generate access token
+			const accessToken = await this.accessTokenGenerator.generateToken(
+				userPayload
+			);
 
 			// Generate refresh token
-			const refreshToken = await this.refreshTokenGenerator.generateToken({
-				id: user.id!,
-			});
+			const refreshToken = await this.refreshTokenGenerator.generateToken(
+				userPayload
+			);
 
 			// Prepare the user response
 			const userResponse: GoogleSignInResponseDTO = {
