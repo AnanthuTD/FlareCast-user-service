@@ -141,5 +141,5 @@ model PromotionalVideo {
 
 enum PromotionalVideoCategory {
   PROMOTIONAL
-  NEW_FEATURE
+  GET_STARTED
 }
