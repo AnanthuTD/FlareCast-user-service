@@ -41,7 +41,7 @@ export class GetSignedUrlUseCase implements IGetSignedUrlUseCase {
       const result = await this.videoServiceClient.getSignedUrl({
         title: dto.title,
         description: dto.description,
-        type: "PROMOTIONAL",
+        category: dto.category,
         videoExtension,
       });
 
