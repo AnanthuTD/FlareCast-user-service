@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,21 +5,6 @@ generator client {
 datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
-}
-
-enum Role {
-  USER
-  ADMIN
-}
-
-enum Resolution {
-  RES_240 // 240p: Low resolution, often used for mobile data saving
-  RES_360 // 360p: Standard resolution for small screens
-  RES_480 // 480p: Standard definition
-  RES_720 // 720p: HD Ready
-  RES_1080 // 1080p: Full HD
-  RES_1440 // 1440p: Quad HD 
-  RES_2160 // 2160p: 4K Ultra HD   
 }
 
 model User {
@@ -37,56 +16,16 @@ model User {
   image                String?
   trial                Boolean            @default(false)
   hashedPassword       String?
-  role                 Role               @default(USER)
   watchLater           String[]
   trail                Boolean            @default(false)
   extraVideoCount      Int                @default(0)
   referralId           String?
-  WatchLater           WatchLater[]
-  sendedInvites        Invite[]           @relation("Sender")
-  receivedInvites      Invite[]           @relation("Receiver")
-  Invite               Invite[]
-  WatchHistory         WatchHistory[]
   isVerified           Boolean            @default(false)
   isBanned             Boolean            @default(false)
   UserSubscription     UserSubscription[]
   activeSubscriptionId String?            @db.ObjectId
   activeSubscription   UserSubscription?  @relation(name: "activeSubscription", fields: [activeSubscriptionId], references: [id])
   totalVideoCount      Int                @default(0)
-}
-
-model WatchLater {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  videoId   String
-  userId    String   @db.ObjectId
-  user      User     @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
-
-  @@index([userId, videoId])
-}
-
-model Invite {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  senderId   String   @db.ObjectId
-  receiverId String   @db.ObjectId
-  sender     User     @relation("Sender", fields: [senderId], references: [id])
-  receiver   User     @relation("Receiver", fields: [receiverId], references: [id])
-  createdAt  DateTime @default(now())
-  User       User?    @relation(fields: [userId], references: [id])
-  userId     String?  @db.ObjectId
-
-  @@index([senderId, receiverId])
-}
-
-model WatchHistory {
-  id            String     @id @default(auto()) @map("_id") @db.ObjectId
-  userId        String     @db.ObjectId
-  user          User       @relation(fields: [userId], references: [id])
-  videoId       String
-  isCompleted   Boolean
-  lastWatchedAt DateTime
-  watchDuration Int
-  resolution    Resolution
 }
 
 model Admin {
@@ -99,17 +38,7 @@ model Admin {
   updatedAt      DateTime      @updatedAt
   lastLogin      DateTime?
   isActive       Boolean       @default(true)
-  actions        AdminAction[]
   image          String?
-}
-
-model AdminAction {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  adminId   String   @db.ObjectId
-  admin     Admin    @relation(fields: [adminId], references: [id])
-  action    String
-  details   String?
-  createdAt DateTime @default(now())
 }
 
 model SubscriptionPlan {
@@ -212,5 +141,5 @@ model PromotionalVideo {
 
 enum PromotionalVideoCategory {
   PROMOTIONAL
-  NEW_FEATURE
+  GET_STARTED
 }

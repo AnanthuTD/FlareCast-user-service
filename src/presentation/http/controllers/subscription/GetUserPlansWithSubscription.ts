@@ -1,0 +1,67 @@
+import { IHttpErrors } from "@/presentation/http/helpers/IHttpErrors";
+import { IHttpRequest } from "@/presentation/http/helpers/IHttpRequest";
+import { IHttpResponse } from "@/presentation/http/helpers/IHttpResponse";
+import { IHttpSuccess } from "@/presentation/http/helpers/IHttpSuccess";
+import { HttpResponse } from "@/presentation/http/helpers/implementations/HttpResponse";
+import { IController } from "@/presentation/http/controllers/IController";
+import { ResponseDTO } from "@/domain/dtos/Response";
+import { logger } from "@/infra/logger";
+import { TOKENS } from "@/app/tokens";
+import { inject, injectable } from "inversify";
+import { GetPlansErrorType } from "@/domain/enums/Subscription/GetPlansErrorType";
+import { ResponseMessage } from "@/domain/enums/Messages";
+import { IGetUserPlansWithSubscriptionUseCase } from "@/app/use-cases/subscription/IGetUserPlansWithSubscriptionUseCase";
+import { GetPlansDTO } from "@/domain/dtos/subscription/GetPlansDTO";
+
+/**
+ * Controller for fetching available subscription plans.
+ */
+@injectable()
+export class GetUserPlansWithSubscriptionController implements IController {
+  constructor(
+    @inject(TOKENS.GetPlansUseCase)
+    private readonly getPlansUseCase: IGetUserPlansWithSubscriptionUseCase,
+    @inject(TOKENS.HttpErrors) private readonly httpErrors: IHttpErrors,
+    @inject(TOKENS.HttpSuccess) private readonly httpSuccess: IHttpSuccess
+  ) {}
+
+  async handle(httpRequest: IHttpRequest): Promise<IHttpResponse> {
+    let error;
+    let response: ResponseDTO;
+
+    try {
+      // Extract user ID (optional, as the endpoint can be accessed by unauthenticated users)
+      const userId = httpRequest.user?.id;
+
+      // Create DTO and call the use case
+      const dto: GetPlansDTO = { userId };
+      response = await this.getPlansUseCase.execute(dto);
+
+      if (!response.success) {
+        const errorType = response.data.error as string;
+        switch (errorType) {
+          case GetPlansErrorType.NoPlansFound:
+            error = this.httpErrors.notFound();
+            return new HttpResponse(error.statusCode, {
+              message: errorType,
+            });
+          default:
+            error = this.httpErrors.internalServerError();
+            return new HttpResponse(error.statusCode, {
+              message: ResponseMessage.INTERNAL_SERVER_ERROR,
+            });
+        }
+      }
+
+      // Return the response
+      const success = this.httpSuccess.ok(response.data);
+      return new HttpResponse(success.statusCode, success.body);
+    } catch (err: any) {
+      logger.error("Error fetching subscription plans:", err);
+      error = this.httpErrors.internalServerError();
+      return new HttpResponse(error.statusCode, {
+        message: ResponseMessage.INTERNAL_SERVER_ERROR,
+      });
+    }
+  }
+}
