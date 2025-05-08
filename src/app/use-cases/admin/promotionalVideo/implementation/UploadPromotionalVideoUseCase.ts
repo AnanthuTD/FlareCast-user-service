@@ -56,7 +56,7 @@ export class UploadPromotionalVideoUseCase implements IUploadPromotionalVideoUse
       await this.eventService.sendVideoUploadEvent({
         s3Key: dto.s3Key,
         videoId: dto.videoId,
-        aiFeature: !(dto.title || dto.description),
+        aiFeature: true,
       });
 
       // Create promotional video entry
